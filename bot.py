@@ -38,13 +38,6 @@ async def reload(ctx,extension):
    bot.reload_extension(F'cmds.{extension}')
    await ctx.send(F'Re-Loaded {extension} done.')    
 
-@bot.event
-async def on_message(msg):
-   if msg.content.endswith('好了ㄝ'):
-    await msg.channel.send('怎麼又好了ㄝ ?') 
-
-
-
 for Filename in os.listdir('./cmds'):
    if Filename.endswith('.py'):
       bot.load_extension(F'cmds.{Filename[:-3]}')
