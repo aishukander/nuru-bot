@@ -19,6 +19,8 @@ class Main(Cog_Extension):
     embed.add_field(name="~reload 所選模塊", value="重讀所選的指令模塊", inline=False)
     embed.add_field(name="----------------------------------------------------------", value="以下為關鍵字觸發", inline=False)
     embed.add_field(name="字尾包含 好了ㄝ", value="怎麼又好了ㄝ ?", inline=False)
+    embed.add_field(name="字尾包含 好甲喔", value="這個地方變得越來越甲了的圖片", inline=False)
+    embed.add_field(name="字尾包含 初吻", value="このDIOだ的圖片", inline=False)
     await ctx.send(embed=embed)   
 
 def setup(bot):
