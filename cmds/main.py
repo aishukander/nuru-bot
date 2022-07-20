@@ -23,6 +23,9 @@ class Main(Cog_Extension):
     embed.add_field(name="字尾包含 好甲喔", value="這個地方變得越來越甲了的圖片", inline=False)
     embed.add_field(name="字尾包含 初吻", value="このDIOだ的圖片", inline=False)
     embed.add_field(name="字尾包含 共匪", value="該死的共匪的圖片", inline=False)
+    embed.add_field(name="字尾包含 龍舌蘭酒", value="龍舌蘭酒姑娘的圖片", inline=False)
+    embed.add_field(name="字尾包含 說謊的味道", value="這是說謊的味道的圖片", inline=False)
+    embed.add_field(name="字尾包含 我不做人啦", value="我不做人啦JOJO的圖片", inline=False)
     await ctx.send(embed=embed)   
 
 def setup(bot):
