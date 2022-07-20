@@ -25,5 +25,9 @@ class React(Cog_Extension):
           共匪 = choice(jdata['共匪'])    
           await msg.channel.send(共匪)
 
+      if msg.content.endswith('龍舌蘭酒'):
+          龍舌蘭酒 = choice(jdata['龍舌蘭酒'])    
+          await msg.channel.send(龍舌蘭酒)
+
 def setup(bot):
   bot.add_cog(React(bot))     
