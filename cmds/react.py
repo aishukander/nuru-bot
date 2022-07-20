@@ -21,6 +21,9 @@ class React(Cog_Extension):
           dioda = choice(jdata['dioda'])    
           await msg.channel.send(dioda)
 
+      if msg.content.endswith('共匪'):
+          共匪 = choice(jdata['共匪'])    
+          await msg.channel.send(共匪)
 
 def setup(bot):
   bot.add_cog(React(bot))     
