@@ -37,5 +37,25 @@ class React(Cog_Extension):
           我不做人啦 = choice(jdata['我不做人啦'])    
           await msg.channel.send(我不做人啦)
 
+      if msg.content.endswith('粥'):
+          典明粥 = choice(jdata['典明粥'])    
+          await msg.channel.send(典明粥)
+
+      if msg.content.endswith('茶'):
+          阿帕茶 = choice(jdata['阿帕茶'])    
+          await msg.channel.send(阿帕茶)
+
+      if msg.content.endswith('喝'):
+          喝 = choice(jdata['喝'])    
+          await msg.channel.send(喝)
+
+      if msg.content.endswith('勃起'):
+          boki = choice(jdata['boki'])    
+          await msg.channel.send(boki)
+
+      if msg.content.endswith('救護車'):
+          jo護車 = choice(jdata['jo護車'])    
+          await msg.channel.send(jo護車)
+
 def setup(bot):
   bot.add_cog(React(bot))     
