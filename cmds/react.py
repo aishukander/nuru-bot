@@ -29,7 +29,7 @@ class React(Cog_Extension):
           龍舌蘭酒 = choice(jdata['龍舌蘭酒'])    
           await msg.channel.send(龍舌蘭酒)
 
-      if msg.content.endswith('說謊的味道'):
+      if msg.content.endswith('說謊'):
           說謊的味道 = choice(jdata['說謊的味道'])    
           await msg.channel.send(說謊的味道)
 
