@@ -57,5 +57,13 @@ class React(Cog_Extension):
           jo護車 = choice(jdata['jo護車'])    
           await msg.channel.send(jo護車)
 
+      if msg.content.endswith('塞車'):
+          塞車 = choice(jdata['塞車'])    
+          await msg.channel.send(塞車)
+
+      if msg.content.endswith('沒用'):
+          沒用 = choice(jdata['沒用'])    
+          await msg.channel.send(沒用)
+
 def setup(bot):
   bot.add_cog(React(bot))     
