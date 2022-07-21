@@ -65,5 +65,13 @@ class React(Cog_Extension):
           沒用 = choice(jdata['沒用'])    
           await msg.channel.send(沒用)
 
+      if msg.content.endswith('yes'):
+          joyes = choice(jdata['joyes'])    
+          await msg.channel.send(joyes)
+
+      if msg.content.endswith('no'):
+          jono = choice(jdata['jono'])    
+          await msg.channel.send(jono)          
+
 def setup(bot):
   bot.add_cog(React(bot))     
