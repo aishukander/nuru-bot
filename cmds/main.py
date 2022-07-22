@@ -38,4 +38,4 @@ class Main(Cog_Extension):
     await ctx.send(embed=embed)   
 
 def setup(bot):
-  bot.add_cog(Main(bot)
+  bot.add_cog(Main(bot))
