@@ -51,4 +51,4 @@ for Filename in os.listdir('./cmds'):
 
 if __name__ == "__main__":
 
-    bot.run(jdata['TOKEN'])
+    bot.run(jdata['TOKEN']
