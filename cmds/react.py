@@ -74,4 +74,4 @@ class React(Cog_Extension):
           await msg.channel.send(jono)          
 
 def setup(bot):
-  bot.add_cog(React(bot)     
+  bot.add_cog(React(bot))     
