@@ -35,6 +35,7 @@ class Main(Cog_Extension):
     embed.add_field(name="字尾包含 塞車", value="行人道很寬敞的圖片", inline=False)
     embed.add_field(name="字尾包含 yes", value="yes yes的圖片", inline=False)
     embed.add_field(name="字尾包含 no", value="no no的圖片", inline=False)
+    embed.add_field(name="字尾包含 是我啦", value="このDIOだ的圖片", inline=False)
     await ctx.send(embed=embed)   
 
 def setup(bot):
