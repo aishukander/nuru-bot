@@ -141,7 +141,7 @@ class React(Cog_Extension):
           戲劇化 = choice(jdata['戲劇化'])    
           await msg.channel.send(戲劇化)    
 
-      if msg.content.endswith('感情的問題'):
+      if msg.content.endswith('感情問題'):
           感情問題 = choice(jdata['感情問題'])    
           await msg.channel.send(感情問題)              
 
