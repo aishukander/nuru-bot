@@ -30,7 +30,7 @@ class Maom(Cog_Extension):
     embed.add_field(name="字尾包含 呦喜", value="呦喜呦喜 的圖片", inline=True)
     embed.add_field(name="字尾包含 成為超棒的單親媽媽的", value="成為單親媽媽 的圖片", inline=True)
     embed.add_field(name="字尾包含 很戲劇化的發展嗎", value="戲劇化發展 的圖片", inline=True)
-    embed.add_field(name="字尾包含 感情的問題", value="感情的問題一律分手 的圖片", inline=True)
+    embed.add_field(name="字尾包含 感情問題", value="感情的問題一律分手 的圖片", inline=True)
     embed.add_field(name="tag 我的話", value="rick roll你", inline=True)
     await ctx.send(embed=embed)   
 
