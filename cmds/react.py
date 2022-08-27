@@ -29,7 +29,7 @@ class React(Cog_Extension):
           龍舌蘭酒 = choice(jdata['龍舌蘭酒'])    
           await msg.channel.send(龍舌蘭酒)
 
-      if msg.content.endswith('說謊'):
+      if msg.content.index('說謊的味道'):
           說謊的味道 = choice(jdata['說謊的味道'])    
           await msg.channel.send(說謊的味道)
 
@@ -37,11 +37,11 @@ class React(Cog_Extension):
           我不做人啦 = choice(jdata['我不做人啦'])    
           await msg.channel.send(我不做人啦)
 
-      if msg.content.endswith('粥'):
+      if msg.content.index('典明粥'):
           典明粥 = choice(jdata['典明粥'])    
           await msg.channel.send(典明粥)
 
-      if msg.content.endswith('茶'):
+      if msg.content.index('阿帕茶'):
           阿帕茶 = choice(jdata['阿帕茶'])    
           await msg.channel.send(阿帕茶)
 
@@ -49,7 +49,7 @@ class React(Cog_Extension):
           喝 = choice(jdata['喝'])    
           await msg.channel.send(喝)
 
-      if msg.content.endswith('勃起'):
+      if msg.content.index('勃起'):
           boki = choice(jdata['boki'])    
           await msg.channel.send(boki)
 
@@ -57,7 +57,7 @@ class React(Cog_Extension):
           jo護車 = choice(jdata['jo護車'])    
           await msg.channel.send(jo護車)
 
-      if msg.content.endswith('塞車'):
+      if msg.content.index('塞車'):
           塞車 = choice(jdata['塞車'])    
           await msg.channel.send(塞車)
 
@@ -117,11 +117,11 @@ class React(Cog_Extension):
           呦喜 = choice(jdata['呦喜'])    
           await msg.channel.send(呦喜) 
 
-      if msg.content.endswith('你下一句話要說的是'):
+      if msg.content.index('你下一句話'):
           你下一句話要說的是 = choice(jdata['你下一句話要說的是'])    
           await msg.channel.send(你下一句話要說的是) 
 
-      if msg.content.endswith('德意志科技世界第一'):
+      if msg.content.index('德意志科技'):
           德意志科技世界第一 = choice(jdata['德意志科技世界第一'])    
           await msg.channel.send(德意志科技世界第一) 
 
@@ -132,6 +132,23 @@ class React(Cog_Extension):
       if msg.content.endswith('nice'):
           nice = choice(jdata['nice'])    
           await msg.channel.send(nice) 
+
+      if msg.content.index('405704403937525782'):
+          不放棄你 = choice(jdata['不放棄你'])    
+          await msg.channel.send(不放棄你) 
+          await msg.channel.send('所以等我一下下')  
+
+      if msg.content.index('成為超棒的單親媽媽'):
+          單親媽 = choice(jdata['單親媽'])    
+          await msg.channel.send(單親媽)
+
+      if msg.content.endswith('很戲劇化的發展嗎'):
+          戲劇化 = choice(jdata['戲劇化'])    
+          await msg.channel.send(戲劇化)    
+
+      if msg.content.endswith('感情的問題'):
+          感情問題 = choice(jdata['感情問題'])    
+          await msg.channel.send(感情問題)                                   
 
 
 def setup(bot):
