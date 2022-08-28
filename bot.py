@@ -11,7 +11,7 @@ bot = commands.Bot(command_prefix='~')
 
 @bot.event
 async def on_ready():
-    print(">>Bot is online<<")
+    print(">>Bot start<<")
 
 @bot.command()
 async def ping(ctx):
