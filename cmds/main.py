@@ -9,11 +9,11 @@ with open('setting.json', 'r', encoding='utf8') as jfile:
 class Main(Cog_Extension):
   
   @commands.command()
-  async def em1(self,ctx):
+  async def help(self,ctx):
     embed=discord.Embed(title="指令說明-1", color=0x007bff)
     embed.set_thumbnail(url="https://cdn.discordapp.com/attachments/998902979761549402/999199047200026744/illust_83110343_20220705_172215.jpg")
-    embed.add_field(name="~em1", value="前部分指令", inline=False)
-    embed.add_field(name="~em2", value="後部分指令", inline=False)
+    embed.add_field(name="~help", value="前部分指令", inline=False)
+    embed.add_field(name="~help2", value="後部分指令", inline=False)
     embed.add_field(name="~ping", value="給你機器人的ping值", inline=False)
     embed.add_field(name="~join", value="給你機器人的邀請連結", inline=False)
     embed.add_field(name="~伊蕾娜", value="給你香香的伊蕾娜", inline=False)
