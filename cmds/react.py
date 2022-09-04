@@ -143,13 +143,12 @@ class React(Cog_Extension):
 
       if msg.content.endswith('感情問題'):
           感情問題 = choice(jdata['感情問題'])    
-          await msg.channel.send(感情問題)              
+          await msg.channel.send(感情問題)                                      
 
       if msg.content.index('405704403937525782'):
           不放棄你 = choice(jdata['不放棄你'])    
           await msg.channel.send(不放棄你) 
-          await msg.channel.send('所以等我一下下')                                 
-
+          await msg.channel.send('所以等我一下下') 
 
 def setup(bot):
   bot.add_cog(React(bot))     
