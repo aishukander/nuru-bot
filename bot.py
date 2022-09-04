@@ -9,9 +9,11 @@ with open('setting.json','r',encoding='utf8') as jfile:
 
 bot = commands.Bot(command_prefix='~')
 
+bot.remove_command('help')
+
 @bot.event
 async def on_ready():
-    print(">>Bot start<<")
+    print(">>Bot start<<")  
 
 @bot.command()
 async def ping(ctx):
