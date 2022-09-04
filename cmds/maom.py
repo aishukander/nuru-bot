@@ -9,7 +9,7 @@ with open('setting.json', 'r', encoding='utf8') as jfile:
 class Maom(Cog_Extension):    
 
   @commands.command()
-  async def em2(self,ctx):
+  async def help2(self,ctx):
     embed=discord.Embed(title="指令說明-2", color=0x007bff)
     embed.set_thumbnail(url="https://cdn.discordapp.com/attachments/998902979761549402/999199047200026744/illust_83110343_20220705_172215.jpg")
     embed.add_field(name="字尾包含 no", value="no no的圖片", inline=True)
