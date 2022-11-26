@@ -11,7 +11,7 @@ with open('setting.json','r',encoding='utf8') as jfile:
 
 bot = commands.Bot(command_prefix='~',intents=intents)
 
-bot.remove_command('help'
+bot.remove_command('help')
 
 @bot.event
 async def on_ready():
