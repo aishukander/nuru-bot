@@ -4,10 +4,12 @@ import json
 import random
 import os
 
+intents = discord.Intents.all()
+
 with open('setting.json','r',encoding='utf8') as jfile:
    jdata = json.load(jfile)
 
-bot = commands.Bot(command_prefix='~')
+bot = commands.Bot(command_prefix='~',intents=intents)
 
 bot.remove_command('help')
 
