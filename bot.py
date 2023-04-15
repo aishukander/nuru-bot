@@ -16,6 +16,7 @@ bot.remove_command('help')
 @bot.event
 async def on_ready():
     print(">>Bot start<<")  
+    print(f"目前登入身份 --> {bot.user}")
 
 @bot.command()
 async def ping(ctx):
