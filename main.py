@@ -9,6 +9,8 @@ from secrets import choice
 from cogs.RTsay import RTsay
 from cogs.react import React
 from cogs.help import Help
+from cogs.music import music
+from cogs.roothelp import Roothelp
 
 intents = discord.Intents.all()
 
@@ -24,6 +26,8 @@ async def on_ready():
     await bot.load_extension("cogs.RTsay") #""內是載入對應的cogs檔
     await bot.load_extension("cogs.react")
     await bot.load_extension("cogs.help")
+    await bot.load_extension("cogs.music")
+    await bot.load_extension("cogs.roothelp")
 
     print(f"目前登入身份 --> {bot.user}")  #這兩行是啟動時會在終端機印出的訊息
     print(">>Bot start<<")                #^
@@ -52,7 +56,7 @@ async def 伊蕾娜(ctx):
    await ctx.send('給你香香的伊蕾娜')   
 
 @bot.command() #用來取得bot的邀請連結
-async def join(ctx):
+async def invitation(ctx):
    embed=discord.Embed(title="------連結------", url="https://discord.com/api/oauth2/authorize?client_id=999157840063242330&permissions=318364711936&scope=bot", description="狠狠的點下去吧", color=0x007bff)
    await ctx.send(embed=embed)   
 
