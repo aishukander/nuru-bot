@@ -5,8 +5,9 @@ import json
 import random
 from secrets import choice
 '''======================================================================================='''
-from cogs.help import Help #這裡from開頭的是引入cogs內的模組 在cosg.後面的是位於cosg資料夾內的檔名，import後面的是檔案內設定的名稱
+from cogs.RTsay import RTsay #這裡from開頭的是引入cogs內的模組 在cosg.後面的是位於cosg資料夾內的檔名，import後面的是檔案內設定的名稱
 from cogs.react import React
+from cogs.help import Help
 
 intents = discord.Intents.all()
 
@@ -19,8 +20,9 @@ bot.remove_command('help') #刪除help指令
 
 @bot.event
 async def on_ready():
-    await bot.load_extension("cogs.help") #""內是載入對應的cogs檔
+    await bot.load_extension("cogs.RTsay") #""內是載入對應的cogs檔
     await bot.load_extension("cogs.react")
+    await bot.load_extension("cogs.help")
 
     print(f"目前登入身份 --> {bot.user}")  #這兩行是啟動時會在終端機印出的訊息
     print(">>Bot start<<")                #^

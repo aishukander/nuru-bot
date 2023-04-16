@@ -10,9 +10,6 @@ with open('setting.json','r',encoding='utf8') as jfile:
 class React(Cog_Extension): #用於偵測你講出的話後面是否包含偵測中的字詞
    @commands.Cog.listener()
    async def on_message(selF,msg):
-      if msg.content.endswith('好了ㄝ'):
-          await msg.channel.send('怎麼又好了ㄝ ?') 
-
       if msg.content.endswith('好甲喔'):
           gay = choice(jdata['gay'])    
           await msg.channel.send(gay) 
