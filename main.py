@@ -27,19 +27,19 @@ async def on_ready():
 
 '''======================================================================================='''#這個框內的是用於加載、卸載、重讀不同cosg檔
 @bot.command()
-async def load(ctx,extension):
-   bot.load_extension(F'cmds.{extension}')
-   await ctx.send(F'Loaded {extension} done.')
+async def load(ctx, extension):
+    await bot.load_extension(f"cogs.{extension}")
+    await ctx.send(f"{extension} 加載完成")
 
 @bot.command()
-async def unload(ctx,extension):
-   bot.unload_extension(F'cmds.{extension}')
-   await ctx.send(F'Un-Loaded {extension} done.') 
+async def unload(ctx, extension):
+    await bot.unload_extension(f"cogs.{extension}")
+    await ctx.send(f"{extension} 卸載完成")
 
 @bot.command()
-async def reload(ctx,extension):
-   bot.reload_extension(F'cmds.{extension}')
-   await ctx.send(F'Re-Loaded {extension} done.')   
+async def reload(ctx, extension):
+    await bot.reload_extension(f"cogs.{extension}")
+    await ctx.send(f"{extension} 重載完成")
 '''======================================================================================='''
 
 @bot.command() #從二十幾張伊蕾娜的圖片中給你一張

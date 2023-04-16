@@ -19,7 +19,7 @@ class Help(Cog_Extension):
     embed.add_field(name="~伊蕾娜", value="給你香香的伊蕾娜", inline=False)
     embed.add_field(name="~load 所選模塊", value="加載所選的指令模塊", inline=False)
     embed.add_field(name="~unload 所選模塊", value="卸載所選的指令模塊", inline=False)
-    embed.add_field(name="~reload 所選模塊", value="重讀所選的指令模塊", inline=False)
+    embed.add_field(name="~reload 所選模塊", value="重載所選的指令模塊", inline=False)
     embed.add_field(name="----------------------------------------------------------", value="以下為關鍵字觸發", inline=False)
     embed.add_field(name="字尾包含 好了ㄝ", value="怎麼又好了ㄝ ?", inline=True)
     embed.add_field(name="字尾包含 好甲喔", value="這個地方變得越來越甲了的圖片", inline=True)
