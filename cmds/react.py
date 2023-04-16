@@ -150,5 +150,5 @@ class React(Cog_Extension):
           await msg.channel.send(不放棄你) 
           await msg.channel.send('所以等我一下下') 
 
-def setup(bot):
-  bot.add_cog(React(bot))     
+async def setup(bot):
+    await bot.add_cog(React(bot))     

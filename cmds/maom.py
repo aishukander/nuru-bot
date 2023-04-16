@@ -34,5 +34,5 @@ class Maom(Cog_Extension):
     embed.add_field(name="tag 我的話", value="rick roll你", inline=True)
     await ctx.send(embed=embed)   
 
-def setup(bot):
-  bot.add_cog(Maom(bot))    
+async def setup(bot):
+    await bot.add_cog(Maom(bot))    

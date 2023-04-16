@@ -38,5 +38,5 @@ class Main(Cog_Extension):
     embed.add_field(name="字尾包含 yes", value="yes yes的圖片", inline=True)
     await ctx.send(embed=embed)   
 
-def setup(bot):
-  bot.add_cog(Main(bot))
+async def setup(bot):
+    await bot.add_cog(Main(bot))
