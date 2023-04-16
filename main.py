@@ -3,7 +3,6 @@ import discord
 from discord.ext import commands
 import json
 import random
-from secrets import choice
 '''======================================================================================='''
 #引入cogs內的模組 在cosg.後面的是位於cosg資料夾內的檔名，import後面的是檔案內設定的名稱
 from cogs.RTsay import RTsay
@@ -53,7 +52,7 @@ async def reload(ctx, extension):
 async def 伊蕾娜(ctx):
    random_pic = random.choice(jdata['Elaina'])
    await ctx.send(random_pic) 
-   await ctx.send('給你香香的伊蕾娜')   
+   await ctx.send('給你可愛的伊蕾娜')   
 
 @bot.command() #用來取得bot的邀請連結
 async def invitation(ctx):

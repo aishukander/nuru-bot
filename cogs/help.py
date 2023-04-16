@@ -15,7 +15,7 @@ class Help(Cog_Extension):
     embed.add_field(name="~RTsay", value="React列表1", inline=False)
     embed.add_field(name="~RTsay2", value="React列表2", inline=False)
     embed.add_field(name="~invitation", value="給你機器人的邀請連結", inline=False)
-    embed.add_field(name="~伊蕾娜", value="給你香香的伊蕾娜", inline=False)
+    embed.add_field(name="~伊蕾娜", value="給你可愛的伊蕾娜", inline=False)
     embed.add_field(name="~join", value="加入使用者所在的頻道", inline=False)
     embed.add_field(name="~play [連結]", value="撥放指定歌曲", inline=False)
     embed.add_field(name="~pause", value="暫停當前播放的歌曲", inline=False)
