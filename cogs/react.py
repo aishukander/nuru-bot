@@ -7,7 +7,7 @@ import json
 with open('setting.json','r',encoding='utf8') as jfile:
    jdata = json.load(jfile)
 
-class React(Cog_Extension):
+class React(Cog_Extension): #用於偵測你講出的話後面是否包含偵測中的字詞
    @commands.Cog.listener()
    async def on_message(selF,msg):
       if msg.content.endswith('好了ㄝ'):
@@ -144,11 +144,6 @@ class React(Cog_Extension):
       if msg.content.endswith('感情問題'):
           感情問題 = choice(jdata['感情問題'])    
           await msg.channel.send(感情問題)                                      
-
-      if msg.content.index('405704403937525782'):
-          不放棄你 = choice(jdata['不放棄你'])    
-          await msg.channel.send(不放棄你) 
-          await msg.channel.send('所以等我一下下') 
 
 async def setup(bot):
     await bot.add_cog(React(bot))     

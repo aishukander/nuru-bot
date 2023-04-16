@@ -8,7 +8,7 @@ with open('setting.json', 'r', encoding='utf8') as jfile:
 
 class Help(Cog_Extension):
   
-  @commands.command()
+  @commands.command() #因為太長所以分成兩個的help指令
   async def help(self,ctx):
     embed=discord.Embed(title="指令說明-1", color=0x007bff)
     embed.set_thumbnail(url="https://cdn.discordapp.com/attachments/998902979761549402/999199047200026744/illust_83110343_20220705_172215.jpg")
