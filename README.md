@@ -1,4 +1,4 @@
-# DC-bot  
+# mumei-bot
 邀請連結:[點這裡](https://discord.com/api/oauth2/authorize?client_id=999157840063242330&permissions=318364711936&scope=bot)  
 這是一個我使用python製做的discord bot  
 並且由於我個人喜愛伊蕾娜，所以將bot的頭像設成伊蕾娜的圖片  
