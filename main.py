@@ -5,7 +5,8 @@ import json
 import random
 from secrets import choice
 '''======================================================================================='''
-from cogs.RTsay import RTsay #這裡from開頭的是引入cogs內的模組 在cosg.後面的是位於cosg資料夾內的檔名，import後面的是檔案內設定的名稱
+#引入cogs內的模組 在cosg.後面的是位於cosg資料夾內的檔名，import後面的是檔案內設定的名稱
+from cogs.RTsay import RTsay
 from cogs.react import React
 from cogs.help import Help
 
