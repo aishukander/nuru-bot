@@ -23,6 +23,7 @@ class Roothelp(Cog_Extension):
     embed.add_field(name="~play [連結]", value="撥放指定歌曲", inline=False)
     embed.add_field(name="~pause", value="暫停當前播放的歌曲", inline=False)
     embed.add_field(name="~resume", value="恢復當前暫停的歌曲", inline=False)
+    embed.add_field(name="~volume [音量]", value="調整歌曲的音量", inline=False)
     embed.add_field(name="~summon [指定的頻道]", value="把機器人拉到指定頻道，如未指定就會拉到你所在頻道", inline=False)
     embed.add_field(name="~leave", value="清空隊列並且離開語音通道", inline=False)
     embed.add_field(name="~now", value="顯示當前正在播放的歌曲", inline=False)
