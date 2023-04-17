@@ -6,8 +6,8 @@
 要下載請點Release,選最新版然後下載mumei-bot.zip
 ---------------------------------------------------------------------------------------------
 music功能部屬:
-pip install --upgrade --force-reinstall git+https://github.com/ytdl-org/youtube-dl.git@master #安裝youtube_dl
-pip install PyNaCl #安裝pyNaCl
-並且安裝ffmpeg
-支援的網頁列表:[點這裡](https://rg3.github.io/youtube-dl/supportedsites.html)
+pip install --upgrade --force-reinstall git+https://github.com/ytdl-org/youtube-dl.git@master #安裝youtube_dl  
+pip install PyNaCl #安裝pyNaCl  
+並且安裝ffmpeg  
+支援的網頁列表:[點這裡](https://rg3.github.io/youtube-dl/supportedsites.html)  
 ---------------------------------------------------------------------------------------------
