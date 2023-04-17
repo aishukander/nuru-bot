@@ -323,6 +323,20 @@ class music(commands.Cog):
         del self.voice_states[ctx.guild.id]
         await ctx.message.add_reaction('✅')
 
+    @commands.command(name='volume')
+    async def _volume(self, ctx: commands.Context, *, volume: int):
+        """Sets the volume of the player."""
+
+        if not ctx.voice_state.is_playing:
+            return await ctx.send('Nothing being played at the moment.')
+
+        if 0 > volume > 100:
+            return await ctx.send('Volume must be between 0 and 100')
+        ctx.voice_state.volume = volume / 100
+        ctx.voice_state.current.source.volume = volume / 100 # Added!!!!!!
+        ctx.voice_state.voice.source.volume = volume / 100 # Added!!!!!!
+        await ctx.send('音量設置為 {}%'.format(volume))
+
     @commands.command(name='now', aliases=['current', 'playing'])
     async def _now(self, ctx: commands.Context):
         """Displays the currently playing song."""
