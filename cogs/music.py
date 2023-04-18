@@ -379,7 +379,7 @@ class music(commands.Cog):
         """
 
         if not ctx.voice_state.is_playing:
-            return await ctx.send('Not playing any music right now...')
+            return await ctx.send('現在沒有撥放任何歌曲')
 
         voter = ctx.message.author
         if voter == ctx.voice_state.current.requester:
@@ -406,7 +406,7 @@ class music(commands.Cog):
         """
 
         if len(ctx.voice_state.songs) == 0:
-            return await ctx.send('Empty queue.')
+            return await ctx.send('列隊是空的')
 
         items_per_page = 10
         pages = math.ceil(len(ctx.voice_state.songs) / items_per_page)
@@ -427,7 +427,7 @@ class music(commands.Cog):
         """Shuffles the queue."""
 
         if len(ctx.voice_state.songs) == 0:
-            return await ctx.send('Empty queue.')
+            return await ctx.send('列隊是空的')
 
         ctx.voice_state.songs.shuffle()
         await ctx.message.add_reaction('✅')
@@ -437,7 +437,7 @@ class music(commands.Cog):
         """Removes a song from the queue at a given index."""
 
         if len(ctx.voice_state.songs) == 0:
-            return await ctx.send('Empty queue.')
+            return await ctx.send('列隊是空的')
 
         ctx.voice_state.songs.remove(index - 1)
         await ctx.message.add_reaction('✅')
