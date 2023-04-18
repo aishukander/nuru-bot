@@ -4,7 +4,7 @@ from core.classes import Cog_Extension
 import json
 
 with open('setting.json', 'r', encoding='utf8') as jfile:
-	jdata = json.load(jfile)
+	 jdata = json.load(jfile)
 
 class Roothelp(Cog_Extension):
   
@@ -19,6 +19,8 @@ class Roothelp(Cog_Extension):
     embed.add_field(name="~load [所選模塊]", value="加載所選的指令模塊", inline=False)
     embed.add_field(name="~unload [所選模塊]", value="卸載所選的指令模塊", inline=False)
     embed.add_field(name="~reload [所選模塊]", value="重載所選的指令模塊", inline=False)
+    embed.add_field(name="~say [要覆誦的話]", value="刪除所傳的訊息並覆誦", inline=False)
+    embed.add_field(name="~delete [訊息數]", value="在此頻道刪除所選數量的訊息", inline=False)
     embed.add_field(name="~join", value="加入使用者所在的頻道", inline=False)
     embed.add_field(name="~play [連結]", value="撥放指定歌曲", inline=False)
     embed.add_field(name="~pause", value="暫停當前播放的歌曲", inline=False)

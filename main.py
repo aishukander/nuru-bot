@@ -10,6 +10,7 @@ from cogs.react import React
 from cogs.help import Help
 from cogs.music import music
 from cogs.roothelp import Roothelp
+from cogs.cmd import cmd
 
 intents = discord.Intents.all()
 
@@ -27,6 +28,7 @@ async def on_ready():
     await bot.load_extension("cogs.help")
     await bot.load_extension("cogs.music")
     await bot.load_extension("cogs.roothelp")
+    await bot.load_extension("cogs.cmd")
 
     print(f"目前登入身份 --> {bot.user}")  #這兩行是啟動時會在終端機印出的訊息
     print(">>Bot start<<")                #^
@@ -35,17 +37,17 @@ async def on_ready():
 @bot.command()
 async def load(ctx, extension):
     await bot.load_extension(f"cogs.{extension}")
-    await ctx.send(f"{extension} 加載完成")
+    await ctx.send(f"{extension}模塊加載完成")
 
 @bot.command()
 async def unload(ctx, extension):
     await bot.unload_extension(f"cogs.{extension}")
-    await ctx.send(f"{extension} 卸載完成")
+    await ctx.send(f"{extension}模塊卸載完成")
 
 @bot.command()
 async def reload(ctx, extension):
     await bot.reload_extension(f"cogs.{extension}")
-    await ctx.send(f"{extension} 重載完成")
+    await ctx.send(f"{extension}模塊重載完成")
 '''======================================================================================='''
 
 @bot.command() #從二十幾張伊蕾娜的圖片中給你一張
