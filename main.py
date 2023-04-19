@@ -38,18 +38,27 @@ async def on_ready():
 '''======================================================================================='''#這個框內的是用於加載、卸載、重讀不同cosg檔
 @bot.command()
 async def load(ctx, extension):
-    await bot.load_extension(f"cogs.{extension}")
-    await ctx.send(f"{extension}模塊加載完成")
+    if ctx.author.guild_permissions.administrator:
+        await bot.load_extension(f"cogs.{extension}")
+        await ctx.send(f"{extension}模塊加載完成")
+    else:
+        await ctx.send("你沒有管理者權限用來執行這個指令")
 
 @bot.command()
 async def unload(ctx, extension):
-    await bot.unload_extension(f"cogs.{extension}")
-    await ctx.send(f"{extension}模塊卸載完成")
+    if ctx.author.guild_permissions.administrator:
+        await bot.unload_extension(f"cogs.{extension}")
+        await ctx.send(f"{extension}模塊卸載完成")
+    else:
+        await ctx.send("你沒有管理者權限用來執行這個指令")
 
 @bot.command()
 async def reload(ctx, extension):
-    await bot.reload_extension(f"cogs.{extension}")
-    await ctx.send(f"{extension}模塊重載完成")
+    if ctx.author.guild_permissions.administrator:
+        await bot.reload_extension(f"cogs.{extension}")
+        await ctx.send(f"{extension}模塊重載完成")
+    else:
+        await ctx.send("你沒有管理者權限用來執行這個指令")
 '''======================================================================================='''
 
 @bot.command() #從二十幾張伊蕾娜的圖片中給你一張

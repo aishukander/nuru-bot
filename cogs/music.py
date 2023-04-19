@@ -297,31 +297,37 @@ class music(commands.Cog):
     @commands.command(name='summon')
     @commands.has_permissions(manage_guild=True)
     async def _summon(self, ctx: commands.Context, *, channel: discord.VoiceChannel = None):
-        """Summons the bot to a voice channel.
-        If no channel was specified, it joins your channel.
-        """
+        if ctx.author.guild_permissions.administrator:
+            """Summons the bot to a voice channel.
+            If no channel was specified, it joins your channel.
+            """
 
-        if not channel and not ctx.author.voice:
-            raise VoiceError('You are neither connected to a voice channel nor specified a channel to join.')
+            if not channel and not ctx.author.voice:
+                raise VoiceError('You are neither connected to a voice channel nor specified a channel to join.')
 
-        destination = channel or ctx.author.voice.channel
-        if ctx.voice_state.voice:
-            await ctx.voice_state.voice.move_to(destination)
-            return
+            destination = channel or ctx.author.voice.channel
+            if ctx.voice_state.voice:
+                await ctx.voice_state.voice.move_to(destination)
+                return
 
-        ctx.voice_state.voice = await destination.connect()
+            ctx.voice_state.voice = await destination.connect()
+        else:
+            await ctx.send("你沒有管理者權限用來執行這個指令")
 
     @commands.command(name='leave', aliases=['disconnect', 'dc'])
     # @commands.has_permissions(manage_guild=True)
     async def _leave(self, ctx: commands.Context):
-        """Clears the queue and leaves the voice channel."""
+        if ctx.author.guild_permissions.administrator:
+            """Clears the queue and leaves the voice channel."""
 
-        if not ctx.voice_state.voice:
-            return await ctx.send('Not connected to any voice channel.')
+            if not ctx.voice_state.voice:
+                return await ctx.send('Not connected to any voice channel.')
 
-        await ctx.voice_state.stop()
-        del self.voice_states[ctx.guild.id]
-        await ctx.message.add_reaction('✅')
+            await ctx.voice_state.stop()
+            del self.voice_states[ctx.guild.id]
+            await ctx.message.add_reaction('✅')
+        else:
+            await ctx.send("你沒有管理者權限用來執行這個指令")       
 
     @commands.command(name='volume')
     async def _volume(self, ctx: commands.Context, *, volume: int):
@@ -364,13 +370,16 @@ class music(commands.Cog):
     @commands.command(name='stop', aliases=['close'])
     # @commands.has_permissions(manage_guild=True)
     async def _stop(self, ctx: commands.Context):
-        """Stops playing song and clears the queue."""
+        if ctx.author.guild_permissions.administrator:
+            """Stops playing song and clears the queue."""
 
-        ctx.voice_state.songs.clear()
+            ctx.voice_state.songs.clear()
 
-        if ctx.voice_state.is_playing:
-            ctx.voice_state.voice.stop()
-            await ctx.message.add_reaction('⏹')
+            if ctx.voice_state.is_playing:
+                ctx.voice_state.voice.stop()
+                await ctx.message.add_reaction('⏹')
+        else:
+            await ctx.send("你沒有管理者權限用來執行這個指令")       
 
     @commands.command(name='skip', aliases=['sk'])
     async def _skip(self, ctx: commands.Context):
@@ -424,13 +433,16 @@ class music(commands.Cog):
 
     @commands.command(name='shuffle')
     async def _shuffle(self, ctx: commands.Context):
-        """Shuffles the queue."""
+        if ctx.author.guild_permissions.administrator:
+            """Shuffles the queue."""
 
-        if len(ctx.voice_state.songs) == 0:
-            return await ctx.send('列隊是空的')
+            if len(ctx.voice_state.songs) == 0:
+                return await ctx.send('列隊是空的')
 
-        ctx.voice_state.songs.shuffle()
-        await ctx.message.add_reaction('✅')
+            ctx.voice_state.songs.shuffle()
+            await ctx.message.add_reaction('✅')
+        else:
+            await ctx.send("你沒有管理者權限用來執行這個指令")
 
     @commands.command(name='remove')
     async def _remove(self, ctx: commands.Context, index: int):
