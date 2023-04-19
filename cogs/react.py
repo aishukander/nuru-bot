@@ -140,7 +140,11 @@ class React(Cog_Extension): #用於偵測你講出的話後面是否包含偵測
 
       if msg.content.endswith('感情問題'):
           感情問題 = choice(jdata['感情問題'])    
-          await msg.channel.send(感情問題)   
+          await msg.channel.send(感情問題)
+
+      if msg.content.endswith('令人驚豔'):
+          令人驚豔 = choice(jdata['令人驚豔'])    
+          await msg.channel.send(令人驚豔)        
 
 async def setup(bot):
     await bot.add_cog(React(bot))     

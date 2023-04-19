@@ -51,6 +51,7 @@ class RTsay(Cog_Extension):
     embed.add_field(name="字尾包含 感情問題", value="感情的問題一律分手 的圖片", inline=True)
     embed.add_field(name="tag 我的話", value="會需要等我跑過來", inline=True)
     embed.add_field(name="tag bot問他買不買?", value="他會告訴你要不要買(記得句尾要有問號)", inline=True)
+    embed.add_field(name="字尾包含 令人驚豔", value="令人晶彥章魚哥 的圖片", inline=True)
     await ctx.send(embed=embed)       
 
 async def setup(bot):
