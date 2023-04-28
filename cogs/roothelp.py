@@ -23,6 +23,7 @@ class Roothelp(Cog_Extension):
           embed.add_field(name="~load [所選模塊]", value="加載所選的指令模塊(需管理者權限)", inline=False)
           embed.add_field(name="~unload [所選模塊]", value="卸載所選的指令模塊(需管理者權限)", inline=False)
           embed.add_field(name="~reload [所選模塊]", value="重載所選的指令模塊(需管理者權限)", inline=False)
+          embed.add_field(name="~role [身分組]", value="添加對應身分組與其的專用頻道(需管理者權限)", inline=False)
           embed.add_field(name="~play [連結]", value="撥放指定歌曲", inline=False)
           embed.add_field(name="~pause", value="暫停當前播放的歌曲", inline=False)
           embed.add_field(name="~resume", value="恢復當前暫停的歌曲", inline=False)
