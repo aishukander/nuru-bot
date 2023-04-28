@@ -12,6 +12,7 @@ from cogs.music import music
 from cogs.roothelp import Roothelp
 from cogs.cmd import cmd
 from cogs.BON import BON
+from cogs.role import Role
 
 intents = discord.Intents.all()
 
@@ -31,6 +32,7 @@ async def on_ready():
     await bot.load_extension("cogs.roothelp")
     await bot.load_extension("cogs.cmd")
     await bot.load_extension("cogs.BON")
+    await bot.load_extension("cogs.role")
 
     print(f"目前登入身份 --> {bot.user}")  #這兩行是啟動時會在終端機印出的訊息
     print(">>Bot start<<")                #^
