@@ -6,7 +6,7 @@
 要下載一般最新版本請點Release,選最上面的版本然後下載mumei-bot.zip  
 要下載最新測試版請點[這裡](https://github.com/aishukander/mumei-bot/archive/refs/heads/main.zip)  
 ---------------------------------------------------------------------------------------------
-安裝所需的python包:  
+安裝所需的python包(需要git):  
 從bot所在資料夾開啟cmd後在終端機輸入  
 pip install -r requirements.txt  
 pip install --upgrade --force-reinstall git+https://github.com/ytdl-org/youtube-dl.git@master  
