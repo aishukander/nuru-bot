@@ -8,7 +8,7 @@
 ---------------------------------------------------------------------------------------------
 安裝所需的python包:  
 從bot所在資料夾開啟cmd後在終端機輸入  
-pip install -r requirements.txt  
-pip install --upgrade --force-reinstall git+https://github.com/ytdl-org/youtube-dl.git@master  
+```pip install -r requirements.txt```  
+```pip install --upgrade --force-reinstall git+https://github.com/ytdl-org/youtube-dl.git@master```  
 並且安裝ffmpeg  
 ---------------------------------------------------------------------------------------------
