@@ -9,6 +9,7 @@ with open('setting.json','r',encoding='utf8') as jfile:
    jdata = json.load(jfile)
 
 class BON(Cog_Extension):
+
     @commands.Cog.listener()
     async def on_message(self, message):
         if message.author == self.bot.user:
