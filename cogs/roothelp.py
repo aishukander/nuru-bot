@@ -6,18 +6,19 @@ import json
 with open('setting.json', 'r', encoding='utf8') as jfile:
 	 jdata = json.load(jfile)
 
-class Roothelp(Cog_Extension):
-  
-  @commands.command() #help指令
+class roothelp(Cog_Extension):
+  #rootHelp指令
+  @commands.command()
   async def roothelp(self,ctx):
       if ctx.author.guild_permissions.administrator:
-          embed=discord.Embed(title="React說明1", color=0x007bff)
+          embed=discord.Embed(title="rootHelp", color=0x007bff)
           embed.add_field(name="~help", value="指令說明", inline=False)
           embed.add_field(name="~RTsay", value="React列表1", inline=False)
           embed.add_field(name="~RTsay2", value="React列表2", inline=False)
           embed.add_field(name="~invitation", value="給你機器人的邀請連結", inline=False)
           embed.add_field(name="~伊蕾娜", value="給你可愛的伊蕾娜", inline=False)
           embed.add_field(name="~say [要覆誦的話]", value="刪除所傳的訊息並覆誦", inline=False)
+          embed.add_field(name="@mumei 買不買?", value="讓mumei告訴你該不該買", inline=False)
           embed.add_field(name="~delete [訊息數]", value="在此頻道刪除所選數量的訊息(需管理者權限)", inline=False)
           embed.add_field(name="~ban [對象名稱]", value="把指定對象踢出伺服器(需管理者權限)", inline=False)
           embed.add_field(name="~load [所選模塊]", value="加載所選的指令模塊(需管理者權限)", inline=False)
@@ -42,4 +43,4 @@ class Roothelp(Cog_Extension):
       else:
           await ctx.send("你沒有管理者權限用來執行這個指令")
 async def setup(bot):
-    await bot.add_cog(Roothelp(bot))    
+    await bot.add_cog(roothelp(bot))    

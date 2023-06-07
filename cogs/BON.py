@@ -1,4 +1,3 @@
-from secrets import choice
 import discord
 from discord.ext import commands
 from core.classes import Cog_Extension
@@ -20,4 +19,5 @@ class BON(Cog_Extension):
                 await message.channel.send(買不買)
 
 async def setup(bot):
-    await bot.add_cog(BON(bot)) #因為buy or not沒辦法用所以用這種縮寫
+    #因為buy or not沒辦法用所以用這種縮寫
+    await bot.add_cog(BON(bot))

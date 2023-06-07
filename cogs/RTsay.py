@@ -8,7 +8,8 @@ with open('setting.json', 'r', encoding='utf8') as jfile:
 
 class RTsay(Cog_Extension):
   
-  @commands.command() #因為太長所以分成兩個的RTsay指令
+  #因為太長所以分成兩個的RTsay指令
+  @commands.command()
   async def RTsay(self,ctx):
     embed=discord.Embed(title="React說明1", color=0x007bff)
     embed.add_field(name="字尾包含 好甲喔", value="這個地方變得越來越甲了的圖片", inline=True)
@@ -36,7 +37,7 @@ class RTsay(Cog_Extension):
     embed.add_field(name="字尾包含 櫻桃", value="花京院吃櫻桃 的圖片", inline=True)
     embed.add_field(name="字尾包含 最後的波紋", value="最後的波紋 的圖片", inline=True)
     embed.add_field(name="字尾包含 我拒絕", value="我拒絕 的圖片", inline=True)
-    await ctx.send(embed=embed)   
+    await ctx.send(embed=embed)
 
   @commands.command()
   async def RTsay2(self,ctx):
@@ -52,7 +53,7 @@ class RTsay(Cog_Extension):
     embed.add_field(name="tag 我的話", value="會需要等我跑過來", inline=True)
     embed.add_field(name="tag bot問他買不買?", value="他會告訴你要不要買(記得句尾要有問號)", inline=True)
     embed.add_field(name="字尾包含 令人驚豔", value="令人晶彥章魚哥 的圖片", inline=True)
-    await ctx.send(embed=embed)       
+    await ctx.send(embed=embed)
 
 async def setup(bot):
     await bot.add_cog(RTsay(bot))
