@@ -20,11 +20,6 @@ bot = commands.Bot(command_prefix='~',intents=intents)
 #刪除help指令
 bot.remove_command('help')
 
-#引入cogs內的模組
-for filename in os.listdir('./cogs'):
-    if filename.endswith('.py'):
-        bot.load_extension(f'cogs.{filename[:-3]}')
-
 #載入對應的cogs檔
 @bot.event
 async def on_ready():
