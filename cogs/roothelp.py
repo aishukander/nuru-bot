@@ -17,7 +17,7 @@ class roothelp(Cog_Extension):
           embed.add_field(name="~RTsay2", value="React列表2", inline=False)
           embed.add_field(name="~invitation", value="給你機器人的邀請連結", inline=False)
           embed.add_field(name="~伊蕾娜", value="給你可愛的伊蕾娜", inline=False)
-          embed.add_field(name="~say [要覆誦的話]", value="刪除所傳的訊息並覆誦", inline=False)
+          embed.add_field(name="~say [要覆誦的話]", value="刪除所傳的訊息並覆誦(需管理者權限)", inline=False)
           embed.add_field(name="@mumei 買不買?", value="讓mumei告訴你該不該買", inline=False)
           embed.add_field(name="~delete [訊息數]", value="在此頻道刪除所選數量的訊息(需管理者權限)", inline=False)
           embed.add_field(name="~ban [對象名稱]", value="把指定對象踢出伺服器(需管理者權限)", inline=False)
