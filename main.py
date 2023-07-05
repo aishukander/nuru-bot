@@ -28,6 +28,8 @@ async def on_ready():
     #啟動時會在終端機印出的訊息
     print(f"目前登入身份 --> {bot.user}")
     print(">>Bot start<<")
+    #bot的狀態顯示
+    await bot.change_presence(activity=discord.Game(name="~help 來獲取指令列表"))
 
 #用於加載、卸載、重讀不同cosg檔
 '''======================================================================================='''
