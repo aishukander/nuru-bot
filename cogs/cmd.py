@@ -3,9 +3,6 @@ from discord.ext import commands
 from core.classes import Cog_Extension
 import json
 
-with open('setting.json', 'r', encoding='utf8') as jfile:
-   jdata = json.load(jfile)
-
 class cmd(Cog_Extension):
 
  #刪除所傳的訊息並讓機器人覆誦

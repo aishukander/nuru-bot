@@ -3,9 +3,6 @@ from discord.ext import commands
 from core.classes import Cog_Extension
 import json
 
-with open('setting.json', 'r', encoding='utf8') as jfile:
-	 jdata = json.load(jfile)
-
 class roothelp(Cog_Extension):
   #rootHelp指令
   @commands.command()

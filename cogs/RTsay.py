@@ -3,9 +3,6 @@ from discord.ext import commands
 from core.classes import Cog_Extension
 import json
 
-with open('setting.json', 'r', encoding='utf8') as jfile:
-	jdata = json.load(jfile)
-
 class RTsay(Cog_Extension):
   
   #因為太長所以分成兩個的RTsay指令
