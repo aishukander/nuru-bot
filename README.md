@@ -13,6 +13,6 @@
 並且安裝ffmpeg就完成了  
 ---------------------------------------------------------------------------------------------  
 圖片來源  
-あずーる老師:[twitter](https://twitter.com/azure_0608_sub)   [pixiv](https://www.pixiv.net/users/5838770)  
+あずーる老師:[twitter](https://twitter.com/azure_0608_sub) [pixiv](https://www.pixiv.net/users/5838770)  
 魔女之旅官方:[twitter](https://twitter.com/majotabi_PR)  
 ---------------------------------------------------------------------------------------------  
