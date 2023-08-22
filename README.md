@@ -11,4 +11,6 @@
 ```pip install -r requirements.txt```  
 ```pip install --upgrade --force-reinstall git+https://github.com/ytdl-org/youtube-dl.git@master```  
 並且安裝ffmpeg就完成了  
----------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------  
+圖片來源:[あずーる老師的twitter](https://twitter.com/azure_0608_sub)[あずーる老師的pixiv](https://www.pixiv.net/users/5838770)[「魔女の旅々」公式](https://twitter.com/majotabi_PR)
+---------------------------------------------------------------------------------------------  

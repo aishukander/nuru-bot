@@ -9,9 +9,13 @@ import asyncio
 
 intents = discord.Intents.all()
 
-#引用setting.json的內容
+#加載setting.json的內容
 with open('setting.json','r',encoding='utf8') as jfile:
    jdata = json.load(jfile)
+
+#加載TOKEN
+with open('token.json','r',encoding='utf8') as tfile:
+   TOKEN = json.load(tfile)
 
 #呼喚bot的前綴
 bot = commands.Bot(command_prefix='~',intents=intents)
@@ -84,4 +88,4 @@ async def on_message(msg):
     await bot.process_commands(msg)
 
 if __name__ == "__main__":
-   bot.run(jdata['TOKEN'])
+   bot.run(TOKEN['TOKEN'])
