@@ -30,8 +30,8 @@ async def on_ready():
     await asyncio.gather(*[bot.load_extension(ext) for ext in extensions])
 
     #啟動時會在終端機印出的訊息
-    print(f"目前登入身份 --> {bot.user}")
-    print(">>Bot start<<")
+    print(f"目前登入身份 --> {bot.user}\n>>Bot start<<")
+
     #bot的狀態顯示
     await bot.change_presence(activity=discord.Game(name="~help 來獲取指令列表"))
 
