@@ -39,9 +39,11 @@ async def on_ready():
 '''======================================================================================='''
 @bot.command()
 async def load(ctx, extension):
+    #檢測使用者的伺服器管理員權限
     if ctx.author.guild_permissions.administrator:
         await bot.load_extension(f"cogs.{extension}")
         await ctx.send(f"{extension}模塊加載完成")
+    #告知使用者沒有管理員權限
     else:
         await ctx.send("你沒有管理者權限用來執行這個指令")
 
