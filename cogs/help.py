@@ -17,6 +17,7 @@ class help(Cog_Extension):
     embed.add_field(name="@mumei 叫那個男人拿點番茄醬過來", value="那位自由的男人會拿番茄醬過來", inline=False)
     embed.add_field(name="@mumei 你有多不想上班", value="讓mumei一張圖告訴你他有多不想上班", inline=False)
     embed.add_field(name="~reword [欲修改文本]", value="用來批量替換文本內的單字", inline=False)
+    embed.add_field(name="~drive", value="讓bot私訊你來呈現一個小型資訊放置處", inline=False)
     embed.add_field(name="~play [連結]", value="撥放指定歌曲", inline=False)
     embed.add_field(name="~pause", value="暫停當前播放的歌曲", inline=False)
     embed.add_field(name="~resume", value="恢復當前暫停的歌曲", inline=False)

@@ -24,6 +24,7 @@ class cmd(Cog_Extension):
       else:
           await ctx.send("你沒有管理者權限用來執行這個指令")
 
+  #ban除選定人物
   @commands.command()
   async def ban(self, ctx, member: discord.Member):
       if ctx.author.guild_permissions.administrator:
@@ -32,6 +33,7 @@ class cmd(Cog_Extension):
       else:
           await ctx.send("你沒有管理者權限用來執行這個指令")
 
+  #Word-Changer功能的整合
   @commands.command()
   async def reword(self,ctx,msg):
       text = msg
@@ -51,6 +53,13 @@ class cmd(Cog_Extension):
       except asyncio.TimeoutError:
           #如果發生超時異常，則取消指令並通知用戶
           await ctx.send("您沒有及時回覆，指令已取消。")
+
+  #讓bot私訊你來呈現一個小型資訊放置處
+  @commands.command()
+  async def drive(self, ctx):
+      user = ctx.author
+      embed=discord.Embed(title="It's a cloud drive.", color=0x007bff)
+      await user.send(embed=embed)
 
 async def setup(bot):
     await bot.add_cog(cmd(bot))
