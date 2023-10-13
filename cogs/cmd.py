@@ -65,13 +65,9 @@ class cmd(Cog_Extension):
   @commands.command()
   async def move(self, ctx, source: discord.VoiceChannel, target: discord.VoiceChannel):
       if ctx.author.guild_permissions.administrator:
-          # 檢查源頻道和目標頻道是否存在，如果不存在，則回覆錯誤訊息
-          if source is None or target is None:
-              await ctx.send("請提供有效的語音頻道名稱")
-              return
           # 檢查源頻道是否有人在裡面，如果沒有，則回覆錯誤訊息
           if len(source.members) == 0:
-              await ctx.send("源頻道沒有人在裡面")
+              await ctx.send(f"[{source.name}] 沒有人在裡面")
               return
           # 創建一個任務列表，用來存放移動成員的任務
           tasks = []
