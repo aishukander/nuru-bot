@@ -61,5 +61,29 @@ class cmd(Cog_Extension):
       embed=discord.Embed(title="It's a cloud drive.", color=0x007bff)
       await user.send(embed=embed)
 
+  #將語音頻道內所有人移動到另一個語音頻道
+  @commands.command()
+  async def move(self, ctx, source: discord.VoiceChannel, target: discord.VoiceChannel):
+      if ctx.author.guild_permissions.administrator:
+          # 檢查源頻道和目標頻道是否存在，如果不存在，則回覆錯誤訊息
+          if source is None or target is None:
+              await ctx.send("請提供有效的語音頻道名稱")
+              return
+          # 檢查源頻道是否有人在裡面，如果沒有，則回覆錯誤訊息
+          if len(source.members) == 0:
+              await ctx.send("源頻道沒有人在裡面")
+              return
+          # 創建一個任務列表，用來存放移動成員的任務
+          tasks = []
+          # 遍歷源頻道的所有成員，將他們移動到目標頻道的任務加入到任務列表中
+          for member in source.members:
+              tasks.append(member.move_to(target))
+          # 使用asyncio.gather函式來同時執行所有的任務，並等待它們完成
+          await asyncio.gather(*tasks)
+          # 回覆成功訊息
+          await ctx.send(f"已將{source.name}的所有人移動到{target.name}") 
+      else:
+          await ctx.send("你沒有管理者權限用來執行這個指令")        
+
 async def setup(bot):
     await bot.add_cog(cmd(bot))
