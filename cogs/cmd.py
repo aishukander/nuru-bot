@@ -81,7 +81,7 @@ class cmd(Cog_Extension):
           # 使用asyncio.gather函式來同時執行所有的任務，並等待它們完成
           await asyncio.gather(*tasks)
           # 回覆成功訊息
-          await ctx.send(f"已將{source.name}的所有人移動到{target.name}") 
+          await ctx.send(f"已將 [{source.name}] 的所有人移動到 [{target.name}] ") 
       else:
           await ctx.send("你沒有管理者權限用來執行這個指令")        
 
