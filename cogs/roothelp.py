@@ -1,17 +1,15 @@
 import discord
 from discord.ext import commands
 from core.classes import Cog_Extension
-import json
 
 class roothelp(Cog_Extension):
-  #rootHelp指令
+  #roothelp指令
   @commands.command()
   async def roothelp(self,ctx):
       if ctx.author.guild_permissions.administrator:
-          embed=discord.Embed(title="rootHelp", color=0x007bff)
+          embed=discord.Embed(title="roothelp1", color=0x007bff)
           embed.add_field(name="~help", value="指令說明", inline=False)
           embed.add_field(name="~RTsay", value="React列表1", inline=False)
-          embed.add_field(name="~RTsay2", value="React列表2", inline=False)
           embed.add_field(name="~invitation", value="給你機器人的邀請連結", inline=False)
           embed.add_field(name="~伊蕾娜", value="給你可愛的伊蕾娜", inline=False)
           embed.add_field(name="~say [要覆誦的話]", value="刪除所傳的訊息並覆誦(需管理者權限)", inline=False)
@@ -35,13 +33,16 @@ class roothelp(Cog_Extension):
           embed.add_field(name="~leave", value="清空隊列並且離開語音通道(需管理者權限)", inline=False)
           embed.add_field(name="~now", value="顯示當前正在播放的歌曲", inline=False)
           embed.add_field(name="~stop", value="停止播放歌曲並清空隊列(管理者可用)", inline=False)
+          await ctx.send(embed=embed)
+
+          embed=discord.Embed(title="roothelp2", color=0x007bff)
           embed.add_field(name="~skip", value="跳過當前這首歌曲", inline=False)
           embed.add_field(name="~queue [頁數]", value="顯示播放對列,您可以選擇指定要顯示的頁面，每頁包含 10 首", inline=False)
           embed.add_field(name="~shuffle", value="打亂隊列(需管理者權限)", inline=False)
           embed.add_field(name="~remove", value="刪除列隊中指定的歌曲", inline=False)
           embed.add_field(name="~loop", value="循環播放當前歌曲，再用一次指令以取消", inline=False)
-          embed.add_field(name="~join", value="加入使用者所在的頻道", inline=False)    
-          await ctx.send(embed=embed)
+          embed.add_field(name="~join", value="加入使用者所在的頻道", inline=False) 
+          await ctx.send(embed=embed)   
       else:
           await ctx.send("你沒有管理者權限用來執行這個指令")
 async def setup(bot):

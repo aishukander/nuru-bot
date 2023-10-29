@@ -1,16 +1,14 @@
 import discord
 from discord.ext import commands
 from core.classes import Cog_Extension
-import json
 
 class help(Cog_Extension):
-  #Help指令
+  #help指令
   @commands.command()
   async def help(self,ctx):
-    embed=discord.Embed(title="Help", color=0x007bff)
+    embed=discord.Embed(title="help", color=0x007bff)
     embed.add_field(name="~help", value="指令說明", inline=False)
     embed.add_field(name="~RTsay", value="React列表1", inline=False)
-    embed.add_field(name="~RTsay2", value="React列表2", inline=False)
     embed.add_field(name="~invitation", value="給你機器人的邀請連結", inline=False)
     embed.add_field(name="~伊蕾娜", value="給你可愛的伊蕾娜", inline=False)
     embed.add_field(name="@mumei 買不買?", value="讓mumei告訴你該不該買", inline=False)
