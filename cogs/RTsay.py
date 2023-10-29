@@ -1,11 +1,9 @@
 import discord
 from discord.ext import commands
 from core.classes import Cog_Extension
-import json
 
 class RTsay(Cog_Extension):
-  
-  #因為太長所以分成兩個的RTsay指令
+
   @commands.command()
   async def RTsay(self,ctx):
     embed=discord.Embed(title="React說明1", color=0x007bff)
@@ -36,8 +34,6 @@ class RTsay(Cog_Extension):
     embed.add_field(name="字尾包含 我拒絕", value="我拒絕 的圖片", inline=True)
     await ctx.send(embed=embed)
 
-  @commands.command()
-  async def RTsay2(self,ctx):
     embed=discord.Embed(title="React說明2", color=0x007bff)
     embed.add_field(name="字尾包含 德意志科技世界第一", value="德意志科技 的圖片", inline=True)
     embed.add_field(name="字尾包含 玩腿", value="玩腿 的圖片", inline=True)
