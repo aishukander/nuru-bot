@@ -20,4 +20,5 @@ RUN pip install --upgrade --force-reinstall git+https://github.com/ytdl-org/yout
 
 # 啟動後通過 python 運行 main.py
 CMD ["python", "./main.py"]
-#到mumeu-bot資料夾後使用終端機執行docker build -t mumei-bot:latest .
+#到mumei-bot資料夾後使用終端機執行docker build -t [映像檔名稱]:latest . 來將bot保存成docker映像檔
+#到mumei-bot資料夾後使用終端機執行docker push [使用者名稱]/[映像檔名稱]:latest 來將bot上傳至docker hub
