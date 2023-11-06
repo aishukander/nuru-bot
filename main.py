@@ -86,7 +86,7 @@ async def ping(ctx):
 @bot.event
 async def on_message(msg):
     if "405704403937525782" in msg.content and msg.author != bot.user:
-          await msg.channel.send('等我從現在的情況逃げるんだよォ過來一下')
+          await msg.channel.send("十秒だけ持ちこたえてくれ！")
     await bot.process_commands(msg)
 
 if __name__ == "__main__":
