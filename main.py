@@ -83,11 +83,11 @@ async def ping(ctx):
     await ctx.send(f'{round(bot.latency*1000)}(ms)')
 
 #tag我時bot會講出 等我從現在的情況逃げるんだよォ過來一下
-@bot.event
-async def on_message(msg):
-    if "405704403937525782" in msg.content and msg.author != bot.user:
-          await msg.channel.send("十秒だけ持ちこたえてくれ！")
-    await bot.process_commands(msg)
+#@bot.event
+#async def on_message(msg):
+#    if "405704403937525782" in msg.content and msg.author != bot.user:
+#          await msg.channel.send("十秒だけ持ちこたえてくれ！")
+#    await bot.process_commands(msg)
 
 if __name__ == "__main__":
    bot.run(TOKEN['TOKEN'])
