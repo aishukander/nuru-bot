@@ -86,16 +86,22 @@ tag_on = 1
 #關閉tag回覆功能指令
 @bot.command()
 async def tagoff(ctx):
-    global tag_on
-    tag_on = 0
-    await ctx.send("已暫時關閉tag功能")
+    if ctx.author.guild_permissions.administrator:
+        global tag_on
+        tag_on = 0
+        await ctx.send("已暫時關閉tag功能")
+    else:
+        await ctx.send("你沒有管理者權限用來執行這個指令")
 
 #開啟tag回覆功能指令
 @bot.command()
 async def tagon(ctx):
-    global tag_on
-    tag_on = 1
-    await ctx.send("已重新啟用tag功能")
+    if ctx.author.guild_permissions.administrator:
+        global tag_on
+        tag_on = 1
+        await ctx.send("已重新啟用tag功能")
+    else:
+        await ctx.send("你沒有管理者權限用來執行這個指令")
 
 #tag回覆功能本體
 @bot.event
