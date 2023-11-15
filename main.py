@@ -82,19 +82,22 @@ async def invitation(ctx):
 async def ping(ctx):
     await ctx.send(f'{round(bot.latency*1000)}(ms)')
 
-tag_on = 1 
+tag_on = 1
+#關閉tag回覆功能指令
 @bot.command()
 async def tagoff(ctx):
     global tag_on
     tag_on = 0
     await ctx.send("已暫時關閉tag功能")
 
+#開啟tag回覆功能指令
 @bot.command()
 async def tagon(ctx):
     global tag_on
     tag_on = 1
     await ctx.send("已重新啟用tag功能")
-    
+
+#tag回覆功能本體
 @bot.event
 async def on_message(msg):
     if tag_on and "405704403937525782" in msg.content and msg.author != bot.user:
