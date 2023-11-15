@@ -1,5 +1,5 @@
 # 使用 slim 版本減輕 Image 容量
-FROM python:3.9-slim
+FROM python:3.10.10-slim
 
 # 指定 Image 中的工作目錄
 WORKDIR /code
