@@ -6,7 +6,7 @@ import asyncio
 
 class cmd(Cog_Extension):
 
- #刪除所傳的訊息並讓機器人覆誦
+  #刪除所傳的訊息並讓機器人覆誦
   @commands.command()
   async def say(self,ctx,msg):
       if ctx.author.guild_permissions.administrator:
@@ -15,7 +15,7 @@ class cmd(Cog_Extension):
       else:
           await ctx.send("你沒有管理者權限用來執行這個指令")
 
- #刪除所選數量的訊息
+  #刪除所選數量的訊息
   @commands.command()
   async def delete(self,ctx,num:int):
       if ctx.author.guild_permissions.administrator:
