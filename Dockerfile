@@ -5,7 +5,7 @@ FROM python:3.10.10-slim
 WORKDIR /code
 
 # 將 Dockerfile 所在目錄下的所有檔案複製到 Image 的工作目錄 /code 底下
-ADD . /code
+COPY . /code
 
 # 在 Image 中執行的指令
 RUN apt update
