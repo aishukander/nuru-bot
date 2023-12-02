@@ -14,7 +14,9 @@ RUN apt install -y ffmpeg
 
 RUN apt install -y git
 
-RUN pip install -r requirements.txt
+RUN pip install PyNaCl
+
+RUN pip install discord.py
 
 RUN pip install --upgrade --force-reinstall git+https://github.com/ytdl-org/youtube-dl.git@master
 
