@@ -469,26 +469,43 @@ class music(commands.Cog):
 
     @commands.command(name='play', aliases=['p'])
     async def _play(self, ctx: commands.Context, *, search: str):
-        """Plays a song.
-        If there are songs in the queue, this will be queued until the
-        other songs finished playing.
-        This command automatically searches from various sites if no URL is provided.
-        A list of these sites can be found here: https://rg3.github.io/youtube-dl/supportedsites.html
-        """
 
         if not ctx.voice_state.voice:
             await ctx.invoke(self._join)
 
         async with ctx.typing():
             try:
-                source = await YTDLSource.create_source(ctx, search, loop=self.bot.loop)
-            except YTDLError as e:
-                await ctx.send('An error occurred while processing this request: {}'.format(str(e)))
-            else:
-                song = Song(source)
+                if "list=" in search:
 
-                await ctx.voice_state.songs.put(song)
-                await ctx.send('Enqueued {}'.format(str(source)))
+                    partial = functools.partial(YTDLSource.ytdl.extract_info, search, download=False) 
+                    info = await self.bot.loop.run_in_executor(None, partial)
+                
+                    if 'entries' not in info:
+                        raise YTDLError('Could not find playlist')
+                    
+                    entries = info['entries']
+                    for entry in entries:
+                        if entry:
+                            source = await YTDLSource.create_source(ctx, entry['webpage_url'], loop=self.bot.loop)    
+                            song = Song(source)
+                    
+                            await ctx.voice_state.songs.put(song)
+                        
+                    await ctx.send(f'Added `{len(entries)}` songs to queue')
+            
+                else:
+                    source = await YTDLSource.create_source(ctx, search, loop=self.bot.loop)
+                
+                    song = Song(source)
+                    await ctx.voice_state.songs.put(song)
+                    await ctx.send('Added `{}` to queue'.format(str(source)))
+            
+            
+            except YTDLError as e: 
+                await ctx.send('An error occurred handling playlist: {}'.format(str(e)))
+            
+            except Exception as e:
+                await ctx.send('An error occurred: {}'.format(str(e)))
 
     @_join.before_invoke
     @_play.before_invoke
