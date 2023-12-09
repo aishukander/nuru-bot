@@ -82,7 +82,7 @@ async def invitation(ctx):
 async def ping(ctx):
     await ctx.send(f'{round(bot.latency*1000)}(ms)')
 
-tag_on = 1
+tag_on = 0
 #關閉tag回覆功能指令
 @bot.command()
 async def tagoff(ctx):
