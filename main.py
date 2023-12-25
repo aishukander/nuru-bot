@@ -11,11 +11,11 @@ intents = discord.Intents.all()
 
 #加載setting.json的內容
 with open('setting.json','r',encoding='utf8') as jfile:
-   jdata = json.load(jfile)
+    jdata = json.load(jfile)
 
 #加載TOKEN
 with open('token.json','r',encoding='utf8') as tfile:
-   TOKEN = json.load(tfile)
+    TOKEN = json.load(tfile)
 
 #呼喚bot的前綴
 bot = commands.Bot(command_prefix='~',intents=intents)
@@ -67,15 +67,15 @@ async def reload(ctx, extension):
 #從二十幾張伊蕾娜的圖片中給你一張
 @bot.command()
 async def 伊蕾娜(ctx):
-   random_pic = random.choice(jdata['Elaina'])
-   await ctx.send(random_pic)
-   await ctx.send('給你可愛的伊蕾娜')
+    random_pic = random.choice(jdata['Elaina'])
+    await ctx.send(random_pic)
+    await ctx.send('給你可愛的伊蕾娜')
 
 #用來取得bot的邀請連結
 @bot.command()
 async def invitation(ctx):
-   embed=discord.Embed(title="------連結------", url="https://discord.com/api/oauth2/authorize?client_id=999157840063242330&permissions=318364711936&scope=bot", description="狠狠的點下去吧", color=0x007bff)
-   await ctx.send(embed=embed)
+    embed=discord.Embed(title="------連結------", url="https://discord.com/api/oauth2/authorize?client_id=999157840063242330&permissions=318364711936&scope=bot", description="狠狠的點下去吧", color=0x007bff)
+    await ctx.send(embed=embed)
 
 #測試bot的ping值
 @bot.command()
@@ -107,8 +107,8 @@ async def tagon(ctx):
 @bot.event
 async def on_message(msg):
     if tag_on and "405704403937525782" in msg.content and msg.author != bot.user:
-          await msg.channel.send("十秒だけ持ちこたえてくれ!")
+        await msg.channel.send("十秒だけ持ちこたえてくれ!")
     await bot.process_commands(msg)
 
 if __name__ == "__main__":
-   bot.run(TOKEN["BOT_TOKEN"])
+    bot.run(TOKEN["BOT_TOKEN"])
