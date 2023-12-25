@@ -111,4 +111,4 @@ async def on_message(msg):
     await bot.process_commands(msg)
 
 if __name__ == "__main__":
-   bot.run(TOKEN["BOT_TOKEN"]
+   bot.run(TOKEN["BOT_TOKEN"])
