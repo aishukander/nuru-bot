@@ -26,7 +26,7 @@ bot.remove_command('help')
 #載入對應的cogs檔
 @bot.event
 async def on_ready():
-    extensions = ["cogs.RTsay", "cogs.react", "cogs.help", "cogs.music", "cogs.roothelp", "cogs.cmd", "cogs.BON", "cogs.role"]
+    extensions = ["cogs.RTsay", "cogs.react", "cogs.help", "cogs.music", "cogs.roothelp", "cogs.cmd", "cogs.role", "cogs.Gemini"]
     await asyncio.gather(*[bot.load_extension(ext) for ext in extensions])
 
     #啟動時會在終端機印出的訊息
