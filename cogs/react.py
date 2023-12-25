@@ -146,21 +146,5 @@ class react(Cog_Extension):
       if msg.content.endswith('令人驚豔'):
           令人驚豔 = choice(jdata['令人驚豔'])
           await msg.channel.send(令人驚豔)
-
-      if msg.author == selF.bot.user:
-        return
-      if selF.bot.user.mentioned_in(msg):
-        if "叫那個男人拿點番茄醬過來" in msg.content:
-          await msg.channel.send('這不就來了嗎')
-          給你番茄醬 = choice(jdata['給你番茄醬'])
-          await msg.channel.send(給你番茄醬)
-
-      if msg.author == selF.bot.user:
-        return
-      if selF.bot.user.mentioned_in(msg):
-        if "你有多不想上班" in msg.content:
-          不想上班 = choice(jdata['不想上班'])
-          await msg.channel.send(不想上班)
-
 async def setup(bot):
     await bot.add_cog(react(bot))

@@ -3,6 +3,11 @@ from discord.ext import commands
 from core.classes import Cog_Extension
 import re
 import asyncio
+from secrets import choice
+import json
+
+with open('setting.json','r',encoding='utf8') as jfile:
+   jdata = json.load(jfile)
 
 class cmd(Cog_Extension):
 
@@ -79,7 +84,23 @@ class cmd(Cog_Extension):
           # 回覆成功訊息
           await ctx.send(f"已將 [{source.name}] 的所有人移動到 [{target.name}] ") 
       else:
-          await ctx.send("你沒有管理者權限用來執行這個指令")        
+          await ctx.send("你沒有管理者權限用來執行這個指令") 
+
+  @commands.command() 
+  async def 給你番茄醬(self,msg):
+      await msg.channel.send('這不就來了嗎')
+      給你番茄醬 = choice(jdata['給你番茄醬'])
+      await msg.channel.send(給你番茄醬)
+
+  @commands.command() 
+  async def 不想上班(self,msg):
+      不想上班 = choice(jdata['不想上班'])
+      await msg.channel.send(不想上班)
+
+  @commands.command() 
+  async def 買不買(self,msg):
+      買不買 = choice(jdata['買不買'])
+      await msg.channel.send(買不買)    
 
 async def setup(bot):
     await bot.add_cog(cmd(bot))
