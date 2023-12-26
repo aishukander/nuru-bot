@@ -103,12 +103,12 @@ class cmd(Cog_Extension):
     @commands.command() 
     async def 給你番茄醬(self,msg):
         await msg.channel.send('這不就來了嗎')
-        給你番茄醬 = choice(jdata['給你番茄醬'])
+        給你番茄醬 = (jdata['給你番茄醬']
         await msg.channel.send(給你番茄醬)
 
     @commands.command() 
     async def 不想上班(self,msg):
-        不想上班 = choice(jdata['不想上班'])
+        不想上班 = jdata['不想上班']
         await msg.channel.send(不想上班)
 
     @commands.command() 
