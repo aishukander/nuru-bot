@@ -2,6 +2,7 @@
 '''======================================================================================='''
 import discord
 from discord.ext import commands
+import os
 import json
 import random
 import asyncio
@@ -23,10 +24,16 @@ bot = commands.Bot(command_prefix='~',intents=intents)
 #刪除help指令
 bot.remove_command('help')
 
-#載入對應的cogs檔
 @bot.event
 async def on_ready():
-    extensions = ["cogs.RTsay", "cogs.react", "cogs.help", "cogs.music", "cogs.roothelp", "cogs.cmd", "cogs.Gemini"]
+    #載入所有位於cogs的cog
+    cog_path = "cogs"
+    extensions = []
+
+    for filepath in os.listdir(cog_path):
+        if filepath.endswith('.py') and not filepath.startswith('_'):
+            cog = f'{cog_path}.{filepath[:-3]}'
+            extensions.append(cog)
     await asyncio.gather(*[bot.load_extension(ext) for ext in extensions])
 
     #啟動時會在終端機印出的訊息
@@ -41,8 +48,11 @@ async def on_ready():
 async def load(ctx, extension):
     #檢測使用者的伺服器管理員權限
     if ctx.author.guild_permissions.administrator:
-        await bot.load_extension(f"cogs.{extension}")
-        await ctx.send(f"{extension}模塊加載完成")
+        try:
+            await bot.load_extension(f"cogs.{extension}")
+            await ctx.send(f"{extension}模塊加載完成")
+        except Exception as e:
+            await ctx.send(f"加載模塊時發生錯誤: {e}")
     #告知使用者沒有管理員權限
     else:
         await ctx.send("你沒有管理者權限用來執行這個指令")
@@ -50,16 +60,22 @@ async def load(ctx, extension):
 @bot.command()
 async def unload(ctx, extension):
     if ctx.author.guild_permissions.administrator:
-        await bot.unload_extension(f"cogs.{extension}")
-        await ctx.send(f"{extension}模塊卸載完成")
+        try:
+            await bot.unload_extension(f"cogs.{extension}")
+            await ctx.send(f"{extension}模塊卸載完成")
+        except Exception as e:
+            await ctx.send(f"卸載模塊時發生錯誤: {e}")
     else:
         await ctx.send("你沒有管理者權限用來執行這個指令")
 
 @bot.command()
 async def reload(ctx, extension):
     if ctx.author.guild_permissions.administrator:
-        await bot.reload_extension(f"cogs.{extension}")
-        await ctx.send(f"{extension}模塊重載完成")
+        try:
+            await bot.reload_extension(f"cogs.{extension}")
+            await ctx.send(f"{extension}模塊重載完成")
+        except Exception as e:
+            await ctx.send(f"重載模塊時發生錯誤: {e}")
     else:
         await ctx.send("你沒有管理者權限用來執行這個指令")
 '''======================================================================================='''
