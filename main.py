@@ -102,23 +102,21 @@ async def ping(ctx):
     await ctx.send(f'{round(bot.latency*1000)}(ms)')
 
 tag_on = 0
-#關閉tag回覆功能指令
+#管理tag回覆功能指令
 @bot.command()
-async def tagoff(ctx):
+async def tag(ctx, action: str):
     if ctx.author.guild_permissions.administrator:
         global tag_on
-        tag_on = 0
-        await ctx.send("已暫時關閉tag功能")
-    else:
-        await ctx.send("你沒有管理者權限用來執行這個指令")
-
-#開啟tag回覆功能指令
-@bot.command()
-async def tagon(ctx):
-    if ctx.author.guild_permissions.administrator:
-        global tag_on
-        tag_on = 1
-        await ctx.send("已啟用tag功能")
+        if action.lower() == "on":
+            tag_on = 1
+            await ctx.send("已啟用tag功能")
+        
+        elif action.lower() == "off":
+            tag_on = 0
+            await ctx.send("已暫時關閉tag功能")
+        
+        else:
+            await ctx.send("無效的動作參數, 請使用 `on` 或 `off`")
     else:
         await ctx.send("你沒有管理者權限用來執行這個指令")
 
