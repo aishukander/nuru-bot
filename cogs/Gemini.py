@@ -20,6 +20,8 @@ class Gemini(Cog_Extension):
     GOOGLE_AI_KEY = TOKEN["GOOGLE_AI_KEY"]  
     MAX_HISTORY = int(TOKEN["MAX_HISTORY"])
 
+    DMC_on = 0
+
     genai.configure(api_key=GOOGLE_AI_KEY)
     text_generation_config = {
         "temperature": 0.9,
@@ -43,12 +45,13 @@ class Gemini(Cog_Extension):
     image_model = genai.GenerativeModel(model_name="gemini-pro-vision", generation_config=image_generation_config, safety_settings=safety_settings)
 
     @commands.Cog.listener()
-    async def on_message(self, message):  
+    async def on_message(self, message):
+        global DMC_on
       
         if message.author == self.bot.user:
             return
 
-        if self.bot.user.mentioned_in(message):
+        if self.bot.user.mentioned_in(message) or (self.DMC_on and isinstance(message.channel, discord.DMChannel)):
        
             cleaned_text = self.clean_discord_message(message.content)
        
@@ -142,6 +145,23 @@ class Gemini(Cog_Extension):
     def clean_discord_message(self, input_string):
         pattern = re.compile(r"<[^>]+>")
         return pattern.sub("", input_string)
+    
+    @commands.command()
+    async def DMC(self, ctx, action: str):
+        if ctx.author.guild_permissions.administrator:
+            global DMC_on
+            if action.lower() == "on":
+                self.DMC_on = 1
+                await ctx.send("已啟用Gemini私訊時的直接觸發")
+       
+            elif action.lower() == "off":
+                self.DMC_on = 0
+                await ctx.send("已暫時關閉Gemini私訊時的直接觸發")
+
+            else:
+                await ctx.send("無效的動作參數, 請使用 `on` 或 `off`")
+        else:
+            await ctx.send("你沒有管理者權限用來執行這個指令")
 
 async def setup(bot):
     await bot.add_cog(Gemini(bot))
