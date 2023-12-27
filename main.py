@@ -118,7 +118,7 @@ async def tagon(ctx):
     if ctx.author.guild_permissions.administrator:
         global tag_on
         tag_on = 1
-        await ctx.send("已重新啟用tag功能")
+        await ctx.send("已啟用tag功能")
     else:
         await ctx.send("你沒有管理者權限用來執行這個指令")
 
