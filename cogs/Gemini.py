@@ -48,7 +48,7 @@ class Gemini(Cog_Extension):
         if message.author == self.bot.user:
             return
 
-        if self.bot.user.mentioned_in(message) or isinstance(message.channel, discord.DMChannel):
+        if self.bot.user.mentioned_in(message):
        
             cleaned_text = self.clean_discord_message(message.content)
        
