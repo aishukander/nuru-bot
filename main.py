@@ -93,7 +93,8 @@ async def 伊蕾娜(ctx):
 #用來取得bot的邀請連結
 @bot.command()
 async def invitation(ctx):
-    embed=discord.Embed(title="------連結------", url="https://discord.com/api/oauth2/authorize?client_id=999157840063242330&permissions=318364711936&scope=bot", description="狠狠的點下去吧", color=0x007bff)
+    color = random.randint(0, 16777215)
+    embed=discord.Embed(title="------連結------", url=jdata["invitation"], description="狠狠的點下去吧", color=color)
     await ctx.send(embed=embed)
 
 #測試bot的ping值
