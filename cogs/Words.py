@@ -22,10 +22,10 @@ class words(Cog_Extension):
 
             elif action.lower() == "add":
                 if word not in self.words:
+                    await ctx.send(f'新增偵測: {word}')
                     self.words[word] = '0'
                     with open('words.json', 'w') as f: 
                         json.dump(self.words, f)
-                    await ctx.send(f'新增偵測: {word}')
             else:
                 await ctx.send("無效的動作參數, 請使用 `remove` 或 `add`")
         else:
