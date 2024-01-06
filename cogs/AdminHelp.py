@@ -3,11 +3,11 @@ from discord.ext import commands
 from core.classes import Cog_Extension
 
 class roothelp(Cog_Extension):
-    #roothelp指令
+    #AdminHelp指令
     @commands.command()
-    async def roothelp(self,ctx):
+    async def adminhelp(self,ctx):
         if ctx.author.guild_permissions.administrator:
-            embed=discord.Embed(title="roothelp1", color=0x007bff)
+            embed=discord.Embed(title="AdminHelp1", color=0x007bff)
             embed.add_field(name="@mumei [任意訊息]", value="讓mumei回答你(可以使用圖片)", inline=False)
             embed.add_field(name="@mumei RESET", value="清除使用者的訊息歷史記錄", inline=False)
             embed.add_field(name="~DMC [on或off]", value="管理Gemini在私訊時是否直接回覆(需管理者權限)", inline=False)
@@ -29,13 +29,15 @@ class roothelp(Cog_Extension):
             embed.add_field(name="~reword [欲修改文本]", value="用來批量替換文本內的單字", inline=False)
             embed.add_field(name="~drive", value="讓bot私訊你來呈現一個小型資訊放置處", inline=False)
             embed.add_field(name="~tag [on或off]", value="管理tag回覆功能(需管理者權限)", inline=False)
+            embed.add_field(name="~words [remove或add] [單字]", value="刪除或新增要偵測的單字(需管理者權限)", inline=False)
+            embed.add_field(name="~show", value="顯示偵測中的單字偵測次數", inline=False)
             embed.add_field(name="~play [連結]", value="撥放指定歌曲", inline=False)
             embed.add_field(name="~pause", value="暫停當前播放的歌曲", inline=False)
-            embed.add_field(name="~resume", value="恢復當前暫停的歌曲", inline=False)
-            embed.add_field(name="~volume [音量]", value="調整歌曲的音量", inline=False)
             await ctx.send(embed=embed)
 
-            embed=discord.Embed(title="roothelp2", color=0x007bff)
+            embed=discord.Embed(title="AdminHelp2", color=0x007bff)
+            embed.add_field(name="~resume", value="恢復當前暫停的歌曲", inline=False)
+            embed.add_field(name="~volume [音量]", value="調整歌曲的音量", inline=False)
             embed.add_field(name="~summon [指定的頻道]", value="把機器人拉到指定頻道，如未指定就會拉到你所在頻道(需管理者權限)", inline=False)
             embed.add_field(name="~leave", value="清空隊列並且離開語音通道(需管理者權限)", inline=False)
             embed.add_field(name="~now", value="顯示當前正在播放的歌曲", inline=False)
