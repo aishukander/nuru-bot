@@ -1,28 +1,28 @@
 #各種使用的模組
-'''======================================================================================='''
+"""======================================================================================="""
 import discord
 from discord.ext import commands
 import os
 import json
 import random
 import asyncio
-'''======================================================================================='''
+"""======================================================================================="""
 
 intents = discord.Intents.all()
 
 #加載setting.json的內容
-with open('setting.json','r',encoding='utf8') as jfile:
+with open("setting.json","r",encoding="utf8") as jfile:
     jdata = json.load(jfile)
 
 #加載TOKEN
-with open('token.json','r',encoding='utf8') as tfile:
+with open("token.json","r",encoding="utf8") as tfile:
     TOKEN = json.load(tfile)
 
 #呼喚bot的前綴
-bot = commands.Bot(command_prefix='~',intents=intents)
+bot = commands.Bot(command_prefix="~",intents=intents)
 
 #刪除help指令
-bot.remove_command('help')
+bot.remove_command("help")
 
 @bot.event
 async def on_ready():
@@ -31,8 +31,8 @@ async def on_ready():
     extensions = []
 
     for filepath in os.listdir(cog_path):
-        if filepath.endswith('.py') and not filepath.startswith('_'):
-            cog = f'{cog_path}.{filepath[:-3]}'
+        if filepath.endswith(".py") and not filepath.startswith("_"):
+            cog = f"{cog_path}.{filepath[:-3]}"
             extensions.append(cog)
     await asyncio.gather(*[bot.load_extension(ext) for ext in extensions])
 
@@ -46,7 +46,7 @@ async def on_ready():
     await bot.change_presence(activity=discord.Game(name="~help 來獲取指令列表"))
 
 #用於加載、卸載、重讀不同cosg檔
-'''======================================================================================='''
+"""======================================================================================="""
 @bot.command()
 async def load(ctx, extension):
     #檢測使用者的伺服器管理員權限
@@ -81,14 +81,14 @@ async def reload(ctx, extension):
             await ctx.send(f"重載模塊時發生錯誤: {e}")
     else:
         await ctx.send("你沒有管理者權限用來執行這個指令")
-'''======================================================================================='''
+"""======================================================================================="""
 
 #從二十幾張伊蕾娜的圖片中給你一張
 @bot.command()
 async def 伊蕾娜(ctx):
-    random_pic = random.choice(jdata['Elaina'])
+    random_pic = random.choice(jdata["Elaina"])
     await ctx.send(random_pic)
-    await ctx.send('給你可愛的伊蕾娜')
+    await ctx.send("給你可愛的伊蕾娜")
 
 #用來取得bot的邀請連結
 @bot.command()
@@ -99,7 +99,7 @@ async def invitation(ctx):
 #測試bot的ping值
 @bot.command()
 async def ping(ctx):
-    await ctx.send(f'{round(bot.latency*1000)}(ms)')
+    await ctx.send(f"{round(bot.latency*1000)}(ms)")
 
 tag_on = 0
 #管理tag回覆功能指令

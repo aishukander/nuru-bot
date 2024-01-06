@@ -2,12 +2,13 @@ import discord
 from discord.ext import commands
 from core.classes import Cog_Extension
 import json
+import random
 
 class words(Cog_Extension):
 
     def __init__(self, bot):
         self.bot = bot
-        with open('words.json','r',encoding='utf8') as f:
+        with open("words.json","r",encoding="utf8") as f:
             self.words = json.load(f)
     
     @commands.command()
@@ -16,15 +17,15 @@ class words(Cog_Extension):
             if action.lower() == "remove":
                 if word in self.words:
                     del self.words[word]
-                    with open('words.json', 'w') as f:
+                    with open("words.json", "w") as f:
                         json.dump(self.words, f)
-                    await ctx.send(f'刪除偵測: {word}')
+                    await ctx.send(f"刪除偵測: {word}")
 
             elif action.lower() == "add":
                 if word not in self.words:
-                    await ctx.send(f'新增偵測: {word}')
-                    self.words[word] = '0'
-                    with open('words.json', 'w') as f: 
+                    await ctx.send(f"新增偵測: {word}")
+                    self.words[word] = "0"
+                    with open("words.json", "w") as f: 
                         json.dump(self.words, f)
             else:
                 await ctx.send("無效的動作參數, 請使用 `remove` 或 `add`")
@@ -33,7 +34,8 @@ class words(Cog_Extension):
 
     @commands.command()
     async def show(self, ctx):
-        embed = discord.Embed(title='Words Count')
+        color = random.randint(0, 16777215)
+        embed = discord.Embed(title="Words Count", color=color)
         for word, count in self.words.items():
             embed.add_field(name=word, value=count)
         await ctx.send(embed=embed)
@@ -43,7 +45,7 @@ class words(Cog_Extension):
         for word in self.words:
             if word in message.content:
                 self.words[word] = str(int(self.words[word]) + 1)
-        with open('words.json', 'w') as f:
+        with open("words.json", "w") as f:
             json.dump(self.words, f)
 
 async def setup(bot):
