@@ -1,12 +1,14 @@
 import discord
 from discord.ext import commands
 from core.classes import Cog_Extension
+import random
 
 class help(Cog_Extension):
     #help指令
     @commands.command()
     async def help(self,ctx):
-        embed=discord.Embed(title="help", color=0x007bff)
+        color = random.randint(0, 16777215)
+        embed=discord.Embed(title="help", color=color)
         embed.add_field(name="@mumei [任意訊息]", value="讓mumei回答你(可以使用圖片)", inline=False)
         embed.add_field(name="@mumei RESET", value="清除使用者的訊息歷史記錄", inline=False)
         embed.add_field(name="~help", value="指令說明", inline=False)

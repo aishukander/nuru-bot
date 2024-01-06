@@ -1,12 +1,14 @@
 import discord
 from discord.ext import commands
 from core.classes import Cog_Extension
+import random
 
 class RTsay(Cog_Extension):
 
     @commands.command()
     async def RTsay(self,ctx):
-      embed=discord.Embed(title="React說明1", color=0x007bff)
+      color = random.randint(0, 16777215)
+      embed=discord.Embed(title="React說明1", color=color)
       embed.add_field(name="字尾包含 好甲喔", value="這個地方變得越來越甲了的圖片", inline=True)
       embed.add_field(name="字尾包含 初吻", value="このDIOだ的圖片", inline=True)
       embed.add_field(name="字尾包含 共匪", value="該死的共匪的圖片", inline=True)
@@ -34,7 +36,7 @@ class RTsay(Cog_Extension):
       embed.add_field(name="字尾包含 我拒絕", value="我拒絕 的圖片", inline=True)
       await ctx.send(embed=embed)
 
-      embed=discord.Embed(title="React說明2", color=0x007bff)
+      embed=discord.Embed(title="React說明2", color=color)
       embed.add_field(name="字尾包含 德意志科技世界第一", value="德意志科技 的圖片", inline=True)
       embed.add_field(name="字尾包含 玩腿", value="玩腿 的圖片", inline=True)
       embed.add_field(name="字尾包含 nice", value="nice 的圖片", inline=True)

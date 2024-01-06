@@ -1,13 +1,15 @@
 import discord
 from discord.ext import commands
 from core.classes import Cog_Extension
+import random
 
 class roothelp(Cog_Extension):
     #AdminHelp指令
     @commands.command()
     async def adminhelp(self,ctx):
         if ctx.author.guild_permissions.administrator:
-            embed=discord.Embed(title="AdminHelp1", color=0x007bff)
+            color = random.randint(0, 16777215)
+            embed=discord.Embed(title="AdminHelp1", color=color)
             embed.add_field(name="@mumei [任意訊息]", value="讓mumei回答你(可以使用圖片)", inline=False)
             embed.add_field(name="@mumei RESET", value="清除使用者的訊息歷史記錄", inline=False)
             embed.add_field(name="~DMC [on或off]", value="管理Gemini在私訊時是否直接回覆(需管理者權限)", inline=False)
@@ -35,7 +37,7 @@ class roothelp(Cog_Extension):
             embed.add_field(name="~play [連結]", value="撥放指定歌曲", inline=False)
             await ctx.send(embed=embed)
 
-            embed=discord.Embed(title="AdminHelp2", color=0x007bff)
+            embed=discord.Embed(title="AdminHelp2", color=color)
             embed.add_field(name="~pause", value="暫停當前播放的歌曲", inline=False)
             embed.add_field(name="~resume", value="恢復當前暫停的歌曲", inline=False)
             embed.add_field(name="~volume [音量]", value="調整歌曲的音量", inline=False)
