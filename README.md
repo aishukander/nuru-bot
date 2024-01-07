@@ -7,8 +7,8 @@
 ---------------------------------------------------------------------------------------------
 windows請安裝git與ffmpeg並啟動rely.bat  
 linux(Debian)請啟動rely.sh  
-新稱 token.json 並放入  
-"BOT_TOKEN":  
-"GOOGLE_AI_KEY":  
-"MAX_HISTORY":  
+新稱 token.json 並放入對應資料  
+"BOT_TOKEN":""  
+"GOOGLE_AI_KEY":""  
+"MAX_HISTORY":""  
 ---------------------------------------------------------------------------------------------  
