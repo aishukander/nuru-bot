@@ -26,6 +26,9 @@ bot.remove_command("help")
 
 @bot.event
 async def on_ready():
+    #同步斜線指令
+    slash = await bot.tree.sync()
+
     #載入所有位於cogs的cog
     cog_path = "cogs"
     extensions = []
@@ -83,24 +86,17 @@ async def reload(ctx, extension):
         await ctx.send("你沒有管理者權限用來執行這個指令")
 """======================================================================================="""
 
-#從二十幾張伊蕾娜的圖片中給你一張
-@bot.command()
-async def 伊蕾娜(ctx):
-    random_pic = random.choice(jdata["Elaina"])
-    await ctx.send(random_pic)
-    await ctx.send("給你可愛的伊蕾娜")
-
 #用來取得bot的邀請連結
-@bot.command()
-async def invitation(ctx):
+@bot.tree.command(name = "invitation", description = "獲取Bot的邀請連結")
+async def invitation(interaction: discord.Interaction):
     color = random.randint(0, 16777215)
     embed=discord.Embed(title="------連結------", url=jdata["invitation"], description="狠狠的點下去吧", color=color)
-    await ctx.send(embed=embed)
+    await interaction.response.send_message(embed=embed)
 
 #測試bot的ping值
-@bot.command()
-async def ping(ctx):
-    await ctx.send(f"{round(bot.latency*1000)}(ms)")
+@bot.tree.command(name = "ping", description = "PingBot")
+async def ping(interaction: discord.Interaction):
+    await interaction.response.send_message(f"{round(bot.latency*1000)}(ms)")
 
 tag_on = 0
 #管理tag回覆功能指令
