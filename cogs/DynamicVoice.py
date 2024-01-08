@@ -4,6 +4,7 @@ from core.classes import Cog_Extension
 import json
 import os
 
+VoiceName = "的動態語音" #名稱格式為[進入動態語音之使用者名][VoiceName的字串]
 voice_channel_set = set()
 
 class DynamicVoice(Cog_Extension):
@@ -12,6 +13,7 @@ class DynamicVoice(Cog_Extension):
     
     root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     DynamicVoice_json_path = os.path.join(root_dir, "json\\DynamicVoice.json")
+
     with open(DynamicVoice_json_path,"r",encoding="utf8") as f:
         origin_channels = json.load(f)
 
@@ -52,13 +54,14 @@ class DynamicVoice(Cog_Extension):
     @commands.Cog.listener() 
     async def on_voice_state_update(self, member, before, after):
         global voice_channel_set
+        global VoiceName
         guild_id = member.guild.id
         # 從 JSON 文件中獲取當前服務器的母頻道 ID
         origin_channel_id = self.origin_channels.get(str(guild_id))
         # 如果成員加入了一個語音頻道
         if after.channel and after.channel.id == origin_channel_id:
                 # 創建一個新的語音頻道，名稱為成員的暱稱，類型為語音，位於原始頻道的下方
-                new_voice_channel = await after.channel.clone(name=member.display_name, reason="Create new voice channel")
+                new_voice_channel = await after.channel.clone(name=f"{member.display_name}{VoiceName}", reason="Create new voice channel")
                 # 將成員移動到新的語音頻道
                 await member.move_to(new_voice_channel, reason="Move to new voice channel")
                 # 將新的語音頻道的ID加入到集合中，以便之後使用

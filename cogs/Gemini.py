@@ -17,12 +17,16 @@ class Gemini(Cog_Extension):
 
     root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     token_json_path = os.path.join(root_dir, 'json\\Token.json')
+    setting_json_path = os.path.join(root_dir, "json\\Setting.json")
 
     with open(token_json_path,'r',encoding='utf8') as tfile:
         TOKEN = json.load(tfile)
 
+    with open(setting_json_path,"r",encoding="utf8") as f:
+        jdata = json.load(f)
+
     GOOGLE_AI_KEY = TOKEN["GOOGLE_AI_KEY"]  
-    MAX_HISTORY = int(TOKEN["MAX_HISTORY"])
+    MAX_HISTORY = int(jdata["MAX_HISTORY"])
 
     DMC_on = 0
 
