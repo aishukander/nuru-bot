@@ -1,5 +1,6 @@
 import re
 import json
+import os
 
 import aiohttp
 import discord
@@ -14,7 +15,10 @@ class Gemini(Cog_Extension):
         self.bot = bot
         self.message_history = {}
 
-    with open('token.json','r',encoding='utf8') as tfile:
+    root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    token_json_path = os.path.join(root_dir, 'json\\token.json')
+
+    with open(token_json_path,'r',encoding='utf8') as tfile:
         TOKEN = json.load(tfile)
 
     GOOGLE_AI_KEY = TOKEN["GOOGLE_AI_KEY"]  

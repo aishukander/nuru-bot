@@ -5,8 +5,12 @@ import re
 import asyncio
 from secrets import choice
 import json
+import os
 
-with open('setting.json','r',encoding='utf8') as jfile:
+root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+setting_json_path = os.path.join(root_dir, "json\\setting.json")
+
+with open(setting_json_path,"r",encoding="utf8") as jfile:
    jdata = json.load(jfile)
 
 class cmd(Cog_Extension):

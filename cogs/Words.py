@@ -3,12 +3,15 @@ from discord.ext import commands
 from core.classes import Cog_Extension
 import json
 import random
+import os
 
 class words(Cog_Extension):
 
     def __init__(self, bot):
         self.bot = bot
-        with open("words.json","r",encoding="utf8") as f:
+        root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        self.words_json_path = os.path.join(root_dir, "json\\words.json")
+        with open(self.words_json_path,"r",encoding="utf8") as f:
             self.words = json.load(f)
     
     @commands.command()
@@ -17,7 +20,7 @@ class words(Cog_Extension):
             if action.lower() == "remove":
                 if word in self.words:
                     del self.words[word]
-                    with open("words.json", "w") as f:
+                    with open(self.words_json_path, "w") as f:
                         json.dump(self.words, f)
                     await ctx.send(f"刪除偵測: {word}")
 
@@ -25,7 +28,7 @@ class words(Cog_Extension):
                 if word not in self.words:
                     await ctx.send(f"新增偵測: {word}")
                     self.words[word] = "0"
-                    with open("words.json", "w") as f: 
+                    with open(self.words_json_path, "w") as f: 
                         json.dump(self.words, f)
             else:
                 await ctx.send("無效的動作參數, 請使用 `remove` 或 `add`")
@@ -45,7 +48,7 @@ class words(Cog_Extension):
         for word in self.words:
             if word in message.content:
                 self.words[word] = str(int(self.words[word]) + 1)
-        with open("words.json", "w") as f:
+        with open(self.words_json_path, "w") as f:
             json.dump(self.words, f)
 
 async def setup(bot):
