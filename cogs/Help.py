@@ -13,7 +13,6 @@ class help(Cog_Extension):
         embed.add_field(name="@mumei RESET", value="清除使用者的訊息歷史記錄", inline=False)
         embed.add_field(name="~help", value="指令說明", inline=False)
         embed.add_field(name="~adminhelp", value="管理員指令說明(需管理者權限)", inline=False)
-        embed.add_field(name="~RTsay", value="React列表1", inline=False)
         embed.add_field(name="/invitation", value="給你機器人的邀請連結", inline=False)
         embed.add_field(name="/ping", value="PingBot", inline=False)
         embed.add_field(name="~買不買", value="讓mumei告訴你該不該買", inline=False)
