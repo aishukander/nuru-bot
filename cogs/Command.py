@@ -105,17 +105,6 @@ class cmd(Cog_Extension):
         await ctx.send("完成")
 
     @commands.command() 
-    async def 給你番茄醬(self,msg):
-        await msg.channel.send('這不就來了嗎')
-        給你番茄醬 = jdata['給你番茄醬']
-        await msg.channel.send(給你番茄醬)
-
-    @commands.command() 
-    async def 不想上班(self,msg):
-        不想上班 = jdata['不想上班']
-        await msg.channel.send(不想上班)
-
-    @commands.command() 
     async def 買不買(self,msg):
         買不買 = choice(jdata['買不買'])
         await msg.channel.send(買不買)    
