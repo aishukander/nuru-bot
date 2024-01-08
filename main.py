@@ -88,6 +88,17 @@ async def reload(ctx, extension):
             await ctx.send(f"重載模塊時發生錯誤: {e}")
     else:
         await ctx.send("你沒有管理者權限用來執行這個指令")
+
+@bot.command()
+async def list(ctx):
+    if ctx.author.guild_permissions.administrator:
+        loaded_cogs = [cog for cog in bot.cogs]
+        message = "已載入的 cog 如下：\n"
+        for cog in loaded_cogs:
+            message += f"* {cog}\n"
+        await ctx.send(message)
+    else:
+        await ctx.send("你沒有管理者權限用來執行這個指令")
 """======================================================================================="""
 
 #用來取得bot的邀請連結

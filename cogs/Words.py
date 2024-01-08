@@ -5,7 +5,7 @@ import json
 import random
 import os
 
-class words(Cog_Extension):
+class Words(Cog_Extension):
 
     def __init__(self, bot):
         self.bot = bot
@@ -52,4 +52,4 @@ class words(Cog_Extension):
             json.dump(self.words, f)
 
 async def setup(bot):
-    await bot.add_cog(words(bot))
+    await bot.add_cog(Words(bot))

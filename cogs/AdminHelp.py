@@ -3,7 +3,7 @@ from discord.ext import commands
 from core.classes import Cog_Extension
 import random
 
-class roothelp(Cog_Extension):
+class Adminhelp(Cog_Extension):
     #AdminHelp指令
     @commands.command()
     async def adminhelp(self,ctx):
@@ -23,10 +23,10 @@ class roothelp(Cog_Extension):
             embed.add_field(name="~給你番茄醬", value="那位自由的男人會拿番茄醬過來", inline=False)
             embed.add_field(name="~不想上班", value="讓mumei一張圖告訴你他有多不想上班", inline=False)
             embed.add_field(name="~delete [訊息數]", value="在此頻道刪除所選數量的訊息(需管理者權限)", inline=False)
-            embed.add_field(name="~ban [對象名稱]", value="把指定對象踢出伺服器(需管理者權限)", inline=False)
             embed.add_field(name="~load [所選模塊]", value="加載所選的指令模塊(需管理者權限)", inline=False)
             embed.add_field(name="~unload [所選模塊]", value="卸載所選的指令模塊(需管理者權限)", inline=False)
             embed.add_field(name="~reload [所選模塊]", value="重載所選的指令模塊(需管理者權限)", inline=False)
+            embed.add_field(name="~list", value="顯示已載入的指令模塊", inline=False)
             embed.add_field(name="~role [身分組]", value="添加對應身分組與其的專用頻道(需管理者權限)", inline=False)
             embed.add_field(name="~move [目前頻道ID] [目標頻道ID]", value="將語音頻道內所有人移動到另一個語音頻道 (需管理者權限)", inline=False)
             embed.add_field(name="~reword [欲修改文本]", value="用來批量替換文本內的單字", inline=False)
@@ -51,9 +51,10 @@ class roothelp(Cog_Extension):
             embed.add_field(name="~remove", value="刪除列隊中指定的歌曲", inline=False)
             embed.add_field(name="~loop", value="循環播放當前歌曲，再用一次指令以取消", inline=False)
             embed.add_field(name="~join", value="加入使用者所在的頻道", inline=False) 
+            embed.add_field(name="~ban [對象名稱]", value="把指定對象踢出伺服器(需管理者權限)", inline=False)
             await ctx.send(embed=embed)   
         else:
             await ctx.send("你沒有管理者權限用來執行這個指令")
 
 async def setup(bot):
-    await bot.add_cog(roothelp(bot))    
+    await bot.add_cog(Adminhelp(bot))    

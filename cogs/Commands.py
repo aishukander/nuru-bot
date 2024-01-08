@@ -13,7 +13,7 @@ setting_json_path = os.path.join(root_dir, "json\\Setting.json")
 with open(setting_json_path,"r",encoding="utf8") as jfile:
    jdata = json.load(jfile)
 
-class cmd(Cog_Extension):
+class Commands(Cog_Extension):
 
     #刪除所傳的訊息並讓機器人覆誦
     @commands.command()
@@ -110,4 +110,4 @@ class cmd(Cog_Extension):
         await msg.channel.send(買不買)    
 
 async def setup(bot):
-    await bot.add_cog(cmd(bot))
+    await bot.add_cog(Commands(bot))

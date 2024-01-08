@@ -254,7 +254,7 @@ class VoiceState:
             self.voice = None
 
 
-class music(commands.Cog):
+class Music(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
         self.voice_states = {}
@@ -518,4 +518,4 @@ class music(commands.Cog):
                 raise commands.CommandError('Bot is already in a voice channel.')
 
 async def setup(bot):
-    await bot.add_cog(music(bot))
+    await bot.add_cog(Music(bot))

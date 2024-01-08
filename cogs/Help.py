@@ -3,7 +3,7 @@ from discord.ext import commands
 from core.classes import Cog_Extension
 import random
 
-class help(Cog_Extension):
+class Help(Cog_Extension):
     #help指令
     @commands.command()
     async def help(self,ctx):
@@ -34,4 +34,4 @@ class help(Cog_Extension):
         await ctx.send(embed=embed)
     
 async def setup(bot):
-    await bot.add_cog(help(bot))    
+    await bot.add_cog(Help(bot))    
