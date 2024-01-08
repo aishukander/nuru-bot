@@ -20,7 +20,7 @@ class words(Cog_Extension):
             if action.lower() == "remove":
                 if word in self.words:
                     del self.words[word]
-                    with open(self.words_json_path, "w") as f:
+                    with open(self.words_json_path,"w",encoding="utf8") as f:
                         json.dump(self.words, f)
                     await ctx.send(f"刪除偵測: {word}")
 
@@ -28,7 +28,7 @@ class words(Cog_Extension):
                 if word not in self.words:
                     await ctx.send(f"新增偵測: {word}")
                     self.words[word] = "0"
-                    with open(self.words_json_path, "w") as f: 
+                    with open(self.words_json_path,"w",encoding="utf8") as f: 
                         json.dump(self.words, f)
             else:
                 await ctx.send("無效的動作參數, 請使用 `remove` 或 `add`")
@@ -48,7 +48,7 @@ class words(Cog_Extension):
         for word in self.words:
             if word in message.content:
                 self.words[word] = str(int(self.words[word]) + 1)
-        with open(self.words_json_path, "w") as f:
+        with open(self.words_json_path,"w",encoding="utf8") as f:
             json.dump(self.words, f)
 
 async def setup(bot):
