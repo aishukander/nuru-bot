@@ -46,7 +46,6 @@ class DynamicVoice(Cog_Extension):
                 
                     await channel.delete()
                 
-                    # 更新json数据
                     del self.origin_channels[guild_id][idx]  
                     if not self.origin_channels[guild_id]:
                             self.origin_channels.pop(guild_id)
@@ -73,7 +72,6 @@ class DynamicVoice(Cog_Extension):
         with open(self.DynamicVoice_json_path,"w",encoding="utf8") as f:
             f.write(json_str)
 
-    # 監聽語音頻道變化事件
     @commands.Cog.listener() 
     async def on_voice_state_update(self, member, before, after):
 
@@ -81,14 +79,12 @@ class DynamicVoice(Cog_Extension):
 
         guild_id = str(member.guild.id)
 
-        # 获取当前服务器母频道id列表
         origin_channels = self.origin_channels.get(guild_id)
         if not origin_channels:
             return
 
         for channel_id in origin_channels:
         
-            # 检查是否加入母频道
             if after.channel and after.channel.id == channel_id:
             
                 new_channel = await after.channel.clone(name=f"{member.display_name}{VoiceName}")
@@ -97,7 +93,6 @@ class DynamicVoice(Cog_Extension):
             
                 voice_channel_set.add(new_channel.id)
             
-            # 检查是否离开自定义语音频道
             elif before.channel and before.channel.id in voice_channel_set:
           
                 if len(before.channel.members) == 0: 
