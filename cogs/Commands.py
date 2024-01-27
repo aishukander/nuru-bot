@@ -44,8 +44,7 @@ class Commands(Cog_Extension):
 
     #Word-Changer功能的整合
     @commands.command()
-    async def reword(self,ctx,msg):
-        text = msg
+    async def reword(self,ctx,text):
         await ctx.send("請輸入要替換的單字：")
         #定義檢查函數來確保只接受用戶自己在同一頻道的訊息
         def check(msg):
