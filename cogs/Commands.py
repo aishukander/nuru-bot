@@ -109,5 +109,24 @@ class Commands(Cog_Extension):
         買不買 = choice(jdata['買不買'])
         await msg.channel.send(買不買)    
 
+    @commands.command()
+    async def msg(self, ctx, message, guild_name, channel_name):
+        if ctx.author.guild_permissions.administrator:
+            guild = discord.utils.find(lambda g: g.name == guild_name, self.bot.guilds)
+            if guild is None:
+                return await ctx.send("未找到伺服器!")
+        
+            channel = discord.utils.find(lambda c: c.name == channel_name, guild.text_channels)
+            if channel is None: 
+                 return await ctx.send("未找到頻道!")
+         
+            try:
+                await channel.send(message)
+                await ctx.send(f"訊息已成功發送至 #{channel} 的 {guild.name}!") 
+            except:
+                await ctx.send("訊息發送錯誤！")
+        else:
+            await ctx.send("你沒有管理者權限用來執行這個指令") 
+
 async def setup(bot):
     await bot.add_cog(Commands(bot))
