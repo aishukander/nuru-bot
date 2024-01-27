@@ -122,7 +122,7 @@ class Commands(Cog_Extension):
          
             try:
                 await channel.send(message)
-                await ctx.send(f"訊息已成功發送至 #{channel} 的 {guild.name}!") 
+                await ctx.send(f"訊息已成功發送至 {guild.name} 的 {channel} 頻道!") 
             except:
                 await ctx.send("訊息發送錯誤！")
         else:
