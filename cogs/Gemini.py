@@ -16,8 +16,8 @@ class Gemini(Cog_Extension):
         self.message_history = {}
 
     root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    token_json_path = os.path.join(root_dir, 'json\\Token.json')
-    setting_json_path = os.path.join(root_dir, "json\\Setting.json")
+    token_json_path = os.path.join(root_dir, "json", "Token.json")
+    setting_json_path = os.path.join(root_dir, "json", "Setting.json")
 
     with open(token_json_path,'r',encoding='utf8') as tfile:
         TOKEN = json.load(tfile)

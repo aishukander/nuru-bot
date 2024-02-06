@@ -8,7 +8,7 @@ import json
 import os
 
 root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-setting_json_path = os.path.join(root_dir, "json\\Setting.json")
+setting_json_path = os.path.join(root_dir, "json", "Setting.json")
 
 with open(setting_json_path,"r",encoding="utf8") as jfile:
    jdata = json.load(jfile)

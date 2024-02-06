@@ -10,7 +10,7 @@ class Words(Cog_Extension):
     def __init__(self, bot):
         self.bot = bot
         root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        self.words_json_path = os.path.join(root_dir, "json\\Words.json")
+        self.words_json_path = os.path.join(root_dir, "json", "Words.json")
         with open(self.words_json_path,"r",encoding="utf8") as f:
             self.words = json.load(f)
     

@@ -12,7 +12,7 @@ class DynamicVoice(Cog_Extension):
     origin_channels = {}
     
     root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    DynamicVoice_json_path = os.path.join(root_dir, "json\\DynamicVoice.json")
+    DynamicVoice_json_path = os.path.join(root_dir, "json", "DynamicVoice.json")
 
     with open(DynamicVoice_json_path,"r",encoding="utf8") as f:
         origin_channels = json.load(f)
