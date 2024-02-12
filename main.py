@@ -11,7 +11,7 @@ import asyncio
 intents = discord.Intents.all()
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
-setting_json_path = os.path.join(current_dir, "json", "setting.json")
+setting_json_path = os.path.join(current_dir, "json", "Setting.json")
 token_json_path = os.path.join(current_dir, "json", "Token.json")
 #加載setting.json的內容
 with open(setting_json_path,"r",encoding="utf8") as jfile:
