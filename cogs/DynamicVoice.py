@@ -104,7 +104,7 @@ class DynamicVoice(Cog_Extension):
                 
                     del self.origin_channels[guild_id][idx]  
                     if not self.origin_channels[guild_id]:
-                            self.origin_channels.pop(guild_id)
+                        self.origin_channels.pop(guild_id)
 
                     self.save_data()
 
