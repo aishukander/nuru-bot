@@ -124,7 +124,7 @@ class DynamicVoice(Cog_Extension):
             await ctx.send(f"未找到 {name} 動態語音")
 
     @commands.command()
-    async def setVName(self, ctx, new_voice_name):
+    async def uvn(self, ctx, new_voice_name):
         # 讀取 settings.json 文件
         open_setting()
 
