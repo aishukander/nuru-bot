@@ -7,7 +7,7 @@ import os
 voice_channel_set = set()
 
 root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-setting_json_path = os.path.join(root_dir, "json", "Setting.json")
+setting_json_path = os.path.join(root_dir, "json", "DynamicVoiceName.json")
 
 def open_setting():
     global settings
