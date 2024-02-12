@@ -17,7 +17,7 @@ class Adminhelp(Cog_Extension):
             embed.add_field(name="/invitation", value="給你機器人的邀請連結", inline=False)
             embed.add_field(name="/ping", value="PingBot", inline=False)
             embed.add_field(name="~dv [add或remove] [動態語音名]", value="管理動態語音", inline=False)
-            embed.add_field(name="~UVN [要修改為的動態語音名]", value="範例:~UVN {}的動態語音({}代表第一個進入語音的使用者)", inline=False)
+            embed.add_field(name="~setVName [要修改為的動態語音名]", value="範例:~setVName {}的動態語音({}代表第一個進入語音的使用者)", inline=False)
             embed.add_field(name="~say [要覆誦的話]", value="刪除所傳的訊息並覆誦(需管理者權限)", inline=False)
             embed.add_field(name="~msg [要傳送的訊息] [伺服器] [頻道名]", value="傳送訊息至指定位置(需管理者權限)", inline=False)
             embed.add_field(name="~買不買", value="讓mumei告訴你該不該買", inline=False)
