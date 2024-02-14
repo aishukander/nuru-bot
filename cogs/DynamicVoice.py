@@ -129,8 +129,7 @@ class DynamicVoice(Cog_Extension):
         open_setting()
 
         # 更新 VoiceName 的值
-        guild_id = ctx.guild.id
-        settings[f'{guild_id}_VoiceName'] = new_voice_name
+        settings[f'{ctx.guild.id}_VoiceName'] = new_voice_name
 
         # 將更新後的設定寫回 settings.json 文件
         dump_setting()
