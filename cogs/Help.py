@@ -31,6 +31,8 @@ class Help(Cog_Extension):
         embed.add_field(name="~remove", value="刪除列隊中指定的歌曲", inline=False)
         embed.add_field(name="~loop", value="循環播放當前歌曲，再用一次指令以取消", inline=False)
         embed.add_field(name="~join", value="加入使用者所在的頻道", inline=False)
+        embed.add_field(name="~lottery [tag使用者(每個使用者以空格分開)]", value="開始抽籤(點擊⚙️顯示目前抽籤權重、點擊▶️抽籤)", inline=False)
+        embed.add_field(name="~weight [tag使用者] [權重]", value="修改抽籤中籤的權重", inline=False)
         await ctx.send(embed=embed)
     
 async def setup(bot):
