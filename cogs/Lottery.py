@@ -34,7 +34,7 @@ class Lottery(Cog_Extension):
 
     async def show_weights(self, message):
         weights_text = '\n'.join(f'{user.mention}: {weight}' for user, weight in user_weights.items())
-        await message.edit(content=f'權重為:\n{weights_text}\n請輸入~set_weight [欲修改的使用者] [權重] 以修改權重')
+        await message.edit(content=f'權重為:\n{weights_text}\n請輸入~weight [欲修改的使用者] [權重] 以修改權重')
 
     async def draw(self, message):
         total_weight = sum(user_weights.values())
