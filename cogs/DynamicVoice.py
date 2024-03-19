@@ -10,13 +10,13 @@ root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 setting_json_path = os.path.join(root_dir, "json", "DynamicVoiceName.json")
 
 def open_setting():
-    global settings
+    global jdata
     with open(setting_json_path,"r",encoding="utf8") as jfile:
-        settings = json.load(jfile)
+        jdata = json.load(jfile)
 
 def dump_setting():
     with open(setting_json_path,"w",encoding="utf8") as f:
-        json.dump(settings, f, ensure_ascii=False, indent=4)
+        json.dump(jdata, f, ensure_ascii=False, indent=4)
 
 class DynamicVoice(Cog_Extension):
 
@@ -59,7 +59,7 @@ class DynamicVoice(Cog_Extension):
             if after.channel and after.channel.id == channel_id:
                 try:
                     open_setting()
-                    new_channel = await after.channel.clone(name=settings[f"{guild_id}_VoiceName"].format(member.display_name))
+                    new_channel = await after.channel.clone(name=jdata[f"{guild_id}_VoiceName"].format(member.display_name))
                 except:
                     new_channel = await after.channel.clone(name=f"{member.display_name}的動態語音")
             
@@ -111,7 +111,7 @@ class DynamicVoice(Cog_Extension):
                     try:
                         open_setting()
 
-                        del settings[f"{guild_id}_VoiceName"]
+                        del jdata[f"{guild_id}_VoiceName"]
 
                         dump_setting()
                         
@@ -125,13 +125,13 @@ class DynamicVoice(Cog_Extension):
 
     @commands.command()
     async def uvn(self, ctx, new_voice_name):
-        # 讀取 settings.json 文件
+        # 讀取 jdata.json 文件
         open_setting()
 
         # 更新 VoiceName 的值
-        settings[f'{ctx.guild.id}_VoiceName'] = new_voice_name
+        jdata[f'{ctx.guild.id}_VoiceName'] = new_voice_name
 
-        # 將更新後的設定寫回 settings.json 文件
+        # 將更新後的設定寫回 jdata.json 文件
         dump_setting()
 
         await ctx.send(f'已將動態語音名稱更新為 {new_voice_name}')
