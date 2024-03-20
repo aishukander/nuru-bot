@@ -24,7 +24,7 @@ class Lottery(Cog_Extension):
 
     @commands.Cog.listener()
     async def on_reaction_add(self, reaction, user):
-        if user != lottery_author or user == self.bot.user:
+        if user == self.bot.user or user != lottery_author:
             return
 
         if str(reaction.emoji) == '\u2699':

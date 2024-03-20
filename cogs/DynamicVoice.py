@@ -8,23 +8,8 @@ voice_channel_set = set()
 class DynamicVoice(Cog_Extension):
 
     origin_channels = {}
-    
-    origin_channels = modules.json.open_DynamicVoice_json()
 
-    def save_data(self):
-        global origin_channels
-        if not self.origin_channels:
-            json_str = "{}" 
-        else:
-            data = {}
-            formatted_data = ""
-            for guild_id, channel_ids in self.origin_channels.items():
-                formatted_data += f'\n"{guild_id}": {channel_ids},'
-
-            json_str = "{" + formatted_data[:-1] + "\n}"
-
-        with open(self.DynamicVoice_json_path,"w",encoding="utf8") as f:
-            f.write(json_str)
+    origin_channels = modules.json.open_DynamicVoice_ID_json()
 
     @commands.Cog.listener() 
     async def on_voice_state_update(self, member, before, after):
@@ -41,8 +26,8 @@ class DynamicVoice(Cog_Extension):
         
             if after.channel and after.channel.id == channel_id:
                 try:
-                    jdata = modules.json.open_setting_json()
-                    new_channel = await after.channel.clone(name=jdata[f"{guild_id}_VoiceName"].format(member.display_name))
+                    DynamicVoiceName = modules.json.open_DynamicVoice_Name_json()
+                    new_channel = await after.channel.clone(name=DynamicVoiceName[f"{guild_id}_VoiceName"].format(member.display_name))
                 except:
                     new_channel = await after.channel.clone(name=f"{member.display_name}的動態語音")
             
@@ -70,7 +55,7 @@ class DynamicVoice(Cog_Extension):
             
             self.origin_channels[guild_id].append(channel.id)
 
-            self.save_data()
+            modules.json.save_DynamicVoice_ID_json(self.origin_channels)
             await ctx.send(f"動態語音 {channel.name} 已建立")
 
         elif action.lower() == "remove":
@@ -89,14 +74,14 @@ class DynamicVoice(Cog_Extension):
                     if not self.origin_channels[guild_id]:
                         self.origin_channels.pop(guild_id)
 
-                    self.save_data()
+                    modules.json.save_DynamicVoice_ID_json(self.origin_channels)
 
                     try:
-                        jdata = modules.json.open_setting_json()
+                        DynamicVoiceName = modules.json.open_DynamicVoice_Name_json()
 
-                        del jdata[f"{guild_id}_VoiceName"]
+                        del DynamicVoiceName[f"{guild_id}_VoiceName"]
 
-                        modules.json.dump_setting()
+                        modules.json.dump_DynamicVoice_Name_json()
                         
                         await ctx.send(f"動態語音 {name} 已刪除")
                     except:
@@ -108,14 +93,14 @@ class DynamicVoice(Cog_Extension):
 
     @commands.command()
     async def uvn(self, ctx, new_voice_name):
-        # 讀取 jdata.json 文件
-        jdata = modules.json.open_setting_json()
+        # 讀取 DynamicVoiceName.json 文件
+        DynamicVoiceName = modules.json.open_DynamicVoice_Name_json()
 
         # 更新 VoiceName 的值
-        jdata[f'{ctx.guild.id}_VoiceName'] = new_voice_name
+        DynamicVoiceName[f'{ctx.guild.id}_VoiceName'] = new_voice_name
 
-        # 將更新後的設定寫回 jdata.json 文件
-        modules.json.dump_setting()
+        # 將更新後的設定寫回 DynamicVoiceName.json 文件
+        modules.json.dump_DynamicVoice_Name_json()
 
         await ctx.send(f'已將動態語音名稱更新為 {new_voice_name}')
 
