@@ -6,7 +6,7 @@ import asyncio
 from secrets import choice
 import modules.json
 
-jdata = modules.json.open_setting_json("cogs")
+jdata = modules.json.open_setting_json()
 
 class Commands(Cog_Extension):
 

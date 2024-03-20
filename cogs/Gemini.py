@@ -13,9 +13,9 @@ class Gemini(Cog_Extension):
         self.bot = bot
         self.message_history = {}
 
-    TOKEN = modules.json.open_token_json("cogs")
+    TOKEN = modules.json.open_token_json()
 
-    jdata = modules.json.open_setting_json("cogs")
+    jdata = modules.json.open_setting_json()
 
     GOOGLE_AI_KEY = TOKEN["GOOGLE_AI_KEY"]  
     MAX_HISTORY = int(jdata["MAX_HISTORY"])

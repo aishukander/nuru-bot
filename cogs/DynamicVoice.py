@@ -41,7 +41,7 @@ class DynamicVoice(Cog_Extension):
         
             if after.channel and after.channel.id == channel_id:
                 try:
-                    jdata = modules.json.open_setting_json("cogs")
+                    jdata = modules.json.open_setting_json()
                     new_channel = await after.channel.clone(name=jdata[f"{guild_id}_VoiceName"].format(member.display_name))
                 except:
                     new_channel = await after.channel.clone(name=f"{member.display_name}的動態語音")
@@ -92,7 +92,7 @@ class DynamicVoice(Cog_Extension):
                     self.save_data()
 
                     try:
-                        jdata = modules.json.open_setting_json("cogs")
+                        jdata = modules.json.open_setting_json()
 
                         del jdata[f"{guild_id}_VoiceName"]
 
@@ -109,7 +109,7 @@ class DynamicVoice(Cog_Extension):
     @commands.command()
     async def uvn(self, ctx, new_voice_name):
         # 讀取 jdata.json 文件
-        jdata = modules.json.open_setting_json("cogs")
+        jdata = modules.json.open_setting_json()
 
         # 更新 VoiceName 的值
         jdata[f'{ctx.guild.id}_VoiceName'] = new_voice_name

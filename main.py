@@ -11,10 +11,10 @@ import modules.json
 intents = discord.Intents.all()
 
 #加載setting.json的內容
-jdata = modules.json.open_setting_json("main")
+jdata = modules.json.open_setting_json()
 
 #加載TOKEN
-TOKEN = modules.json.open_token_json("main")
+TOKEN = modules.json.open_token_json()
 
 #呼喚bot的前綴
 bot = commands.Bot(command_prefix="~",intents=intents)
