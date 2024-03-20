@@ -1,11 +1,9 @@
 import re
-import json
-import os
-
 import aiohttp
 import discord
 from discord.ext import commands
 from core.classes import Cog_Extension
+import modules.json
 
 import google.generativeai as genai
 
@@ -15,15 +13,9 @@ class Gemini(Cog_Extension):
         self.bot = bot
         self.message_history = {}
 
-    root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    token_json_path = os.path.join(root_dir, "json", "Token.json")
-    setting_json_path = os.path.join(root_dir, "json", "Setting.json")
+    TOKEN = modules.json.open_token_json("cogs")
 
-    with open(token_json_path,'r',encoding='utf8') as tfile:
-        TOKEN = json.load(tfile)
-
-    with open(setting_json_path,"r",encoding="utf8") as f:
-        jdata = json.load(f)
+    jdata = modules.json.open_setting_json("cogs")
 
     GOOGLE_AI_KEY = TOKEN["GOOGLE_AI_KEY"]  
     MAX_HISTORY = int(jdata["MAX_HISTORY"])

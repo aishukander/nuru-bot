@@ -4,14 +4,9 @@ from core.classes import Cog_Extension
 import re
 import asyncio
 from secrets import choice
-import json
-import os
+import modules.json
 
-root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-setting_json_path = os.path.join(root_dir, "json", "Setting.json")
-
-with open(setting_json_path,"r",encoding="utf8") as jfile:
-   jdata = json.load(jfile)
+jdata = modules.json.open_setting_json("cogs")
 
 class Commands(Cog_Extension):
 

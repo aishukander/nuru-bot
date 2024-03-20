@@ -1,33 +1,16 @@
 import discord
 from discord.ext import commands
 from core.classes import Cog_Extension
-import json
-import os
+import modules.json
 
 voice_channel_set = set()
-
-root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-setting_json_path = os.path.join(root_dir, "json", "DynamicVoiceName.json")
-
-def open_setting():
-    global jdata
-    with open(setting_json_path,"r",encoding="utf8") as jfile:
-        jdata = json.load(jfile)
-
-def dump_setting():
-    with open(setting_json_path,"w",encoding="utf8") as f:
-        json.dump(jdata, f, ensure_ascii=False, indent=4)
 
 class DynamicVoice(Cog_Extension):
 
     origin_channels = {}
     
-    root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    DynamicVoice_json_path = os.path.join(root_dir, "json", "DynamicVoiceID.json")
+    origin_channels = modules.json.open_DynamicVoice_json()
 
-    with open(DynamicVoice_json_path,"r",encoding="utf8") as f:
-        origin_channels = json.load(f)
-        
     def save_data(self):
         global origin_channels
         if not self.origin_channels:
@@ -58,7 +41,7 @@ class DynamicVoice(Cog_Extension):
         
             if after.channel and after.channel.id == channel_id:
                 try:
-                    open_setting()
+                    jdata = modules.json.open_setting_json("cogs")
                     new_channel = await after.channel.clone(name=jdata[f"{guild_id}_VoiceName"].format(member.display_name))
                 except:
                     new_channel = await after.channel.clone(name=f"{member.display_name}的動態語音")
@@ -109,11 +92,11 @@ class DynamicVoice(Cog_Extension):
                     self.save_data()
 
                     try:
-                        open_setting()
+                        jdata = modules.json.open_setting_json("cogs")
 
                         del jdata[f"{guild_id}_VoiceName"]
 
-                        dump_setting()
+                        modules.json.dump_setting()
                         
                         await ctx.send(f"動態語音 {name} 已刪除")
                     except:
@@ -126,13 +109,13 @@ class DynamicVoice(Cog_Extension):
     @commands.command()
     async def uvn(self, ctx, new_voice_name):
         # 讀取 jdata.json 文件
-        open_setting()
+        jdata = modules.json.open_setting_json("cogs")
 
         # 更新 VoiceName 的值
         jdata[f'{ctx.guild.id}_VoiceName'] = new_voice_name
 
         # 將更新後的設定寫回 jdata.json 文件
-        dump_setting()
+        modules.json.dump_setting()
 
         await ctx.send(f'已將動態語音名稱更新為 {new_voice_name}')
 

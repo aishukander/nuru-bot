@@ -3,23 +3,18 @@
 import discord
 from discord.ext import commands
 import os
-import json
 import random
 import asyncio
+import modules.json
 """======================================================================================="""
 
 intents = discord.Intents.all()
 
-current_dir = os.path.dirname(os.path.abspath(__file__))
-setting_json_path = os.path.join(current_dir, "json", "Setting.json")
-token_json_path = os.path.join(current_dir, "json", "Token.json")
 #加載setting.json的內容
-with open(setting_json_path,"r",encoding="utf8") as jfile:
-    jdata = json.load(jfile)
+jdata = modules.json.open_setting_json("main")
 
 #加載TOKEN
-with open(token_json_path,"r",encoding="utf8") as tfile:
-    TOKEN = json.load(tfile)
+TOKEN = modules.json.open_token_json("main")
 
 #呼喚bot的前綴
 bot = commands.Bot(command_prefix="~",intents=intents)
