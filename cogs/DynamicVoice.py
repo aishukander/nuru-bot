@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 from core.classes import Cog_Extension
 import modules.json
+from modules.json import DynamicVoice_ID_json_path, DynamicVoice_Name_json_path
 
 voice_channel_set = set()
 
@@ -9,7 +10,7 @@ class DynamicVoice(Cog_Extension):
 
     origin_channels = {}
 
-    origin_channels = modules.json.open_DynamicVoice_ID_json()
+    origin_channels = modules.json.open_json(DynamicVoice_ID_json_path)
 
     @commands.Cog.listener() 
     async def on_voice_state_update(self, member, before, after):
@@ -26,7 +27,7 @@ class DynamicVoice(Cog_Extension):
         
             if after.channel and after.channel.id == channel_id:
                 try:
-                    DynamicVoiceName = modules.json.open_DynamicVoice_Name_json()
+                    DynamicVoiceName = modules.json.open_json(DynamicVoice_Name_json_path)
                     new_channel = await after.channel.clone(name=DynamicVoiceName[f"{guild_id}_VoiceName"].format(member.display_name))
                 except:
                     new_channel = await after.channel.clone(name=f"{member.display_name}的動態語音")
@@ -77,11 +78,11 @@ class DynamicVoice(Cog_Extension):
                     modules.json.save_DynamicVoice_ID_json(self.origin_channels)
 
                     try:
-                        DynamicVoiceName = modules.json.open_DynamicVoice_Name_json()
+                        DynamicVoiceName = modules.json.open_json(DynamicVoice_Name_json_path)
 
                         del DynamicVoiceName[f"{guild_id}_VoiceName"]
 
-                        modules.json.dump_DynamicVoice_Name_json()
+                        modules.json.dump_json(DynamicVoice_Name_json_path, DynamicVoiceName)
                         
                         await ctx.send(f"動態語音 {name} 已刪除")
                     except:
@@ -94,13 +95,13 @@ class DynamicVoice(Cog_Extension):
     @commands.command()
     async def uvn(self, ctx, new_voice_name):
         # 讀取 DynamicVoiceName.json 文件
-        DynamicVoiceName = modules.json.open_DynamicVoice_Name_json()
+        DynamicVoiceName = modules.json.open_json(DynamicVoice_Name_json_path)
 
         # 更新 VoiceName 的值
         DynamicVoiceName[f'{ctx.guild.id}_VoiceName'] = new_voice_name
 
         # 將更新後的設定寫回 DynamicVoiceName.json 文件
-        modules.json.dump_DynamicVoice_Name_json()
+        modules.json.dump_json(DynamicVoice_Name_json_path, DynamicVoiceName)
 
         await ctx.send(f'已將動態語音名稱更新為 {new_voice_name}')
 

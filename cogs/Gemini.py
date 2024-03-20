@@ -4,7 +4,7 @@ import discord
 from discord.ext import commands
 from core.classes import Cog_Extension
 import modules.json
-
+from modules.json import setting_json_path, token_json_path
 import google.generativeai as genai
 
 class Gemini(Cog_Extension):
@@ -13,9 +13,9 @@ class Gemini(Cog_Extension):
         self.bot = bot
         self.message_history = {}
 
-    TOKEN = modules.json.open_token_json()
+    jdata = modules.json.open_json(setting_json_path)
 
-    jdata = modules.json.open_setting_json()
+    TOKEN = modules.json.open_json(token_json_path)
 
     GOOGLE_AI_KEY = TOKEN["GOOGLE_AI_KEY"]  
     MAX_HISTORY = int(jdata["MAX_HISTORY"])

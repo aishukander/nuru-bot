@@ -8,34 +8,13 @@ DynamicVoice_ID_json_path = os.path.join(root_dir, "json", "DynamicVoiceID.json"
 DynamicVoice_Name_json_path = os.path.join(root_dir, "json", "DynamicVoiceName.json")
 words_json_path = os.path.join(root_dir, "json", "Words.json")
 
-def open_setting_json():
-    with open(setting_json_path,"r",encoding="utf8") as jfile:
-        return json.load(jfile)
-    
-def open_token_json():
-    with open(token_json_path,"r",encoding="utf8") as tfile:
-        return json.load(tfile)
-
-def open_words_json():
-    with open(words_json_path,"r",encoding="utf8") as f:
-        return json.load(f)
-
-def dump_words(words):
-    with open(words_json_path,"w",encoding="utf8") as f:
-        json.dump(words, f)
-
-def open_DynamicVoice_Name_json():
-    global DynamicVoiceName
-    with open(DynamicVoice_Name_json_path,"r",encoding="utf8") as jfile:
+def open_json(path):
+    with open(path,"r",encoding="utf8") as jfile:
         return json.load(jfile)
 
-def open_DynamicVoice_ID_json():
-    with open(DynamicVoice_ID_json_path,"r",encoding="utf8") as f:
-        return json.load(f)
-
-def dump_DynamicVoice_Name_json():
-    with open(DynamicVoice_Name_json_path,"w",encoding="utf8") as f:
-        json.dump(DynamicVoiceName, f, ensure_ascii=False, indent=4)
+def dump_json(path, name):
+    with open(path,"w",encoding="utf8") as f:
+        json.dump(name, f)
 
 def save_DynamicVoice_ID_json(origin_channels):
     if not origin_channels:

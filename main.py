@@ -6,15 +6,16 @@ import os
 import random
 import asyncio
 import modules.json
+from modules.json import setting_json_path, token_json_path
 """======================================================================================="""
 
 intents = discord.Intents.all()
 
 #加載setting.json的內容
-jdata = modules.json.open_setting_json()
+jdata = modules.json.open_json(setting_json_path)
 
 #加載TOKEN
-TOKEN = modules.json.open_token_json()
+TOKEN = modules.json.open_json(token_json_path)
 
 #呼喚bot的前綴
 bot = commands.Bot(command_prefix="~",intents=intents)

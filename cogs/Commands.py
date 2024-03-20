@@ -5,8 +5,9 @@ import re
 import asyncio
 from secrets import choice
 import modules.json
+from modules.json import setting_json_path
 
-jdata = modules.json.open_setting_json()
+jdata = modules.json.open_json(setting_json_path)
 
 class Commands(Cog_Extension):
 
