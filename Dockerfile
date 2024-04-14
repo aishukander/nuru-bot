@@ -14,15 +14,7 @@ RUN apt install -y ffmpeg
 
 RUN apt install -y git
 
-RUN pip install PyNaCl
-
-RUN pip install discord.py
-
-RUN pip install --upgrade --force-reinstall git+https://github.com/ytdl-org/youtube-dl.git@master
-
-RUN pip install aiohttp
-
-RUN pip install google-generativeai
+RUN pip install -r requirements.txt
 
 # 啟動後通過 python 運行 main.py
 CMD ["python", "./main.py"]
