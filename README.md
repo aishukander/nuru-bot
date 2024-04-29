@@ -12,3 +12,18 @@ linux(Debian)請啟動rely.sh
 "BOT_TOKEN":"",  
 "GOOGLE_AI_KEY":""  
 ---------------------------------------------------------------------------------------------  
+Docker compose
+```
+version: "3"
+
+services:
+  mumei-bot:
+    image: aishukander/mumei-bot:latest
+    restart: unless-stopped
+    environment:
+      TZ: 'Asia/Taipei'
+    volumes:
+      - /etc/mumei-bot/json:/code/json
+
+```
+---------------------------------------------------------------------------------------------  
