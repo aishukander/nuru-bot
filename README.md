@@ -12,7 +12,8 @@ linux(Debian)請啟動rely.sh
 "BOT_TOKEN":"",  
 "GOOGLE_AI_KEY":""  
 ---------------------------------------------------------------------------------------------  
-Docker版需要等容器創建完畢再自行添加Token.json至/opt/mumei-bot/json內，或是直接複製一份完整的json資料夾進/opt/mumei-bot/  
+Docker版需要等容器創建完畢再自行添加Token.json至/opt/mumei-bot/json內  
+或是直接複製一份完整的json資料夾進/opt/mumei-bot/  
 Docker compose
 ```
 version: "3"
