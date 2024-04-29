@@ -8,10 +8,11 @@
 windows請安裝ffmpeg並啟動rely.ps1  
 linux(Debian)請啟動rely.sh  
 ---------------------------------------------------------------------------------------------  
-於json資料夾內新稱 token.json 並放入以下對應資料  
+於json資料夾內新稱 Token.json 並放入以下對應資料  
 "BOT_TOKEN":"",  
 "GOOGLE_AI_KEY":""  
 ---------------------------------------------------------------------------------------------  
+Docker版需要等容器創建完畢再自行添加Token.json至/opt/mumei-bot/json內，或是直接複製一份完整的json資料夾進/opt/mumei-bot/  
 Docker compose
 ```
 version: "3"
@@ -22,7 +23,7 @@ services:
     image: aishukander/mumei-bot
     restart: unless-stopped
     volumes:
-      - /etc/mumei-bot/json:/code/json
+      - /opt/mumei-bot/json:/code/json
 ```
 Docker cli  
 ```
