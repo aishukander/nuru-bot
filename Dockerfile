@@ -18,6 +18,6 @@ RUN pip install -r requirements.txt
 
 RUN mkdir -p /tmp/data && cp -r /code/json/* /tmp/data/
 
-ENTRYPOINT ["/bin/bash", "-c", "if [ -d /code/json/ ] && [ ! $(ls -A /code/json/) ]; then cp -r /tmp/data/* /code/json/; fi && exec python ./main.py"]
+ENTRYPOINT ["/bin/bash", "-c", "if [ -d '/tmp/data' ] && [ -d /code/json/ ] && [ ! $(ls -A /code/json/) ]; then cp -r /tmp/data/* /code/json/; fi && rm -rf /tmp/data && exec python ./main.py"]
 #到mumei-bot資料夾後使用終端機執行docker build -t [使用者名稱]/[映像檔名稱]:latest . 來將bot保存成docker映像檔
 #到mumei-bot資料夾後使用終端機執行docker push [使用者名稱]/[映像檔名稱]:latest 來將bot上傳至docker hub
