@@ -24,4 +24,9 @@ services:
     volumes:
       - /etc/mumei-bot/json:/code/json
 ```
+Docker cli  
+```
+docker run -d --name=mumei-bot --restart=unless-stopped -v /etc/mumei-bot/json:/code/json aishukander/mumei-bot
+
+```
 ---------------------------------------------------------------------------------------------  
