@@ -26,6 +26,6 @@ services:
 ```
 Docker cli  
 ```
-docker run -d --name=mumei-bot --restart=unless-stopped -v /etc/mumei-bot/json:/code/json aishukander/mumei-bot
+docker run -d --name=mumei-bot --restart=unless-stopped -v /opt/mumei-bot/json:/code/json aishukander/mumei-bot
 ```
 ---------------------------------------------------------------------------------------------  
