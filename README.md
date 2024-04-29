@@ -1,5 +1,4 @@
-# mumei-bot
-[邀請連結](https://discord.com/api/oauth2/authorize?client_id=999157840063242330&permissions=8&scope=applications.commands+bot)    
+# [mumei-bot](https://discord.com/api/oauth2/authorize?client_id=999157840063242330&permissions=8&scope=applications.commands+bot)    
 這是一個我使用python製做的discord bot  
 在對話框輸入~adminhelp來獲取所有的指令(包括管理者限定指令)  
 要下載一般最新版本請點Release,選最上面的版本然後下載mumei-bot.zip  
