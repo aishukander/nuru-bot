@@ -18,12 +18,10 @@ version: "3"
 
 services:
   mumei-bot:
-    image: aishukander/mumei-bot:latest
+    container_name:mumei-bot
+    image: aishukander/mumei-bot
     restart: unless-stopped
-    environment:
-      TZ: 'Asia/Taipei'
     volumes:
       - /etc/mumei-bot/json:/code/json
-
 ```
 ---------------------------------------------------------------------------------------------  

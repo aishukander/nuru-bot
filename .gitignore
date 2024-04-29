@@ -1,4 +1,4 @@
-Token.json
+/json/Token.json
 /cogs/__pycache__/*.pyc
 /modules/__pycache__/*.pyc
 /core/__pycache__/*.pyc
