@@ -20,7 +20,7 @@ version: "3"
 
 services:
   mumei-bot:
-    container_name:mumei-bot
+    container_name: mumei-bot
     image: aishukander/mumei-bot
     restart: unless-stopped
     volumes:
