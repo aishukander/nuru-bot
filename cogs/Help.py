@@ -1,9 +1,12 @@
 import discord
 from discord.ext import commands
-from core.classes import Cog_Extension
 import random
 
-class Help(Cog_Extension):
+class Help(commands.Cog):
+
+    def __init__(self, bot):
+        self.bot = bot
+
     #help指令
     @commands.command()
     async def help(self,ctx):
@@ -13,8 +16,8 @@ class Help(Cog_Extension):
         embed.add_field(name="@mumei RESET", value="清除使用者的訊息歷史記錄", inline=False)
         embed.add_field(name="~help", value="指令說明", inline=False)
         embed.add_field(name="~adminhelp", value="管理員指令說明(需管理者權限)", inline=False)
-        embed.add_field(name="/invitation", value="給你機器人的邀請連結", inline=False)
-        embed.add_field(name="/ping", value="PingBot", inline=False)
+        embed.add_field(name="~invitation", value="給你機器人的邀請連結", inline=False)
+        embed.add_field(name="~ping", value="PingBot", inline=False)
         embed.add_field(name="~買不買", value="讓mumei告訴你該不該買", inline=False)
         embed.add_field(name="~給你番茄醬", value="那位自由的男人會拿番茄醬過來", inline=False)
         embed.add_field(name="~不想上班", value="讓mumei一張圖告訴你他有多不想上班", inline=False)
@@ -35,5 +38,5 @@ class Help(Cog_Extension):
         embed.add_field(name="~weight [tag使用者] [權重]", value="修改抽籤中籤的權重", inline=False)
         await ctx.send(embed=embed)
     
-async def setup(bot):
-    await bot.add_cog(Help(bot))    
+def setup(bot):
+    bot.add_cog(Help(bot))    

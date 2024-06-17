@@ -1,9 +1,12 @@
 import discord
 from discord.ext import commands
-from core.classes import Cog_Extension
 import random
 
-class Adminhelp(Cog_Extension):
+class Adminhelp(commands.Cog):
+
+    def __init__(self, bot):
+        self.bot = bot
+
     #AdminHelp指令
     @commands.command()
     async def adminhelp(self,ctx):
@@ -14,10 +17,10 @@ class Adminhelp(Cog_Extension):
             embed.add_field(name="@mumei RESET", value="清除使用者的訊息歷史記錄", inline=False)
             embed.add_field(name="~DMC [on或off]", value="管理Gemini在私訊時是否直接回覆(需管理者權限)", inline=False)
             embed.add_field(name="~adminhelp", value="管理員指令說明(需管理者權限)", inline=False)
-            embed.add_field(name="/invitation", value="給你機器人的邀請連結", inline=False)
-            embed.add_field(name="/ping", value="PingBot", inline=False)
-            embed.add_field(name="~dv [add或remove] [動態語音名]", value="管理動態語音", inline=False)
-            embed.add_field(name="~uvn [要修改為的動態語音名]", value="範例:~uvn {}的動態語音({}代表第一個進入語音的使用者)", inline=False)
+            embed.add_field(name="~invitation", value="給你機器人的邀請連結", inline=False)
+            embed.add_field(name="~ping", value="PingBot", inline=False)
+            embed.add_field(name="~dv [add或remove] [動態語音名]", value="管理動態語音(需管理者權限)", inline=False)
+            embed.add_field(name="~uvn [要修改的母頻道名] [要修改為的動態語音名]", value="範例:~uvn {}的動態語音({}代表第一個進入語音的使用者)(需管理者權限)", inline=False)
             embed.add_field(name="~say [要覆誦的話]", value="刪除所傳的訊息並覆誦(需管理者權限)", inline=False)
             embed.add_field(name="~msg [要傳送的訊息] [伺服器] [頻道名]", value="傳送訊息至指定位置(需管理者權限)", inline=False)
             embed.add_field(name="~買不買", value="讓mumei告訴你該不該買", inline=False)
@@ -60,5 +63,5 @@ class Adminhelp(Cog_Extension):
         else:
             await ctx.send("你沒有管理者權限用來執行這個指令")
 
-async def setup(bot):
-    await bot.add_cog(Adminhelp(bot))    
+def setup(bot):
+    bot.add_cog(Adminhelp(bot))    
