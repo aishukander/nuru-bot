@@ -1,15 +1,16 @@
 import discord
 from discord.ext import commands
-from core.classes import Cog_Extension
 import re
 import asyncio
 from secrets import choice
 import modules.json
 from modules.json import setting_json_path
 
-jdata = modules.json.open_json(setting_json_path)
+class Commands(commands.Cog):
 
-class Commands(Cog_Extension):
+    def __init__(self, bot):
+        self.bot = bot
+        self.jdata = modules.json.open_json(setting_json_path)
 
     #刪除所傳的訊息並讓機器人覆誦
     @commands.command()
@@ -101,7 +102,7 @@ class Commands(Cog_Extension):
 
     @commands.command() 
     async def 買不買(self,msg):
-        買不買 = choice(jdata['買不買'])
+        買不買 = choice(self.jdata['買不買'])
         await msg.channel.send(買不買)    
 
     @commands.command()
@@ -123,5 +124,5 @@ class Commands(Cog_Extension):
         else:
             await ctx.send("你沒有管理者權限用來執行這個指令") 
 
-async def setup(bot):
-    await bot.add_cog(Commands(bot))
+def setup(bot):
+    bot.add_cog(Commands(bot))

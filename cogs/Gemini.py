@@ -2,25 +2,22 @@ import re
 import aiohttp
 import discord
 from discord.ext import commands
-from core.classes import Cog_Extension
 import modules.json
 from modules.json import setting_json_path, token_json_path
 import google.generativeai as genai
 
-class Gemini(Cog_Extension):
-  
+class Gemini(commands.Cog):
+
     def __init__(self, bot):
         self.bot = bot
         self.message_history = {}
+        self.DMC_on = 0
 
     jdata = modules.json.open_json(setting_json_path)
-
     TOKEN = modules.json.open_json(token_json_path)
 
     GOOGLE_AI_KEY = TOKEN["GOOGLE_AI_KEY"]  
     MAX_HISTORY = int(jdata["MAX_HISTORY"])
-
-    DMC_on = 0
 
     genai.configure(api_key=GOOGLE_AI_KEY)
     text_generation_config = {
@@ -46,7 +43,6 @@ class Gemini(Cog_Extension):
 
     @commands.Cog.listener()
     async def on_message(self, message):
-        global DMC_on
       
         if message.author == self.bot.user:
             return
@@ -149,7 +145,6 @@ class Gemini(Cog_Extension):
     @commands.command()
     async def DMC(self, ctx, action: str):
         if ctx.author.guild_permissions.administrator:
-            global DMC_on
             if action.lower() == "on":
                 self.DMC_on = 1
                 await ctx.send("已啟用Gemini私訊時的直接觸發")
@@ -163,5 +158,5 @@ class Gemini(Cog_Extension):
         else:
             await ctx.send("你沒有管理者權限用來執行這個指令")
 
-async def setup(bot):
-    await bot.add_cog(Gemini(bot))
+def setup(bot):
+    bot.add_cog(Gemini(bot))

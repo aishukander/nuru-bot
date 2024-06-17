@@ -1,12 +1,14 @@
 import discord
 from discord.ext import commands
-from core.classes import Cog_Extension
 import random
 import modules.json
 from modules.json import words_json_path
 
-class Words(Cog_Extension):
-    words_dict = modules.json.open_json(words_json_path)
+class Words(commands.Cog):
+
+    def __init__(self, bot):
+        self.bot = bot
+        self.words_dict = modules.json.open_json(words_json_path)
 
     @commands.command()
     async def words(self, ctx, action: str, word):
@@ -42,5 +44,5 @@ class Words(Cog_Extension):
                 self.words_dict[word] = str(int(self.words_dict[word]) + 1)
         modules.json.dump_json(words_json_path, self.words_dict)
 
-async def setup(bot):
-    await bot.add_cog(Words(bot))
+def setup(bot):
+    bot.add_cog(Words(bot))

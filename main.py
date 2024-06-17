@@ -4,7 +4,6 @@ import discord
 from discord.ext import commands
 import os
 import random
-import asyncio
 import modules.json
 from modules.json import setting_json_path, token_json_path
 """======================================================================================="""
@@ -18,25 +17,20 @@ jdata = modules.json.open_json(setting_json_path)
 TOKEN = modules.json.open_json(token_json_path)
 
 #呼喚bot的前綴
-bot = commands.Bot(command_prefix="~",intents=intents)
+bot = commands.Bot(command_prefix="!",intents=intents)
 
 #刪除help指令
 bot.remove_command("help")
 
 @bot.event
 async def on_ready():
-    #同步斜線指令
-    slash = await bot.tree.sync()
-
     #載入所有位於cogs的cog
-    cog_path = "cogs"
-    extensions = []
-
-    for filepath in os.listdir(cog_path):
-        if filepath.endswith(".py") and not filepath.startswith("_"):
-            cog = f"{cog_path}.{filepath[:-3]}"
-            extensions.append(cog)
-    await asyncio.gather(*[bot.load_extension(ext) for ext in extensions])
+    async def load_cogs():
+        for filename in os.listdir('./cogs'):
+            if filename.endswith('.py'):
+                bot.load_extension(f'cogs.{filename[:-3]}')
+    
+    await load_cogs()
 
     #啟動時會在終端機印出的訊息
     print(f"=========================================")
@@ -54,7 +48,7 @@ async def load(ctx, extension):
     #檢測使用者的伺服器管理員權限
     if ctx.author.guild_permissions.administrator:
         try:
-            await bot.load_extension(f"cogs.{extension}")
+            bot.load_extension(f"cogs.{extension}")
             await ctx.send(f"{extension}模塊加載完成")
         except Exception as e:
             await ctx.send(f"加載模塊時發生錯誤: {e}")
@@ -66,7 +60,7 @@ async def load(ctx, extension):
 async def unload(ctx, extension):
     if ctx.author.guild_permissions.administrator:
         try:
-            await bot.unload_extension(f"cogs.{extension}")
+            bot.unload_extension(f"cogs.{extension}")
             await ctx.send(f"{extension}模塊卸載完成")
         except Exception as e:
             await ctx.send(f"卸載模塊時發生錯誤: {e}")
@@ -77,7 +71,7 @@ async def unload(ctx, extension):
 async def reload(ctx, extension):
     if ctx.author.guild_permissions.administrator:
         try:
-            await bot.reload_extension(f"cogs.{extension}")
+            bot.reload_extension(f"cogs.{extension}")
             await ctx.send(f"{extension}模塊重載完成")
         except Exception as e:
             await ctx.send(f"重載模塊時發生錯誤: {e}")
@@ -97,16 +91,16 @@ async def list(ctx):
 """======================================================================================="""
 
 #用來取得bot的邀請連結
-@bot.tree.command(name = "invitation", description = "獲取Bot的邀請連結")
-async def invitation(interaction: discord.Interaction):
+@bot.command()
+async def invitation(ctx):
     color = random.randint(0, 16777215)
     embed=discord.Embed(title="------連結------", url=jdata["invitation"], description="狠狠的點下去吧", color=color)
-    await interaction.response.send_message(embed=embed)
+    await ctx.send(embed=embed)
 
 #測試bot的ping值
-@bot.tree.command(name = "ping", description = "PingBot")
-async def ping(interaction: discord.Interaction):
-    await interaction.response.send_message(f"{round(bot.latency*1000)}(ms)")
+@bot.command()
+async def ping(ctx):
+    await ctx.send(f"{round(bot.latency*1000)}(ms)")
 
 tag_on = 0
 #管理tag回覆功能指令
