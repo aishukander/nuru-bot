@@ -12,9 +12,9 @@ def open_json(path):
     with open(path,"r",encoding="utf8") as jfile:
         return json.load(jfile)
 
-def dump_json(path, name):
+def dump_json(path, name, indent = None):
     with open(path,"w",encoding="utf8") as f:
-        json.dump(name, f)
+        json.dump(name, f, indent = indent)
 
 def save_DynamicVoice_ID_json(origin_channels):
     if not origin_channels:
