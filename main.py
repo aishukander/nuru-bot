@@ -17,7 +17,7 @@ jdata = modules.json.open_json(setting_json_path)
 TOKEN = modules.json.open_json(token_json_path)
 
 #呼喚bot的前綴
-bot = commands.Bot(command_prefix="!",intents=intents)
+bot = commands.Bot(command_prefix="~",intents=intents)
 
 #刪除help指令
 bot.remove_command("help")
