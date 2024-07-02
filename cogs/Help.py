@@ -28,6 +28,7 @@ class Help(commands.Cog):
         embed.add_field(name="~pause", value="暫停當前播放的歌曲", inline=False)
         embed.add_field(name="~resume", value="恢復當前暫停的歌曲", inline=False)
         embed.add_field(name="~volume [音量]", value="調整歌曲的音量", inline=False)
+        embed.add_field(name="~leave", value="清空隊列並且離開語音通道", inline=False)
         embed.add_field(name="~now", value="顯示當前正在播放的歌曲", inline=False)
         embed.add_field(name="~skip", value="跳過當前這首歌曲", inline=False)
         embed.add_field(name="~queue [頁數]", value="顯示播放對列,您可以選擇指定要顯示的頁面，每頁包含 10 首", inline=False)

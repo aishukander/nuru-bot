@@ -317,17 +317,14 @@ class Music(commands.Cog):
     @commands.command(name='leave', aliases=['disconnect', 'dc'])
     # @commands.has_permissions(manage_guild=True)
     async def _leave(self, ctx: commands.Context):
-        if ctx.author.guild_permissions.administrator:
-            """Clears the queue and leaves the voice channel."""
+        """Clears the queue and leaves the voice channel."""
 
-            if not ctx.voice_state.voice:
-                return await ctx.send('Not connected to any voice channel.')
+        if not ctx.voice_state.voice:
+            return await ctx.send('Not connected to any voice channel.')
 
-            await ctx.voice_state.stop()
-            del self.voice_states[ctx.guild.id]
-            await ctx.message.add_reaction('✅')
-        else:
-            await ctx.send("你沒有管理者權限用來執行這個指令")       
+        await ctx.voice_state.stop()
+        del self.voice_states[ctx.guild.id]
+        await ctx.message.add_reaction('✅')   
 
     @commands.command(name='volume')
     async def _volume(self, ctx: commands.Context, *, volume: int):
