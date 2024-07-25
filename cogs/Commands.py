@@ -101,9 +101,9 @@ class Commands(commands.Cog):
         await ctx.send("完成")
 
     @commands.command() 
-    async def 買不買(self,msg):
-        買不買 = choice(self.jdata['買不買'])
-        await msg.channel.send(買不買)    
+    async def buyornot(self,msg):
+        buyornot = choice(self.jdata['buyornot'])
+        await msg.channel.send(buyornot)    
 
     @commands.command()
     async def msg(self, ctx, message, guild_name, channel_name):

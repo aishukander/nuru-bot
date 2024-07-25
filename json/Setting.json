@@ -1,6 +1,6 @@
 {
     "invitation": "https://discord.com/api/oauth2/authorize?client_id=999157840063242330&permissions=8&scope=applications.commands+bot",
-    "買不買": [
+    "buyornot": [
         "買",
         "不買",
         "當然買",
