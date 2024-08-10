@@ -16,21 +16,20 @@ jdata = modules.json.open_json(setting_json_path)
 #加載TOKEN
 TOKEN = modules.json.open_json(token_json_path)
 
-#呼喚bot的前綴
-bot = commands.Bot(command_prefix="~",intents=intents)
+bot = discord.Bot()
 
-#刪除help指令
-bot.remove_command("help")
+#載入所有位於cogs的cog
+async def load_cogs():
+    for filename in os.listdir('./cogs'):
+        if filename.endswith('.py'):
+            bot.load_extension(f'cogs.{filename[:-3]}')
+    
+#await load_cogs()
+
+bot.load_extension(f'cogs.Commands')
 
 @bot.event
 async def on_ready():
-    #載入所有位於cogs的cog
-    async def load_cogs():
-        for filename in os.listdir('./cogs'):
-            if filename.endswith('.py'):
-                bot.load_extension(f'cogs.{filename[:-3]}')
-    
-    await load_cogs()
 
     #啟動時會在終端機印出的訊息
     print(f"=========================================")
@@ -43,90 +42,69 @@ async def on_ready():
 
 #用於加載、卸載、重讀不同cosg檔
 """======================================================================================="""
-@bot.command()
-async def load(ctx, extension):
+cogs = bot.create_group("cogs", "Cogs management instructions")
+
+@cogs.command(description="加載指定的cog")
+@discord.option("extension", type=discord.SlashCommandOptionType.string)
+async def load(ctx, extension: str):
     #檢測使用者的伺服器管理員權限
     if ctx.author.guild_permissions.administrator:
         try:
             bot.load_extension(f"cogs.{extension}")
-            await ctx.send(f"{extension}模塊加載完成")
+            await ctx.respond(f"{extension}模塊加載完成")
         except Exception as e:
-            await ctx.send(f"加載模塊時發生錯誤: {e}")
+            await ctx.respond(f"加載模塊時發生錯誤: {e}")
     #告知使用者沒有管理員權限
     else:
-        await ctx.send("你沒有管理者權限用來執行這個指令")
+        await ctx.respond("你沒有管理者權限用來執行這個指令")
 
-@bot.command()
-async def unload(ctx, extension):
+@cogs.command(description="卸載指定的cog")
+@discord.option("extension", type=discord.SlashCommandOptionType.string)
+async def unload(ctx, extension: str):
     if ctx.author.guild_permissions.administrator:
         try:
             bot.unload_extension(f"cogs.{extension}")
-            await ctx.send(f"{extension}模塊卸載完成")
+            await ctx.respond(f"{extension}模塊卸載完成")
         except Exception as e:
-            await ctx.send(f"卸載模塊時發生錯誤: {e}")
+            await ctx.respond(f"卸載模塊時發生錯誤: {e}")
     else:
-        await ctx.send("你沒有管理者權限用來執行這個指令")
+        await ctx.respond("你沒有管理者權限用來執行這個指令")
 
-@bot.command()
-async def reload(ctx, extension):
+@cogs.command(description="重載指定的cog")
+@discord.option("extension", type=discord.SlashCommandOptionType.string)
+async def reload(ctx, extension: str):
     if ctx.author.guild_permissions.administrator:
         try:
             bot.reload_extension(f"cogs.{extension}")
-            await ctx.send(f"{extension}模塊重載完成")
+            await ctx.respond(f"{extension}模塊重載完成")
         except Exception as e:
-            await ctx.send(f"重載模塊時發生錯誤: {e}")
+            await ctx.respond(f"重載模塊時發生錯誤: {e}")
     else:
-        await ctx.send("你沒有管理者權限用來執行這個指令")
+        await ctx.respond("你沒有管理者權限用來執行這個指令")
 
-@bot.command()
+@cogs.command(description="列出已載入的cog")
 async def list(ctx):
     if ctx.author.guild_permissions.administrator:
         loaded_cogs = [cog for cog in bot.cogs]
         message = "已載入的 cog 如下：\n"
         for cog in loaded_cogs:
             message += f"* {cog}\n"
-        await ctx.send(message)
+        await ctx.respond(message)
     else:
-        await ctx.send("你沒有管理者權限用來執行這個指令")
+        await ctx.respond("你沒有管理者權限用來執行這個指令")
 """======================================================================================="""
 
+#測試bot的ping值
+@bot.command(description="測試bot的延遲")
+async def ping(ctx):
+    await ctx.respond(f"{round(bot.latency*1000)}(ms)")
+
 #用來取得bot的邀請連結
-@bot.command()
+@bot.command(description="取得邀請連結")
 async def invitation(ctx):
     color = random.randint(0, 16777215)
     embed=discord.Embed(title="------連結------", url=jdata["invitation"], description="狠狠的點下去吧", color=color)
-    await ctx.send(embed=embed)
-
-#測試bot的ping值
-@bot.command()
-async def ping(ctx):
-    await ctx.send(f"{round(bot.latency*1000)}(ms)")
-
-tag_on = 0
-#管理tag回覆功能指令
-@bot.command()
-async def tag(ctx, action: str):
-    if ctx.author.guild_permissions.administrator:
-        global tag_on
-        if action.lower() == "on":
-            tag_on = 1
-            await ctx.send("已啟用tag功能")
-        
-        elif action.lower() == "off":
-            tag_on = 0
-            await ctx.send("已暫時關閉tag功能")
-        
-        else:
-            await ctx.send("無效的動作參數, 請使用 `on` 或 `off`")
-    else:
-        await ctx.send("你沒有管理者權限用來執行這個指令")
-
-#tag回覆功能本體
-@bot.event
-async def on_message(msg):
-    if tag_on and "405704403937525782" in msg.content and msg.author != bot.user:
-        await msg.channel.send("十秒だけ持ちこたえてくれ!")
-    await bot.process_commands(msg)
+    await ctx.respond(embed=embed)
 
 if __name__ == "__main__":
     bot.run(TOKEN["BOT_TOKEN"])

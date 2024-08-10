@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 import re
 import asyncio
+import random
 from secrets import choice
 import modules.json
 from modules.json import setting_json_path
@@ -12,67 +13,62 @@ class Commands(commands.Cog):
         self.bot = bot
         self.jdata = modules.json.open_json(setting_json_path)
 
-    #刪除所傳的訊息並讓機器人覆誦
-    @commands.command()
-    async def say(self,ctx,msg):
+    #讓機器人覆誦你輸入的訊息
+    @commands.slash_command(description="讓機器人覆誦你輸入的訊息")
+    @discord.option("msg", type=discord.SlashCommandOptionType.string)
+    async def say(self, ctx, msg: str):
         if ctx.author.guild_permissions.administrator:
-            await ctx.message.delete()
-            await ctx.send(msg)
+            await ctx.respond(msg)
         else:
-            await ctx.send("你沒有管理者權限用來執行這個指令")
+            await ctx.respond("你沒有管理者權限用來執行這個指令")
 
     #刪除所選數量的訊息
-    @commands.command()
-    async def delete(self,ctx,num:int):
+    @commands.slash_command(description="刪除所選數量的訊息")
+    @discord.option("num", type=discord.SlashCommandOptionType.integer)
+    async def delete(self, ctx, num: int):
         if ctx.author.guild_permissions.administrator:
-            #刪除訊息(因為指令也算一條訊息 所以num+1)
-            await ctx.channel.purge(limit=num+1)
+            await ctx.channel.purge(limit=num)
+            await ctx.respond(f"已刪除 {num} 則訊息")
         else:
-            await ctx.send("你沒有管理者權限用來執行這個指令")
+            await ctx.respond("你沒有管理者權限用來執行這個指令")
 
     #ban除選定人物
-    @commands.command()
+    @commands.slash_command(description="ban除選定人物")
+    @discord.option("member", type=discord.SlashCommandOptionType.user)
     async def ban(self, ctx, member: discord.Member):
         if ctx.author.guild_permissions.administrator:
             await member.ban()
-            await ctx.send(f'{member} 已踢出伺服器')
+            await ctx.respond(f'{member} 已踢出伺服器')
         else:
-            await ctx.send("你沒有管理者權限用來執行這個指令")
+            await ctx.respond("你沒有管理者權限用來執行這個指令")
 
     #Word-Changer功能的整合
-    @commands.command()
-    async def reword(self,ctx,text):
-        await ctx.send("請輸入要替換的單字：")
-        #定義檢查函數來確保只接受用戶自己在同一頻道的訊息
-        def check(msg):
-            return msg.author == ctx.author and msg.channel == ctx.channel
-        try:
-            #等待用戶輸入並將訊息存入old參數裡，並且超過6秒沒有回覆就引發異常
-            old = await self.bot.wait_for('message', check=check, timeout=6)
-            await ctx.send("請輸入要替換成的單字：")
-            #等待用戶輸入並將訊息存入new參數裡，並且超過6秒沒有回覆就引發異常
-            new = await self.bot.wait_for('message', check=check, timeout=6)
-            #將old與new參數傳遞給re.sub函數並完成文本修改
-            new_text = re.sub(old.content, new.content, text)
-            await ctx.send(new_text)
-        except asyncio.TimeoutError:
-            #如果發生超時異常，則取消指令並通知用戶
-            await ctx.send("您沒有及時回覆，指令已取消。")
+    @commands.slash_command(description="Word-Changer功能的整合")
+    @discord.option("text", type=discord.SlashCommandOptionType.string)
+    @discord.option("old_msg", type=discord.SlashCommandOptionType.string)
+    @discord.option("new_msg", type=discord.SlashCommandOptionType.string)
+    async def reword(self, ctx, text: str, old_msg: str, new_msg: str):
+        new_text = re.sub(old_msg, new_msg, text)
+        await ctx.respond(new_text)
 
     #讓bot私訊你來呈現一個小型資訊放置處
-    @commands.command()
+    @commands.slash_command(description="讓bot私訊你來呈現一個小型資訊放置處")
     async def drive(self, ctx):
+        color = random.randint(0, 16777215)
         user = ctx.author
-        embed=discord.Embed(title="It's a cloud drive.", color=0x007bff)
+        embed=discord.Embed(title="It's a cloud drive.", color=color)
         await user.send(embed=embed)
+        await ctx.respond("完成")
 
     #將語音頻道內所有人移動到另一個語音頻道
-    @commands.command()
+    @commands.slash_command(description="將語音頻道內所有人移動到另一個語音頻道")
+    @discord.option("source", type=discord.SlashCommandOptionType.channel)
+    @discord.option("target", type=discord.SlashCommandOptionType.channel)
     async def move(self, ctx, source: discord.VoiceChannel, target: discord.VoiceChannel):
         if ctx.author.guild_permissions.administrator:
             # 檢查源頻道是否有人在裡面，如果沒有，則回覆錯誤訊息
             if len(source.members) == 0:
-                await ctx.send(f"[{source.name}] 沒有人在裡面")
+                await ctx.respond(f"[{source.name}] 沒有人在裡面")
                 return
             # 創建一個任務列表，用來存放移動成員的任務
             tasks = []
@@ -82,13 +78,14 @@ class Commands(commands.Cog):
             # 使用asyncio.gather函式來同時執行所有的任務，並等待它們完成
             await asyncio.gather(*tasks)
             # 回覆成功訊息
-            await ctx.send(f"已將 [{source.name}] 的所有人移動到 [{target.name}] ") 
+            await ctx.respond(f"已將 [{source.name}] 的所有人移動到 [{target.name}] ") 
         else:
-            await ctx.send("你沒有管理者權限用來執行這個指令") 
+            await ctx.respond("你沒有管理者權限用來執行這個指令") 
 
     #創建身分組並且添加文字和語音頻道
-    @commands.command()
-    async def role(self, ctx, name):
+    @commands.slash_command(description="創建身分組並且添加文字和語音頻道")
+    @discord.option("name", type=discord.SlashCommandOptionType.string)
+    async def role(self, ctx, name: str):
         guild = ctx.guild
         role = await guild.create_role(name=name)
         category = await guild.create_category(name)
@@ -96,33 +93,36 @@ class Commands(commands.Cog):
             guild.default_role: discord.PermissionOverwrite(read_messages=False),
             role: discord.PermissionOverwrite(read_messages=True),
         }
-        channel1 = await category.create_text_channel(name, overwrites=overwrites)
-        channel2 = await category.create_voice_channel(name, overwrites=overwrites)
-        await ctx.send("完成")
+        await category.create_text_channel(name, overwrites=overwrites)
+        await category.create_voice_channel(name, overwrites=overwrites)
+        await ctx.respond("完成")
 
-    @commands.command() 
-    async def buyornot(self,msg):
+    @commands.slash_command(description="讓mumei告訴你該不該買") 
+    async def buyornot(self,ctx):
         buyornot = choice(self.jdata['buyornot'])
-        await msg.channel.send(buyornot)    
+        await ctx.respond(buyornot)    
 
-    @commands.command()
-    async def msg(self, ctx, message, guild_name, channel_name):
+    @commands.slash_command(description="傳送訊息至指定伺服器的指定頻道")
+    @discord.option("message", type=discord.SlashCommandOptionType.string)
+    @discord.option("guild_name", type=discord.SlashCommandOptionType.string)
+    @discord.option("channel_name", type=discord.SlashCommandOptionType.string)
+    async def msg(self, ctx, message: str, guild_name: str, channel_name: str):
         if ctx.author.guild_permissions.administrator:
             guild = discord.utils.find(lambda g: g.name == guild_name, self.bot.guilds)
             if guild is None:
-                return await ctx.send("未找到伺服器!")
+                return await ctx.respond("未找到伺服器!")
         
             channel = discord.utils.find(lambda c: c.name == channel_name, guild.text_channels)
             if channel is None: 
-                 return await ctx.send("未找到頻道!")
+                 return await ctx.respond("未找到頻道!")
          
             try:
                 await channel.send(message)
-                await ctx.send(f"訊息已成功發送至 {guild.name} 的 {channel} 頻道!") 
+                await ctx.respond(f"訊息已成功發送至 {guild.name} 的 {channel} 頻道!") 
             except:
-                await ctx.send("訊息發送錯誤！")
+                await ctx.respond("訊息發送錯誤！")
         else:
-            await ctx.send("你沒有管理者權限用來執行這個指令") 
+            await ctx.respond("你沒有管理者權限用來執行這個指令") 
 
 def setup(bot):
     bot.add_cog(Commands(bot))
