@@ -36,7 +36,7 @@ async def on_ready():
     print(f"=========================================")
 
     #bot的狀態顯示
-    await bot.change_presence(activity=discord.Game(name="~help 來獲取指令列表"))
+    await bot.change_presence(activity=discord.Game(name="/help general 來獲取指令列表"))
 
 #用於加載、卸載、重讀不同cosg檔
 """======================================================================================="""
