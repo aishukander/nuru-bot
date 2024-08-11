@@ -11,7 +11,7 @@ class Gemini(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.message_history = {}
-        self.DMC_on = 0
+        self.DMC_on = False
 
     jdata = modules.json.open_json(setting_json_path)
     TOKEN = modules.json.open_json(token_json_path)
@@ -142,21 +142,22 @@ class Gemini(commands.Cog):
         pattern = re.compile(r"<[^>]+>")
         return pattern.sub("", input_string)
     
-    @commands.command()
-    async def DMC(self, ctx, action: str):
+    @commands.slash_command(description="管理Gemini在私訊時是否直接回覆")
+    @discord.option("action", type=discord.SlashCommandOptionType.string, description="on/off")
+    async def gemini_private_management(self, ctx, action: str):
         if ctx.author.guild_permissions.administrator:
             if action.lower() == "on":
-                self.DMC_on = 1
-                await ctx.send("已啟用Gemini私訊時的直接觸發")
+                self.DMC_on = True
+                await ctx.respond("已啟用Gemini私訊時的直接觸發")
        
             elif action.lower() == "off":
-                self.DMC_on = 0
-                await ctx.send("已暫時關閉Gemini私訊時的直接觸發")
+                self.DMC_on = False
+                await ctx.respond("已暫時關閉Gemini私訊時的直接觸發")
 
             else:
-                await ctx.send("無效的動作參數, 請使用 `on` 或 `off`")
+                await ctx.respond("請輸入正確的動作(on/off)")
         else:
-            await ctx.send("你沒有管理者權限用來執行這個指令")
+            await ctx.respond("你沒有管理者權限用來執行這個指令")
 
 def setup(bot):
     bot.add_cog(Gemini(bot))

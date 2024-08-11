@@ -37,8 +37,12 @@ class DynamicVoice(commands.Cog):
                     await before.channel.delete(reason="Delete empty voice channel")
                     self.voice_channel_set.remove(before.channel.id)
 
-    @commands.command()
-    async def dv(self, ctx, action, name=None):
+    dynamic_voice = discord.SlashCommandGroup("dynamic_voice", "dynamic_voice command group")
+
+    @dynamic_voice.command(description="管理動態語音頻道")
+    @discord.option("action", type=discord.SlashCommandOptionType.string, description="add/remove")
+    @discord.option("name", type=discord.SlashCommandOptionType.string, description="母頻道名稱")
+    async def management(self, ctx, action: str, name: str):
         if ctx.author.guild_permissions.administrator:
             guild_id = str(ctx.guild.id)
 
@@ -51,12 +55,12 @@ class DynamicVoice(commands.Cog):
                 self.origin_channels[guild_id].append(channel.id)
 
                 modules.json.save_DynamicVoice_ID_json(self.origin_channels)
-                await ctx.send(f"動態語音 {channel.name} 已建立")
+                await ctx.respond(f"動態語音 {channel.name} 已建立")
 
             elif action.lower() == "remove":
                 channels = self.origin_channels.get(guild_id)
                 if not channels:
-                    return await ctx.send("此伺服器未設定動態語音")
+                    return await ctx.respond("此伺服器未設定動態語音")
 
                 for idx, parent_channel_id in enumerate(channels):
             
@@ -78,18 +82,22 @@ class DynamicVoice(commands.Cog):
 
                             modules.json.dump_json(DynamicVoice_Name_json_path, DynamicVoiceName, 4)
                         
-                            await ctx.send(f"動態語音 {name} 已刪除")
+                            await ctx.respond(f"動態語音 {name} 已刪除")
                         except:
-                            await ctx.send("動態語音已刪除")
+                            await ctx.respond("動態語音已刪除")
 
                         return
 
-                await ctx.send(f"未找到 {name} 動態語音")
+                await ctx.respond(f"未找到 {name} 動態語音")
+            else:
+                await ctx.respond("請輸入正確的動作(add/remove)")
         else:
-            await ctx.send("你沒有管理者權限用來執行這個指令")
+            await ctx.respond("你沒有管理者權限用來執行這個指令")
 
-    @commands.command()
-    async def uvn(self, ctx,parent_channel_name, new_voice_name):
+    @dynamic_voice.command(description="更新動態語音子頻道名稱")
+    @discord.option("parent_channel_name", type=discord.SlashCommandOptionType.string, description="母頻道名稱")
+    @discord.option("new_voice_name", type=discord.SlashCommandOptionType.string, description="新的子頻道名稱(可以用{}代表第一個進入語音的使用者)")
+    async def update_voice_name(self, ctx,parent_channel_name, new_voice_name):
         if ctx.author.guild_permissions.administrator:
             # 讀取 DynamicVoiceName.json 文件
             DynamicVoiceName = modules.json.open_json(DynamicVoice_Name_json_path)
@@ -103,7 +111,7 @@ class DynamicVoice(commands.Cog):
 
             # 檢查是否找到匹配的頻道
             if parent_channel is None:
-                await ctx.send(f'未找到名為 {parent_channel_name} 的母頻道')
+                await ctx.respond(f'未找到名為 {parent_channel_name} 的母頻道')
                 return
 
             # 更新 VoiceName 的值
@@ -112,9 +120,9 @@ class DynamicVoice(commands.Cog):
             # 將更新後的設定寫回 DynamicVoiceName.json 文件
             modules.json.dump_json(DynamicVoice_Name_json_path, DynamicVoiceName, 4)
 
-            await ctx.send(f'已將 {parent_channel_name} 的子頻道名稱更新為 {new_voice_name}')
+            await ctx.respond(f'已將 {parent_channel_name} 的子頻道名稱更新為 {new_voice_name}')
         else:
-            await ctx.send("你沒有管理者權限用來執行這個指令")
+            await ctx.respond("你沒有管理者權限用來執行這個指令")
 
 def setup(bot):
     bot.add_cog(DynamicVoice(bot))

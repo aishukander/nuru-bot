@@ -19,14 +19,12 @@ TOKEN = modules.json.open_json(token_json_path)
 bot = discord.Bot()
 
 #載入所有位於cogs的cog
-async def load_cogs():
+def load_cogs():
     for filename in os.listdir('./cogs'):
         if filename.endswith('.py'):
             bot.load_extension(f'cogs.{filename[:-3]}')
     
-#await load_cogs()
-
-bot.load_extension(f'cogs.Commands')
+load_cogs()
 
 @bot.event
 async def on_ready():
@@ -42,10 +40,10 @@ async def on_ready():
 
 #用於加載、卸載、重讀不同cosg檔
 """======================================================================================="""
-cogs = bot.create_group("cogs", "Cogs management instructions")
+cogs = discord.SlashCommandGroup("cogs", "cogs management instructions")
 
 @cogs.command(description="加載指定的cog")
-@discord.option("extension", type=discord.SlashCommandOptionType.string)
+@discord.option("extension", type=discord.SlashCommandOptionType.string, description="cogs名稱")
 async def load(ctx, extension: str):
     #檢測使用者的伺服器管理員權限
     if ctx.author.guild_permissions.administrator:
@@ -59,7 +57,7 @@ async def load(ctx, extension: str):
         await ctx.respond("你沒有管理者權限用來執行這個指令")
 
 @cogs.command(description="卸載指定的cog")
-@discord.option("extension", type=discord.SlashCommandOptionType.string)
+@discord.option("extension", type=discord.SlashCommandOptionType.string, description="cogs名稱")
 async def unload(ctx, extension: str):
     if ctx.author.guild_permissions.administrator:
         try:
@@ -71,7 +69,7 @@ async def unload(ctx, extension: str):
         await ctx.respond("你沒有管理者權限用來執行這個指令")
 
 @cogs.command(description="重載指定的cog")
-@discord.option("extension", type=discord.SlashCommandOptionType.string)
+@discord.option("extension", type=discord.SlashCommandOptionType.string, description="cogs名稱")
 async def reload(ctx, extension: str):
     if ctx.author.guild_permissions.administrator:
         try:
@@ -92,6 +90,8 @@ async def list(ctx):
         await ctx.respond(message)
     else:
         await ctx.respond("你沒有管理者權限用來執行這個指令")
+
+bot.add_application_command(cogs)
 """======================================================================================="""
 
 #測試bot的ping值
