@@ -27,8 +27,10 @@ class Commands(commands.Cog):
     @discord.option("num", type=discord.SlashCommandOptionType.integer, description="要刪除的訊息數量")
     async def delete(self, ctx, num: int):
         if ctx.author.guild_permissions.administrator:
-            await ctx.channel.purge(limit=num)
-            await ctx.respond(f"已刪除 {num} 則訊息")
+            await ctx.respond(f"準備開始刪除 {num} 則訊息")
+            await asyncio.sleep(1)
+            await ctx.channel.purge(limit=num+1)
+            await ctx.send(f"已刪除 {num} 則訊息")
         else:
             await ctx.respond("你沒有管理者權限用來執行這個指令")
 
