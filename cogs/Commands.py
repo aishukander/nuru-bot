@@ -53,12 +53,12 @@ class Commands(commands.Cog):
         new_text = re.sub(old_msg, new_msg, text)
         await ctx.respond(new_text)
 
-    #讓bot私訊你來呈現一個小型資訊放置處
-    @commands.slash_command(description="讓bot私訊你來呈現一個小型資訊放置處")
-    async def drive(self, ctx):
+    #讓bot私訊你來呈現一個記事本
+    @commands.slash_command(description="讓bot私訊你來呈現一個記事本")
+    async def notebook(self, ctx):
         color = random.randint(0, 16777215)
         user = ctx.author
-        embed=discord.Embed(title="It's a cloud drive.", color=color)
+        embed=discord.Embed(title="這是一個記事本", color=color)
         await user.send(embed=embed)
         await ctx.respond("完成")
 
