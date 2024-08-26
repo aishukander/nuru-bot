@@ -37,4 +37,3 @@ typing_extensions==4.11.0
 uritemplate==4.1.1
 urllib3==2.2.1
 yarl==1.9.4
-youtube_dl @ git+https://github.com/ytdl-org/youtube-dl.git@e0727e4ab61b6e45f7792546b8b5ff52a0ea22b5
