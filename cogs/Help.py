@@ -50,7 +50,7 @@ class Help(commands.Cog):
             embed.add_field(name="/invitation", value="給你機器人的邀請連結", inline=False)
             embed.add_field(name="/mcstatus [伺服器地址] [port(未輸入時預設25565)]", value="查看指定Minecraft伺服器的狀態", inline=False)
             embed.add_field(name="/move [目前頻道ID] [目標頻道ID]", value="將語音頻道內所有人移動到另一個語音頻道 (需管理者權限)", inline=False)
-            embed.add_field(name="/msg [要傳送的訊息] [伺服器] [頻道名]", value="傳送訊息至指定位置(需管理者權限)", inline=False)
+            embed.add_field(name="/message [要傳送的訊息] [伺服器] [頻道名]", value="傳送訊息至指定位置(需管理者權限)", inline=False)
             embed.add_field(name="/notebook", value="讓bot私訊你來呈現一個記事本", inline=False)
             embed.add_field(name="/ping", value="PingBot", inline=False)
             embed.add_field(name="/remove", value="刪除列隊中指定的歌曲", inline=False)
