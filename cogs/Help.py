@@ -59,9 +59,9 @@ class Help(commands.Cog):
             embed.add_field(name="/say [要覆誦的話]", value="刪除所傳的訊息並覆誦(需管理者權限)", inline=False)
             await ctx.respond(embed=embed)
 
-            embed=discord.Embed(title="AdminHelp", color=color)
-            embed.add_field(name="/tag [on或off]", value="管理tag回覆功能(需管理者權限)", inline=False)
-            await ctx.send(embed=embed)   
+            #embed=discord.Embed(title="AdminHelp", color=color)
+
+            #await ctx.send(embed=embed)   
         else:
             await ctx.respond("你沒有管理者權限用來執行這個指令")
     
