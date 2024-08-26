@@ -23,7 +23,7 @@ class Help(commands.Cog):
         embed.add_field(name="/mcstatus [伺服器地址] [port(未輸入時預設25565)]", value="查看指定Minecraft伺服器的狀態", inline=False)
         embed.add_field(name="/notebook", value="讓bot私訊你來呈現一個記事本", inline=False)
         embed.add_field(name="/ping", value="PingBot", inline=False)
-        embed.add_field(name="/reword [欲修改文本]", value="用來批量替換文本內的單字", inline=False)
+        embed.add_field(name="/reword [欲修改文本] [欲修改的字] [修改為的字]", value="用來批量替換文本內的單字", inline=False)
         await ctx.respond(embed=embed)
 
     #AdminHelp指令
@@ -52,7 +52,7 @@ class Help(commands.Cog):
             embed.add_field(name="/message [要傳送的訊息] [伺服器] [頻道名]", value="傳送訊息至指定位置(需管理者權限)", inline=False)
             embed.add_field(name="/notebook", value="讓bot私訊你來呈現一個記事本", inline=False)
             embed.add_field(name="/ping", value="PingBot", inline=False)
-            embed.add_field(name="/reword [欲修改文本]", value="用來批量替換文本內的單字", inline=False)
+            embed.add_field(name="/reword [欲修改文本] [欲修改的字] [修改為的字]", value="用來批量替換文本內的單字", inline=False)
             embed.add_field(name="/role [身分組]", value="添加對應身分組與其的專用頻道(需管理者權限)", inline=False)
             embed.add_field(name="/say [要覆誦的話]", value="刪除所傳的訊息並覆誦(需管理者權限)", inline=False)
             #
