@@ -101,8 +101,8 @@ class Commands(commands.Cog):
 
     @commands.slash_command(description="讓mumei告訴你該不該買") 
     async def buy_or_not(self,ctx):
-        buyornot = choice(self.jdata['buyornot'])
-        await ctx.respond(buyornot)    
+        buy_or_not = choice(self.jdata['buy_or_not'])
+        await ctx.respond(buy_or_not)    
 
     @commands.slash_command(description="傳送訊息至指定伺服器的指定頻道")
     @discord.option("message", type=discord.SlashCommandOptionType.string, description="要傳送的訊息")
