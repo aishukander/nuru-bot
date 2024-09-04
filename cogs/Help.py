@@ -53,9 +53,9 @@ class Help(commands.Cog):
             embed.add_field(name="/move_voice [目前頻道ID] [目標頻道ID]", value="將語音頻道內所有人移動到另一個語音頻道 (需管理者權限)", inline=False)
             embed.add_field(name="/notebook", value="讓bot私訊你來呈現一個記事本", inline=False)
             embed.add_field(name="/ping", value="PingBot", inline=False)
-            embed.add_field(name="/reword [欲修改文本] [欲修改的字] [修改為的字]", value="用來批量替換文本內的單字", inline=False)
             embed.add_field(name="/say [要覆誦的話]", value="刪除所傳的訊息並覆誦(需管理者權限)", inline=False)
             embed.add_field(name="/send_msg [要傳送的訊息] [伺服器] [頻道名]", value="傳送訊息至指定位置(需管理者權限)", inline=False)
+            embed.add_field(name="/word_changer [欲修改文本] [欲修改的字] [修改為的字]", value="用來批量替換文本內的單字", inline=False)
             #
             await ctx.respond(embed=embed)
 
