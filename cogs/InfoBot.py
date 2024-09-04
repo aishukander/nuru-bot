@@ -4,12 +4,12 @@ import random
 import discord
 from discord.ext import commands
 
-class BotInfo(commands.Cog):
+class InfoBot(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
     @commands.slash_command(description="獲取機器人的資訊")
-    async def bot_info(self, ctx):
+    async def info_bot(self, ctx):
         # 獲取 CPU 使用率
         cpu_usage = psutil.cpu_percent(interval=1)
         # 獲取 RAM 使用情況
@@ -44,4 +44,4 @@ class BotInfo(commands.Cog):
         await ctx.respond(embed=embed)
 
 def setup(bot):
-    bot.add_cog(BotInfo(bot))
+    bot.add_cog(InfoBot(bot))
