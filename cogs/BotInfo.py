@@ -9,7 +9,7 @@ class BotInfo(commands.Cog):
         self.bot = bot
 
     @commands.slash_command(description="獲取機器人的資訊")
-    async def botinfo(self, ctx):
+    async def bot_info(self, ctx):
         # 獲取 CPU 使用率
         cpu_usage = psutil.cpu_percent(interval=1)
         # 獲取 RAM 使用情況
