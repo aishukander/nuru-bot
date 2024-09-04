@@ -1,7 +1,6 @@
 #各種使用的模組
 """======================================================================================="""
 import discord
-from discord.ext import commands
 import os
 import random
 import modules.json
