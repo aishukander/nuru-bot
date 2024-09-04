@@ -9,7 +9,7 @@ class MinecraftStatus(commands.Cog):
 	@commands.slash_command(description="檢查Minecraft伺服器狀態")
 	@discord.option("server_ip", type=discord.SlashCommandOptionType.string, description="伺服器IP")
 	@discord.option("port", type=discord.SlashCommandOptionType.integer, description="伺服器Port", required=False)
-	async def mcstatus(self, ctx, server_ip: str, port: int = 25565):
+	async def mc_status(self, ctx, server_ip: str, port: int = 25565):
 		url = f"https://api.mcsrvstat.us/2/{server_ip}:{port}"
 		try:
 			response = requests.get(url)
