@@ -24,7 +24,7 @@ class Help(commands.Cog):
         embed.add_field(name="/mc_status [伺服器地址] [port(未輸入時預設25565)]", value="查看指定Minecraft伺服器的狀態", inline=False)
         embed.add_field(name="/notebook", value="讓bot私訊你來呈現一個記事本", inline=False)
         embed.add_field(name="/ping", value="PingBot", inline=False)
-        embed.add_field(name="/reword [欲修改文本] [欲修改的字] [修改為的字]", value="用來批量替換文本內的單字", inline=False)
+        embed.add_field(name="/word_changer [欲修改文本] [欲修改的字] [修改為的字]", value="用來批量替換文本內的單字", inline=False)
         await ctx.respond(embed=embed)
 
     #AdminHelp指令
