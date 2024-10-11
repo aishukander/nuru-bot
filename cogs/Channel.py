@@ -41,7 +41,7 @@ class Channel(commands.Cog):
     dynamic_voice = discord.SlashCommandGroup("dynamic_voice", "dynamic_voice command group")
 
     @dynamic_voice.command(description="管理動態語音頻道")
-    @discord.option("action", type=discord.SlashCommandOptionType.string, description="add/remove")
+    @discord.option("action", type=discord.SlashCommandOptionType.string, description="add/remove", choices=["add", "remove"])
     @discord.option("name", type=discord.SlashCommandOptionType.string, description="母頻道名稱")
     async def management(self, ctx, action: str, name: str):
         if ctx.author.guild_permissions.administrator:
@@ -127,8 +127,8 @@ class Channel(commands.Cog):
 
     #將語音頻道內所有人移動到另一個語音頻道
     @commands.slash_command(description="將語音頻道內所有人移動到另一個語音頻道")
-    @discord.option("source", type=discord.SlashCommandOptionType.channel, description="源頻道")
-    @discord.option("target", type=discord.SlashCommandOptionType.channel, description="目標頻道")
+    @discord.option("source", type=discord.SlashCommandOptionType.channel, description="源頻道", channel_types=[discord.ChannelType.voice])
+    @discord.option("target", type=discord.SlashCommandOptionType.channel, description="目標頻道", channel_types=[discord.ChannelType.voice])
     async def move_voice(self, ctx, source: discord.VoiceChannel, target: discord.VoiceChannel):
         if ctx.author.guild_permissions.administrator:
             # 檢查源頻道是否有人在裡面，如果沒有，則回覆錯誤訊息

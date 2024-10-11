@@ -17,12 +17,28 @@ TOKEN = modules.json.open_json(token_json_path)
 
 bot = discord.Bot()
 
+def CogsList(Loaded = False):
+    if Loaded == False:
+        CogsList = []
+        for filename in os.listdir('./cogs'):
+            if filename.endswith('.py'):
+                CogsList.append(filename[:-3])
+        return CogsList
+    else:
+        Cogslist = []
+        for cog in [cog for cog in bot.cogs]:
+            Cogslist.append(cog)
+        return Cogslist
+
 #載入所有位於cogs的cog
 def load_cogs():
-    for filename in os.listdir('./cogs'):
-        if filename.endswith('.py'):
-            bot.load_extension(f'cogs.{filename[:-3]}')
-    
+    for filename in CogsList(False):
+        try:
+            bot.load_extension(f'cogs.{filename}')
+            print(f"載入 {filename} 完成")
+        except:
+            print(f"載入 {filename} 失敗")
+
 load_cogs()
 
 @bot.event
@@ -42,7 +58,7 @@ async def on_ready():
 cogs = discord.SlashCommandGroup("cogs", "cogs management instructions")
 
 @cogs.command(description="加載指定的cog")
-@discord.option("extension", type=discord.SlashCommandOptionType.string, description="cogs名稱")
+@discord.option("extension", type=discord.SlashCommandOptionType.string, description="cogs名稱", choices = CogsList(False))
 async def load(ctx, extension: str):
     #檢測使用者的伺服器管理員權限
     if ctx.author.guild_permissions.administrator:
@@ -56,7 +72,7 @@ async def load(ctx, extension: str):
         await ctx.respond("你沒有管理者權限用來執行這個指令")
 
 @cogs.command(description="卸載指定的cog")
-@discord.option("extension", type=discord.SlashCommandOptionType.string, description="cogs名稱")
+@discord.option("extension", type=discord.SlashCommandOptionType.string, description="cogs名稱", choices = CogsList(True))
 async def unload(ctx, extension: str):
     if ctx.author.guild_permissions.administrator:
         try:
@@ -68,7 +84,7 @@ async def unload(ctx, extension: str):
         await ctx.respond("你沒有管理者權限用來執行這個指令")
 
 @cogs.command(description="重載指定的cog")
-@discord.option("extension", type=discord.SlashCommandOptionType.string, description="cogs名稱")
+@discord.option("extension", type=discord.SlashCommandOptionType.string, description="cogs名稱", choices = CogsList(True))
 async def reload(ctx, extension: str):
     if ctx.author.guild_permissions.administrator:
         try:
@@ -82,7 +98,7 @@ async def reload(ctx, extension: str):
 @cogs.command(description="列出已載入的cog")
 async def list(ctx):
     if ctx.author.guild_permissions.administrator:
-        loaded_cogs = [cog for cog in bot.cogs]
+        loaded_cogs = CogsList(True)
         message = "已載入的 cog 如下：\n"
         for cog in loaded_cogs:
             message += f"* {cog}\n"
