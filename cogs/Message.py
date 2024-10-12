@@ -1,5 +1,6 @@
 import discord
 from discord.ext import commands
+import os
 import re
 import asyncio
 import random
@@ -15,11 +16,13 @@ class Message(commands.Cog):
         self.jdata = modules.json.open_json(setting_json_path)
 
     def GetPicture():
-        jdata = modules.json.open_json(f"{CallPicture_path}/CallPicture.json")
-        PictureList = []
-        for item in jdata:
-            PictureList.append(item)
-        return PictureList
+        filenames = []
+        for entry in os.listdir(CallPicture_path):
+            full_path = os.path.join(CallPicture_path, entry)
+            if os.path.isfile(full_path):
+                filename_without_extension = os.path.splitext(entry)[0]
+                filenames.append(filename_without_extension)
+        return filenames
 
     #讓機器人覆誦你輸入的訊息
     @commands.slash_command(description="讓機器人覆誦你輸入的訊息")
@@ -87,13 +90,17 @@ class Message(commands.Cog):
         new_text = re.sub(old_msg, new_msg, text)
         await ctx.respond(new_text)
 
-    #在CallPicture.json內以 "台詞"":"圖片名.副檔名" 來編寫json，編寫完json後直接把對應圖片丟至CallPicture即可。
+    #直接把圖片丟至CallPicture即可。
     @commands.slash_command(description="給出你指定的圖片")
     @discord.option("picture", type=discord.SlashCommandOptionType.string, description="哪個圖片", choices = GetPicture())
     async def called_figure(self, ctx, picture: str):
         await ctx.respond(picture)
-        jdata = modules.json.open_json(f"{CallPicture_path}/CallPicture.json")
-        file = discord.File(f"{CallPicture_path}/{jdata[picture]}", filename=jdata[picture])
+        for Extension in self.jdata["PictureExtension"]:
+            try:
+                file = discord.File(f"{CallPicture_path}/{picture}.{Extension}", filename=f"{picture}.{Extension}")
+                break
+            except:
+                pass
         await ctx.send(file = file)
 
 def setup(bot):

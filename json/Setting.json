@@ -1,5 +1,6 @@
 {
     "invitation": "https://discord.com/oauth2/authorize?client_id=999157840063242330&permissions=0&integration_type=0&scope=bot+applications.commands",
+    "MAX_HISTORY": "100",
     "buy_or_not": [
         "買",
         "不買",
@@ -8,5 +9,11 @@
         "馬上買",
         "下次一定"
     ],
-    "MAX_HISTORY": "100"
+    "PictureExtension": [
+        "jpg",
+        "jpeg",
+        "png",
+        "gif",
+        "webp"
+    ]
 }
