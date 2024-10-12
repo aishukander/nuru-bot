@@ -33,11 +33,8 @@ def CogsList(Loaded = False):
 #載入所有位於cogs的cog
 def load_cogs():
     for filename in CogsList(False):
-        try:
-            bot.load_extension(f'cogs.{filename}')
-            print(f"載入 {filename} 完成")
-        except:
-            print(f"載入 {filename} 失敗")
+        bot.load_extension(f'cogs.{filename}')
+        print(f"載入 {filename} 完成")
 
 load_cogs()
 

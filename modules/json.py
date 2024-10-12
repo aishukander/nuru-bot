@@ -7,6 +7,7 @@ token_json_path = os.path.join(root_dir, "json", "Token.json")
 DynamicVoice_ID_json_path = os.path.join(root_dir, "json", "DynamicVoiceID.json")
 DynamicVoice_Name_json_path = os.path.join(root_dir, "json", "DynamicVoiceName.json")
 words_json_path = os.path.join(root_dir, "json", "Words.json")
+CallPicture_path = os.path.join(root_dir, "CallPicture")
 
 def open_json(path):
     with open(path,"r",encoding="utf8") as jfile:

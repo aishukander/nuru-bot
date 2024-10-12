@@ -6,12 +6,20 @@ import random
 from secrets import choice
 import modules.json
 from modules.json import setting_json_path
+from modules.json import CallPicture_path
 
 class Message(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
         self.jdata = modules.json.open_json(setting_json_path)
+
+    def GetPicture():
+        jdata = modules.json.open_json(f"{CallPicture_path}/CallPicture.json")
+        PictureList = []
+        for item in jdata:
+            PictureList.append(item)
+        return PictureList
 
     #讓機器人覆誦你輸入的訊息
     @commands.slash_command(description="讓機器人覆誦你輸入的訊息")
@@ -78,6 +86,15 @@ class Message(commands.Cog):
     async def word_changer(self, ctx, text: str, old_msg: str, new_msg: str):
         new_text = re.sub(old_msg, new_msg, text)
         await ctx.respond(new_text)
+
+    #在CallPicture.json內以 "台詞"":"圖片名.副檔名" 來編寫json，編寫完json後直接把對應圖片丟至CallPicture即可。
+    @commands.slash_command(description="給出你指定的圖片")
+    @discord.option("picture", type=discord.SlashCommandOptionType.string, description="哪個圖片", choices = GetPicture())
+    async def called_figure(self, ctx, picture: str):
+        await ctx.respond(picture)
+        jdata = modules.json.open_json(f"{CallPicture_path}/CallPicture.json")
+        file = discord.File(f"{CallPicture_path}/{jdata[picture]}", filename=jdata[picture])
+        await ctx.send(file = file)
 
 def setup(bot):
     bot.add_cog(Message(bot))

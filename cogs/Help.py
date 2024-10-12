@@ -18,6 +18,7 @@ class Help(commands.Cog):
         embed.add_field(name="@mumei RESET", value="清除使用者的訊息歷史記錄", inline=False)
         embed.add_field(name="/bot_info", value="獲取機器人的資訊", inline=False)
         embed.add_field(name="/buy_or_not", value="讓mumei告訴你該不該買", inline=False)
+        embed.add_field(name="/called_figure [台詞]", value="讓bot幫你圖戰", inline=False)
         embed.add_field(name="/help admin", value="管理員指令說明(需管理者權限)", inline=False)
         embed.add_field(name="/help general", value="指令說明", inline=False)
         embed.add_field(name="/invitation", value="給你機器人的邀請連結", inline=False)
@@ -36,6 +37,7 @@ class Help(commands.Cog):
             embed.add_field(name="@mumei [任意訊息]", value="讓mumei回答你(可以使用圖片)", inline=False)
             embed.add_field(name="@mumei RESET", value="清除使用者的訊息歷史記錄", inline=False)
             embed.add_field(name="/buy_or_not", value="讓mumei告訴你該不該買", inline=False)
+            embed.add_field(name="/called_figure [台詞]", value="讓bot幫你圖戰 增加圖片的方法在Message.py的第90行", inline=False)
             embed.add_field(name="/cogs list", value="顯示已載入的指令模塊", inline=False)
             embed.add_field(name="/cogs load [所選模塊]", value="加載所選的指令模塊(需管理者權限)", inline=False)
             embed.add_field(name="/cogs reload [所選模塊]", value="重載所選的指令模塊(需管理者權限)", inline=False)
@@ -56,7 +58,6 @@ class Help(commands.Cog):
             embed.add_field(name="/say [要覆誦的話]", value="刪除所傳的訊息並覆誦(需管理者權限)", inline=False)
             embed.add_field(name="/send_msg [要傳送的訊息] [伺服器] [頻道名]", value="傳送訊息至指定位置(需管理者權限)", inline=False)
             embed.add_field(name="/word_changer [欲修改文本] [欲修改的字] [修改為的字]", value="用來批量替換文本內的單字", inline=False)
-            #
             await ctx.respond(embed=embed)
 
             #embed=discord.Embed(title="AdminHelp", color=color)
