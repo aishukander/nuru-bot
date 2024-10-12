@@ -94,14 +94,13 @@ class Message(commands.Cog):
     @commands.slash_command(description="給出你指定的圖片")
     @discord.option("picture", type=discord.SlashCommandOptionType.string, description="哪個圖片", choices = GetPicture())
     async def called_figure(self, ctx, picture: str):
-        await ctx.respond(picture)
         for Extension in self.jdata["PictureExtension"]:
             try:
                 file = discord.File(f"{CallPicture_path}/{picture}.{Extension}", filename=f"{picture}.{Extension}")
                 break
             except:
                 pass
-        await ctx.send(file = file)
+        await ctx.respond(file = file)
 
 def setup(bot):
     bot.add_cog(Message(bot))
