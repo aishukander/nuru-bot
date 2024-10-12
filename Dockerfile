@@ -10,10 +10,6 @@ COPY . /code
 # 在 Image 中執行的指令
 RUN apt update
 
-RUN apt install -y ffmpeg
-
-RUN apt install -y git
-
 RUN pip install -r requirements.txt
 
 RUN mkdir -p /tmp/data && cp -r /code/json/* /tmp/data/
