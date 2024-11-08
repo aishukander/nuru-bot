@@ -42,10 +42,12 @@ load_cogs()
 async def on_ready():
 
     #啟動時會在終端機印出的訊息
-    print(f"=========================================")
-    print(f"=   mumei Bot Logged in as {bot.user}   =")
-    print(f"=             >>Bot start<<             =")
-    print(f"=========================================")
+    bot_name = f"Bot Logged in as {bot.user}"
+    border = "=" * 40
+    print(border)
+    print(f"= {bot_name.center(len(border) - 4)} =")
+    print(f"= {'>>  Bot start  <<'.center(len(border) - 4)} =")
+    print(border)
 
     #bot的狀態顯示
     await bot.change_presence(activity=discord.Game(name="/help general 來獲取指令列表"))
