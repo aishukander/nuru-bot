@@ -10,7 +10,7 @@ json_dir = Path(__file__).resolve().parents[1] / "json"
 
 class Gemini(commands.Cog):
     with open(json_dir / "Setting.json", "r", encoding="utf8") as jfile:
-        jdata = json.load(jfile)
+        Setting = json.load(jfile)
 
     with open(json_dir / "Token.json", "r", encoding="utf8") as jfile:
         TOKEN = json.load(jfile)
@@ -21,7 +21,7 @@ class Gemini(commands.Cog):
         self.DMC_on = False
 
     GOOGLE_AI_KEY = TOKEN["GOOGLE_AI_KEY"]  
-    MAX_HISTORY = int(jdata["MAX_HISTORY"])
+    MAX_HISTORY = int(Setting["MAX_HISTORY"])
 
     genai.configure(api_key=GOOGLE_AI_KEY)
     text_generation_config = {

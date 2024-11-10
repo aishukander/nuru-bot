@@ -17,7 +17,7 @@ class Message(commands.Cog):
         self.bot = bot
 
         with open(json_dir / "Setting.json", "r", encoding="utf8") as jfile:
-            self.jdata = json.load(jfile)
+            self.Setting = json.load(jfile)
 
     def GetPicture():
         filenames = []
@@ -60,7 +60,7 @@ class Message(commands.Cog):
 
     @commands.slash_command(description="讓mumei告訴你該不該買") 
     async def buy_or_not(self,ctx):
-        buy_or_not = choice(self.jdata['buy_or_not'])
+        buy_or_not = choice(self.Setting['buy_or_not'])
         await ctx.respond(buy_or_not)    
 
     @commands.slash_command(description="傳送訊息至指定伺服器的指定頻道")
@@ -98,7 +98,7 @@ class Message(commands.Cog):
     @commands.slash_command(description="給出你指定的圖片")
     @discord.option("picture", type=discord.SlashCommandOptionType.string, description="哪個圖片", choices = GetPicture())
     async def called_figure(self, ctx, picture: str):
-        for Extension in self.jdata["PictureExtension"]:
+        for Extension in self.Setting["PictureExtension"]:
             try:
                 file = discord.File(f"{CallPicture_dir}/{picture}.{Extension}", filename=f"{picture}.{Extension}")
                 break
