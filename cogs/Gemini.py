@@ -1,20 +1,24 @@
 import re
 import aiohttp
+import json
 import discord
 from discord.ext import commands
-import modules.json
-from modules.json import setting_json_path, token_json_path
+from pathlib import Path
 import google.generativeai as genai
 
+json_dir = Path(__file__).resolve().parents[1] / "json"
+
 class Gemini(commands.Cog):
+    with open(json_dir / "Setting.json", "r", encoding="utf8") as jfile:
+        jdata = json.load(jfile)
+
+    with open(json_dir / "Token.json", "r", encoding="utf8") as jfile:
+        TOKEN = json.load(jfile)
 
     def __init__(self, bot):
         self.bot = bot
         self.message_history = {}
         self.DMC_on = False
-
-    jdata = modules.json.open_json(setting_json_path)
-    TOKEN = modules.json.open_json(token_json_path)
 
     GOOGLE_AI_KEY = TOKEN["GOOGLE_AI_KEY"]  
     MAX_HISTORY = int(jdata["MAX_HISTORY"])

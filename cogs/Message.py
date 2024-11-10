@@ -4,21 +4,25 @@ import os
 import re
 import asyncio
 import random
+import json
 from secrets import choice
-import modules.json
-from modules.json import setting_json_path
-from modules.json import CallPicture_path
+from pathlib import Path
+
+json_dir = Path(__file__).resolve().parents[1] / "json"
+CallPicture_dir = Path(__file__).resolve().parents[1] / "CallPicture"
 
 class Message(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
-        self.jdata = modules.json.open_json(setting_json_path)
+
+        with open(json_dir / "Setting.json", "r", encoding="utf8") as jfile:
+            self.jdata = json.load(jfile)
 
     def GetPicture():
         filenames = []
-        for entry in os.listdir(CallPicture_path):
-            full_path = os.path.join(CallPicture_path, entry)
+        for entry in os.listdir(CallPicture_dir):
+            full_path = os.path.join(CallPicture_dir, entry)
             if os.path.isfile(full_path):
                 filename_without_extension = os.path.splitext(entry)[0]
                 filenames.append(filename_without_extension)
@@ -96,7 +100,7 @@ class Message(commands.Cog):
     async def called_figure(self, ctx, picture: str):
         for Extension in self.jdata["PictureExtension"]:
             try:
-                file = discord.File(f"{CallPicture_path}/{picture}.{Extension}", filename=f"{picture}.{Extension}")
+                file = discord.File(f"{CallPicture_dir}/{picture}.{Extension}", filename=f"{picture}.{Extension}")
                 break
             except:
                 pass

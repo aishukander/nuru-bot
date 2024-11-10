@@ -1,15 +1,36 @@
 import discord
 import asyncio
 from discord.ext import commands
-import modules.json
-from modules.json import DynamicVoice_ID_json_path, DynamicVoice_Name_json_path
+import json
+from pathlib import Path
+
+json_dir = Path(__file__).resolve().parents[1] / "json"
 
 class Channel(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
         self.voice_channel_set = set()
-        self.origin_channels = modules.json.open_json(DynamicVoice_ID_json_path)
+
+        with open(json_dir / "DynamicVoiceID.json", "r", encoding="utf8") as jfile:
+            self.origin_channels = json.load(jfile)
+
+    def DynamicVoiceName(self):
+        with open(json_dir / "DynamicVoiceName.json", "r", encoding="utf8") as jfile:
+            return(self.json.load(jfile))
+        
+    def save_DynamicVoice_ID_json(origin_channels):
+        if not origin_channels:
+            json_str = "{}" 
+        else:
+            formatted_data = ""
+            for guild_id, channel_ids in origin_channels.items():
+                formatted_data += f'\n"{guild_id}": {channel_ids},'
+
+            json_str = "{" + formatted_data[:-1] + "\n}"
+
+        with open(json_dir / "DynamicVoiceID.json", "w", encoding="utf8") as f:
+            f.write(json_str)
 
     @commands.Cog.listener() 
     async def on_voice_state_update(self, member, before, after):
@@ -24,7 +45,7 @@ class Channel(commands.Cog):
         for parent_channel_id in self.origin_channels_for_guild:
             if after.channel and after.channel.id == parent_channel_id:
                 try:
-                    DynamicVoiceName = modules.json.open_json(DynamicVoice_Name_json_path)
+                    DynamicVoiceName = DynamicVoiceName()
                     new_channel = await after.channel.clone(name=DynamicVoiceName[f"{guild_id}_{parent_channel_id}"].format(member.display_name))
                 except:
                     new_channel = await after.channel.clone(name=f"{member.display_name}的動態語音")
@@ -55,7 +76,7 @@ class Channel(commands.Cog):
             
                 self.origin_channels[guild_id].append(channel.id)
 
-                modules.json.save_DynamicVoice_ID_json(self.origin_channels)
+                self.save_DynamicVoice_ID_json(self.origin_channels)
                 await ctx.respond(f"動態語音 {channel.name} 已建立")
 
             elif action.lower() == "remove":
@@ -74,10 +95,10 @@ class Channel(commands.Cog):
                         if not self.origin_channels[guild_id]:
                             self.origin_channels.pop(guild_id)
 
-                        modules.json.save_DynamicVoice_ID_json(self.origin_channels)
+                        self.save_DynamicVoice_ID_json(self.origin_channels)
 
                         try:
-                            DynamicVoiceName = modules.json.open_json(DynamicVoice_Name_json_path)
+                            DynamicVoiceName = DynamicVoiceName()
 
                             del DynamicVoiceName[f"{guild_id}_{parent_channel_id}"]
 
@@ -101,7 +122,7 @@ class Channel(commands.Cog):
     async def update_voice_name(self, ctx,parent_channel_name, new_voice_name):
         if ctx.author.guild_permissions.administrator:
             # 讀取 DynamicVoiceName.json 文件
-            DynamicVoiceName = modules.json.open_json(DynamicVoice_Name_json_path)
+            DynamicVoiceName = DynamicVoiceName()
 
             # 尋找匹配的語音頻道
             parent_channel = None

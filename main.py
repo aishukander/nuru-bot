@@ -3,17 +3,19 @@
 import discord
 import os
 import random
-import modules.json
-from modules.json import setting_json_path, token_json_path
+import json
+from pathlib import Path
 """======================================================================================="""
 
 intents = discord.Intents.all()
 
-#加載setting.json的內容
-jdata = modules.json.open_json(setting_json_path)
+json_dir = Path(__file__).resolve().parent / "json"
 
-#加載TOKEN
-TOKEN = modules.json.open_json(token_json_path)
+with open(json_dir / "Setting.json", "r", encoding="utf8") as jfile:
+    jdata = json.load(jfile)
+
+with open(json_dir / "Token.json", "r", encoding="utf8") as jfile:
+    TOKEN = json.load(jfile)
 
 bot = discord.Bot()
 
