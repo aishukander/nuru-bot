@@ -13,9 +13,17 @@ class Channel(commands.Cog):
         self.voice_channel_set = set()
 
         with open(json_dir / "DynamicVoiceID.json", "r", encoding="utf8") as jfile:
-            self.origin_channels = json.load(jfile)
+            self.origin_channels = json.load(jfile) 
+
+    def LoadDynamicVoiceName(self):
+        with open(json_dir / "DynamicVoiceName.json", "r", encoding="utf8") as jfile:
+            return(json.load(jfile))
         
-    def save_DynamicVoice_ID_json(self, origin_channels):
+    def DumpDynamicVoiceName(self, DynamicVoiceName):
+        with open(json_dir / "DynamicVoiceName.json","w",encoding="utf8") as f:
+            json.dump(DynamicVoiceName, f, indent = 4)
+        
+    def SaveDynamicVoice_ID_json(self, origin_channels):
         if not origin_channels:
             json_str = "{}" 
         else:
@@ -41,8 +49,7 @@ class Channel(commands.Cog):
         for parent_channel_id in self.origin_channels_for_guild:
             if after.channel and after.channel.id == parent_channel_id:
                 try:
-                    with open(json_dir / "DynamicVoiceName.json", "r", encoding="utf8") as jfile:
-                        DynamicVoiceName = (json.load(jfile))
+                    DynamicVoiceName = self.LoadDynamicVoiceName()
                     new_channel = await after.channel.clone(name=DynamicVoiceName[f"{guild_id}_{parent_channel_id}"].format(member.display_name))
                 except:
                     new_channel = await after.channel.clone(name=f"{member.display_name}的動態語音")
@@ -73,7 +80,7 @@ class Channel(commands.Cog):
             
                 self.origin_channels[guild_id].append(channel.id)
 
-                self.save_DynamicVoice_ID_json(self.origin_channels)
+                self.SaveDynamicVoice_ID_json(self.origin_channels)
                 await ctx.respond(f"動態語音 {channel.name} 已建立")
 
             elif action.lower() == "remove":
@@ -92,16 +99,14 @@ class Channel(commands.Cog):
                         if not self.origin_channels[guild_id]:
                             self.origin_channels.pop(guild_id)
 
-                        self.save_DynamicVoice_ID_json(self.origin_channels)
+                        self.SaveDynamicVoice_ID_json(self.origin_channels)
 
                         try:
-                            with open(json_dir / "DynamicVoiceName.json", "r", encoding="utf8") as jfile:
-                                DynamicVoiceName = (json.load(jfile))
+                            DynamicVoiceName = self.LoadDynamicVoiceName()
 
                             del DynamicVoiceName[f"{guild_id}_{parent_channel_id}"]
 
-                            with open(json_dir / "DynamicVoiceName.json","w",encoding="utf8") as f:
-                                json.dump(DynamicVoiceName, f, indent = 4)
+                            self.DumpDynamicVoiceName(DynamicVoiceName)
                         
                             await ctx.respond(f"動態語音 {name} 已刪除")
                         except:
@@ -121,8 +126,7 @@ class Channel(commands.Cog):
     async def update_voice_name(self, ctx,parent_channel_name, new_voice_name):
         if ctx.author.guild_permissions.administrator:
             # 讀取 DynamicVoiceName.json 文件
-            with open(json_dir / "DynamicVoiceName.json", "r", encoding="utf8") as jfile:
-                DynamicVoiceName = json.load(jfile)
+            DynamicVoiceName = self.LoadDynamicVoiceName()
 
             # 尋找匹配的語音頻道
             parent_channel = None
@@ -140,8 +144,7 @@ class Channel(commands.Cog):
             DynamicVoiceName[f'{ctx.guild.id}_{parent_channel.id}'] = new_voice_name
 
             # 將更新後的設定寫回 DynamicVoiceName.json 文件
-            with open(json_dir / "DynamicVoiceName.json","w",encoding="utf8") as f:
-                json.dump(DynamicVoiceName, f, indent = 4)
+            self.DumpDynamicVoiceName(DynamicVoiceName)
 
             await ctx.respond(f'已將 {parent_channel_name} 的子頻道名稱更新為 {new_voice_name}')
         else:
