@@ -2,17 +2,19 @@
 FROM python:3.12.5-slim
 
 # 指定 Image 中的工作目錄
-WORKDIR /code
+WORKDIR /bot
 
-# 將 Dockerfile 所在目錄下的所有檔案複製到 Image 的工作目錄 /code 底下
-COPY . /code
+# 將 Dockerfile 所在目錄下的所有檔案複製到 Image 的工作目錄 /bot 底下
+COPY . /bot
 
 # 在 Image 中執行的指令
 RUN apt update \
+    && pip install --upgrade pip \
+    && chmod +x /bot/entrypoint.sh \
     && pip install -r requirements.txt \
     && mkdir -p /tmp/data \
-    && cp -r /code/json/* /tmp/data/
+    && cp -r /bot/json/* /tmp/data/
 
-ENTRYPOINT ["/bin/bash", "-c", "if [ -d '/tmp/data' ] && [ -d /code/json/ ] && [ ! $(ls -A /code/json/) ]; then cp -r /tmp/data/* /code/json/; fi && rm -rf /tmp/data && exec python ./main.py"]
+ENTRYPOINT ["/entrypoint.sh"]
 #到mumei-bot資料夾後使用終端機執行docker build -t [使用者名稱]/[映像檔名稱]:latest . 來將bot保存成docker映像檔
 #到mumei-bot資料夾後使用終端機執行docker push [使用者名稱]/[映像檔名稱]:latest 來將bot上傳至docker hub
