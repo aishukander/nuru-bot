@@ -13,15 +13,15 @@ class Gemini(commands.Cog):
         Setting = json.load(jfile)
 
     with open(json_dir / "Token.json", "r", encoding="utf8") as jfile:
-        TOKEN = json.load(jfile)
+        Token = json.load(jfile)
 
     def __init__(self, bot):
         self.bot = bot
         self.message_history = {}
         self.DMC_on = False
 
-    GOOGLE_AI_KEY = TOKEN["GOOGLE_AI_KEY"]  
-    MAX_HISTORY = int(Setting["MAX_HISTORY"])
+    GOOGLE_AI_KEY = Token["Google_AI_Key"]  
+    MAX_HISTORY = int(Setting["Max_History"])
 
     genai.configure(api_key=GOOGLE_AI_KEY)
     text_generation_config = {
@@ -44,6 +44,13 @@ class Gemini(commands.Cog):
     ]
     text_model = genai.GenerativeModel(model_name="gemini-1.5-flash", generation_config=text_generation_config, safety_settings=safety_settings)
     image_model = genai.GenerativeModel(model_name="gemini-1.5-flash", generation_config=image_generation_config, safety_settings=safety_settings)
+
+    prompt = """
+        (請盡量使用繁體中文)以後對話請依照以下規則:
+        1.以後對話使用到中文時除非使用者強制要求不然只充許使用繁體中文。
+        2.當你發現聊天內容重複時可以結束該話題並開啟新的話題。
+        3.請遵守以上所有規則。
+    """
 
     @commands.Cog.listener()
     async def on_message(self, message):
