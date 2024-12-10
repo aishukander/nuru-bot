@@ -15,6 +15,6 @@ RUN apt update \
     && mkdir -p /tmp/data \
     && cp -r /bot/json/* /tmp/data/
 
-ENTRYPOINT ["/entrypoint.sh"]
+ENTRYPOINT ["/bot/entrypoint.sh"]
 #到mumei-bot資料夾後使用終端機執行docker build -t [使用者名稱]/[映像檔名稱]:latest . 來將bot保存成docker映像檔
 #到mumei-bot資料夾後使用終端機執行docker push [使用者名稱]/[映像檔名稱]:latest 來將bot上傳至docker hub
