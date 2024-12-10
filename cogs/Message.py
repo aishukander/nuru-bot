@@ -60,8 +60,8 @@ class Message(commands.Cog):
 
     @commands.slash_command(description="讓mumei告訴你該不該買") 
     async def buy_or_not(self,ctx):
-        buy_or_not = choice(self.Setting['buy_or_not'])
-        await ctx.respond(buy_or_not)    
+        Buy_OR_Not = choice(self.Setting['Buy_OR_Not'])
+        await ctx.respond(Buy_OR_Not)    
 
     @commands.slash_command(description="傳送訊息至指定伺服器的指定頻道")
     @discord.option("message", type=discord.SlashCommandOptionType.string, description="要傳送的訊息")
@@ -98,7 +98,7 @@ class Message(commands.Cog):
     @commands.slash_command(description="給出你指定的圖片")
     @discord.option("picture", type=discord.SlashCommandOptionType.string, description="哪個圖片", choices = GetPicture())
     async def called_figure(self, ctx, picture: str):
-        for Extension in self.Setting["PictureExtension"]:
+        for Extension in self.Setting["Picture_Extension"]:
             try:
                 file = discord.File(f"{CallPicture_dir}/{picture}.{Extension}", filename=f"{picture}.{Extension}")
                 break

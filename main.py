@@ -15,7 +15,7 @@ with open(json_dir / "Setting.json", "r", encoding="utf8") as jfile:
     Setting = json.load(jfile)
 
 with open(json_dir / "Token.json", "r", encoding="utf8") as jfile:
-    TOKEN = json.load(jfile)
+    Token = json.load(jfile)
 
 bot = discord.Bot()
 
@@ -119,8 +119,8 @@ async def ping(ctx):
 @bot.command(description="取得邀請連結")
 async def invitation(ctx):
     color = random.randint(0, 16777215)
-    embed=discord.Embed(title="------連結------", url=Setting["invitation"], description="狠狠的點下去吧", color=color)
+    embed=discord.Embed(title="------連結------", url=Setting["Invitation"], description="狠狠的點下去吧", color=color)
     await ctx.respond(embed=embed)
 
 if __name__ == "__main__":
-    bot.run(TOKEN["BOT_TOKEN"])
+    bot.run(Token["Bot_Token"])
