@@ -4,7 +4,7 @@ import random
 import requests
 import urllib.parse
 
-class TraceMoe(commands.Cog):
+class AnimeSearch(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.api_url = "https://api.trace.moe/search"
@@ -40,4 +40,4 @@ class TraceMoe(commands.Cog):
             await ctx.respond(f"指令發生錯誤: {e}")
     
 def setup(bot):
-    bot.add_cog(TraceMoe(bot))
+    bot.add_cog(AnimeSearch(bot))
