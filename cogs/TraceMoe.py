@@ -23,21 +23,15 @@ class TraceMoe(commands.Cog):
             else:
                 await ctx.respond("請提供圖片檔案或連結")
                 return
-            response = requests.get("https://api.trace.moe/search?cutBorders&url={}"
+            response = requests.get("https://api.trace.moe/search?anilistInfo&url={}"
               .format(urllib.parse.quote_plus(url))
             ).json()
             result = response["result"][0]
 
             Time = f"{round(result['from'] // 60)}分{round(result['from'] % 60):02}秒"
-            match = re.search(r'^(?:\[[^\]]+\]\s*)?([^-\[\]]+?)\s*-\s*\d+', result["filename"])
-            if match:
-                Name = match.group(1).strip()
-            else:
-                # 如果沒有匹配，使用原始文件名（去除擴展名）
-                Name = re.sub(r'\.\w{3,4}$', '', result["filename"])
 
             color = random.randint(0, 16777215)
-            embed=discord.Embed(title=Name, color=color)
+            embed=discord.Embed(title=result['anilist']['title']['native'], color=color)
             embed.add_field(name="集數", value=f"第{result['episode']}集", inline=True)
             embed.add_field(name="位置", value=Time, inline=True)
             embed.set_image(url=f"{result['image']}")
