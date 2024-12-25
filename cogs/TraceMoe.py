@@ -12,7 +12,7 @@ class TraceMoe(commands.Cog):
     @commands.slash_command(description="找出圖片出自哪部動漫的哪裡(檔案/url擇一)")
     @discord.option("image_file", type=discord.SlashCommandOptionType.attachment, description="圖片檔案", required=False)
     @discord.option("image_url", type=discord.SlashCommandOptionType.string, description="圖片連結", required=False)
-    async def trace_search(self, ctx, image_file: discord.Attachment = None, image_url: str = None):
+    async def anime_search(self, ctx, image_file: discord.Attachment = None, image_url: str = None):
         await ctx.defer()
         try:
             if image_file:
