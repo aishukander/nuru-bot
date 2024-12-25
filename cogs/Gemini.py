@@ -45,12 +45,7 @@ class Gemini(commands.Cog):
     text_model = genai.GenerativeModel(model_name="gemini-1.5-flash", generation_config=text_generation_config, safety_settings=safety_settings)
     image_model = genai.GenerativeModel(model_name="gemini-1.5-flash", generation_config=image_generation_config, safety_settings=safety_settings)
 
-    prompt = """
-        (請盡量使用繁體中文)以後對話請依照以下規則:
-        1.以後對話使用到中文時除非使用者強制要求不然只充許使用繁體中文。
-        2.當你發現聊天內容重複時可以結束該話題並開啟新的話題。
-        3.請遵守以上所有規則。
-    """
+    prompt_parts = "\n".join(Setting["Gemini_Prompt"])
 
     @commands.Cog.listener()
     async def on_message(self, message):
@@ -108,7 +103,9 @@ class Gemini(commands.Cog):
                     await self.split_and_send_messages(message, response, 1700)
 
     async def generate_response_with_text(self, message):
-        prompt_parts = [message]
+        with open(json_dir / "Setting.json", "r", encoding="utf8") as jfile:
+            Setting = json.load(jfile)
+        prompt_parts = "\n".join(Setting["Gemini_Prompt"] + [message])
         print(f"Got text prompt: {message}")
     
         response = self.text_model.generate_content(prompt_parts)
@@ -120,7 +117,7 @@ class Gemini(commands.Cog):
   
     async def generate_response_with_image_and_text(self, image_data, text):
         image_parts = [{"mime_type": "image/jpeg", "data": image_data}]  
-        prompt_parts = [image_parts[0], f"\n{text if text else 'What is this a picture of?'}"]
+        prompt_parts = [image_parts[0], f"\n{text if text else '這是什麼樣的圖片？'}"]
     
         response = self.image_model.generate_content(prompt_parts)
     
