@@ -22,7 +22,7 @@ class AnimeSearch(commands.Cog):
             else:
                 await ctx.respond("請提供圖片檔案或連結")
                 return
-            response = requests.get("https://api.trace.moe/search?anilistInfo&url={}"
+            response = requests.get("https://api.trace.moe/search?anilistInfo&cutBorders&url={}"
               .format(urllib.parse.quote_plus(url))
             ).json()
             result = response["result"][0]
