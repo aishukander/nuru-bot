@@ -16,8 +16,6 @@ Docker版需要等容器創建完畢再自行添加Token.json至/opt/mumei-bot/j
 ---------------------------------------------------------------------------------------------  
 Docker compose
 ```
-version: "3"
-
 services:
   mumei-bot:
     container_name: mumei-bot
