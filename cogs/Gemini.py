@@ -106,7 +106,6 @@ class Gemini(commands.Cog):
         with open(json_dir / "Setting.json", "r", encoding="utf8") as jfile:
             Setting = json.load(jfile)
         prompt_parts = "\n".join(Setting["Gemini_Prompt"] + [message])
-        print(f"Got text prompt: {message}")
     
         response = self.text_model.generate_content(prompt_parts)
     
