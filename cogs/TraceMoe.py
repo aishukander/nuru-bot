@@ -10,18 +10,18 @@ class TraceMoe(commands.Cog):
         self.bot = bot
         self.api_url = "https://api.trace.moe/search"
 
-    @commands.slash_command(description="找出圖片在動漫中的位置(檔案/url擇一)")
-    @discord.option("image", type=discord.SlashCommandOptionType.attachment, description="圖片", required=False)
-    @discord.option("image_url", type=discord.SlashCommandOptionType.string, description="url", required=False)
-    async def trace_search(self, ctx, image: discord.Attachment = None, image_url: str = None):
+    @commands.slash_command(description="找出圖片出自哪部動漫的哪裡(檔案/url擇一)")
+    @discord.option("image_file", type=discord.SlashCommandOptionType.attachment, description="圖片檔案", required=False)
+    @discord.option("image_url", type=discord.SlashCommandOptionType.string, description="圖片連結", required=False)
+    async def trace_search(self, ctx, image_file: discord.Attachment = None, image_url: str = None):
         await ctx.defer()
         try:
-            if image:
-                url = image.url
+            if image_file:
+                url = image_file.url
             elif image_url:
                 url = image_url
             else:
-                await ctx.respond("請提供圖片或圖片的url")
+                await ctx.respond("請提供圖片檔案或連結")
                 return
             response = requests.get("https://api.trace.moe/search?cutBorders&url={}"
               .format(urllib.parse.quote_plus(url))
@@ -41,6 +41,7 @@ class TraceMoe(commands.Cog):
             embed.add_field(name="集數", value=f"第{result['episode']}集", inline=True)
             embed.add_field(name="位置", value=Time, inline=True)
             embed.set_image(url=f"{result['image']}")
+            embed.set_footer(text="Data from trace.moe API")
             await ctx.respond(embed=embed)
         except Exception as e:
             await ctx.respond(f"指令發生錯誤: {e}")
