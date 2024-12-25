@@ -3,7 +3,6 @@ from discord.ext import commands
 import random
 import requests
 import urllib.parse
-import re
 
 class TraceMoe(commands.Cog):
     def __init__(self, bot):
