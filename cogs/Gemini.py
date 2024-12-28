@@ -9,16 +9,16 @@ import google.generativeai as genai
 json_dir = Path(__file__).resolve().parents[1] / "json"
 
 class Gemini(commands.Cog):
+    def __init__(self, bot):
+        self.bot = bot
+        self.message_history = {}
+        self.DMC_on = False
+
     with open(json_dir / "Setting.json", "r", encoding="utf8") as jfile:
         Setting = json.load(jfile)
 
     with open(json_dir / "Token.json", "r", encoding="utf8") as jfile:
         Token = json.load(jfile)
-
-    def __init__(self, bot):
-        self.bot = bot
-        self.message_history = {}
-        self.DMC_on = False
 
     GOOGLE_AI_KEY = Token["Google_AI_Key"]  
     MAX_HISTORY = int(Setting["Max_History"])

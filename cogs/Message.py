@@ -12,7 +12,6 @@ json_dir = Path(__file__).resolve().parents[1] / "json"
 CallPicture_dir = Path(__file__).resolve().parents[1] / "CallPicture"
 
 class Message(commands.Cog):
-
     def __init__(self, bot):
         self.bot = bot
 

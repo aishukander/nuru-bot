@@ -7,7 +7,6 @@ from pathlib import Path
 json_dir = Path(__file__).resolve().parents[1] / "json"
 
 class Channel(commands.Cog):
-
     def __init__(self, bot):
         self.bot = bot
         self.voice_channel_set = set()
