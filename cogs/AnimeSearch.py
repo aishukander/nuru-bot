@@ -7,7 +7,6 @@ import urllib.parse
 class AnimeSearch(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.api_url = "https://api.trace.moe/search"
 
     @commands.slash_command(description="找出圖片出自哪部動漫的哪裡(檔案/url擇一)")
     @discord.option("image_file", type=discord.SlashCommandOptionType.attachment, description="圖片檔案", required=False)
