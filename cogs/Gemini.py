@@ -149,7 +149,9 @@ class Gemini(commands.Cog):
         pattern = re.compile(r"<[^>]+>")
         return pattern.sub("", input_string)
     
-    @commands.slash_command(description="管理Gemini在私訊時是否直接回覆")
+    @commands.slash_command(
+        description="管理Gemini在私訊時是否直接回覆"
+    )
     @discord.option("action", type=discord.SlashCommandOptionType.string, description="on/off")
     async def gemini_private_management(self, ctx, action: str):
         if ctx.author.guild_permissions.administrator:

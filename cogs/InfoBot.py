@@ -8,7 +8,13 @@ class InfoBot(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.slash_command(description="獲取機器人的資訊")
+    @commands.slash_command(
+        description="獲取機器人的資訊",
+        integration_types={
+            discord.IntegrationType.guild_install,
+            discord.IntegrationType.user_install
+        }
+    )
     async def info_bot(self, ctx):
         # 獲取 CPU 使用率
         cpu_usage = psutil.cpu_percent(interval=1)

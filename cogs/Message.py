@@ -30,7 +30,9 @@ class Message(commands.Cog):
         ][:25]
 
     #讓機器人覆誦你輸入的訊息
-    @commands.slash_command(description="讓機器人覆誦你輸入的訊息")
+    @commands.slash_command(
+        description="讓機器人覆誦你輸入的訊息"
+    )
     @discord.option("msg", type=discord.SlashCommandOptionType.string, description="要覆誦的訊息")
     async def say(self, ctx, msg: str):
         if ctx.author.guild_permissions.administrator:
@@ -39,7 +41,9 @@ class Message(commands.Cog):
             await ctx.respond("你沒有管理者權限用來執行這個指令")
 
     #刪除所選數量的訊息
-    @commands.slash_command(description="刪除所選數量的訊息")
+    @commands.slash_command(
+        description="刪除所選數量的訊息"
+    )
     @discord.option("num", type=discord.SlashCommandOptionType.integer, description="要刪除的訊息數量")
     async def delete_msg(self, ctx, num: int):
         if ctx.author.guild_permissions.administrator:
@@ -51,7 +55,13 @@ class Message(commands.Cog):
             await ctx.respond("你沒有管理者權限用來執行這個指令")
 
     #讓bot私訊你來呈現一個記事本
-    @commands.slash_command(description="讓bot私訊你來呈現一個記事本")
+    @commands.slash_command(
+        description="讓bot私訊你來呈現一個記事本",
+        integration_types={
+            discord.IntegrationType.guild_install,
+            discord.IntegrationType.user_install
+        }
+    )
     async def notebook(self, ctx):
         color = random.randint(0, 16777215)
         user = ctx.author
@@ -59,12 +69,20 @@ class Message(commands.Cog):
         await user.send(embed=embed)
         await ctx.respond("完成")
 
-    @commands.slash_command(description="讓mumei告訴你該不該買") 
+    @commands.slash_command(
+        description="讓mumei告訴你該不該買",
+        integration_types={
+            discord.IntegrationType.guild_install,
+            discord.IntegrationType.user_install
+        }
+    ) 
     async def buy_or_not(self,ctx):
         Buy_OR_Not = random.choice(self.Setting['Buy_OR_Not'])
         await ctx.respond(Buy_OR_Not)    
 
-    @commands.slash_command(description="傳送訊息至指定伺服器的指定頻道")
+    @commands.slash_command(
+        description="傳送訊息至指定伺服器的指定頻道"
+    )
     @discord.option("message", type=discord.SlashCommandOptionType.string, description="要傳送的訊息")
     @discord.option("guild_name", type=discord.SlashCommandOptionType.string, description="伺服器名稱")
     @discord.option("channel_name", type=discord.SlashCommandOptionType.string, description="頻道名稱")
@@ -87,7 +105,13 @@ class Message(commands.Cog):
             await ctx.respond("你沒有管理者權限用來執行這個指令")
 
     #Word-Changer功能的整合
-    @commands.slash_command(description="Word-Changer功能的整合")
+    @commands.slash_command(
+        description="Word-Changer功能的整合",
+        integration_types={
+            discord.IntegrationType.guild_install,
+            discord.IntegrationType.user_install
+        }
+    )
     @discord.option("text", type=discord.SlashCommandOptionType.string, description="要修改的文字")
     @discord.option("old_msg", type=discord.SlashCommandOptionType.string, description="要被取代的文字")
     @discord.option("new_msg", type=discord.SlashCommandOptionType.string, description="新的文字")
@@ -96,7 +120,13 @@ class Message(commands.Cog):
         await ctx.respond(new_text)
 
     #直接把圖片丟至CallPicture即可。
-    @commands.slash_command(description="給出你指定的圖片")
+    @commands.slash_command(
+        description="給出你指定的圖片",
+        integration_types={
+            discord.IntegrationType.guild_install,
+            discord.IntegrationType.user_install
+        }
+    )
     @discord.option("picture", type=discord.SlashCommandOptionType.string, description="哪個圖片", autocomplete=picture_autocomplete)
     async def called_figure(self, ctx, picture: str):
         file_path = None

@@ -55,7 +55,9 @@ async def on_ready():
 """======================================================================================="""
 cogs = discord.SlashCommandGroup("cogs", "cogs management instructions")
 
-@cogs.command(description="加載指定的cog")
+@cogs.command(
+    description="加載指定的cog"
+)
 @discord.option("extension", type=discord.SlashCommandOptionType.string, description="cogs名稱", choices = CogsList(False))
 async def load(ctx, extension: str):
     #檢測使用者的伺服器管理員權限
@@ -69,7 +71,9 @@ async def load(ctx, extension: str):
     else:
         await ctx.respond("你沒有管理者權限用來執行這個指令")
 
-@cogs.command(description="卸載指定的cog")
+@cogs.command(
+    description="卸載指定的cog"
+)
 @discord.option("extension", type=discord.SlashCommandOptionType.string, description="cogs名稱", choices = CogsList(True))
 async def unload(ctx, extension: str):
     if ctx.author.guild_permissions.administrator:
@@ -81,7 +85,9 @@ async def unload(ctx, extension: str):
     else:
         await ctx.respond("你沒有管理者權限用來執行這個指令")
 
-@cogs.command(description="重載指定的cog")
+@cogs.command(
+    description="重載指定的cog"
+)
 @discord.option("extension", type=discord.SlashCommandOptionType.string, description="cogs名稱", choices = CogsList(True))
 async def reload(ctx, extension: str):
     if ctx.author.guild_permissions.administrator:
@@ -93,7 +99,9 @@ async def reload(ctx, extension: str):
     else:
         await ctx.respond("你沒有管理者權限用來執行這個指令")
 
-@cogs.command(description="列出已載入的cog")
+@cogs.command(
+    description="列出已載入的cog"
+)
 async def list(ctx):
     if ctx.author.guild_permissions.administrator:
         loaded_cogs = CogsList(True)
@@ -108,12 +116,24 @@ bot.add_application_command(cogs)
 """======================================================================================="""
 
 #測試bot的ping值
-@bot.command(description="測試bot的延遲")
+@bot.command(
+    description="測試bot的延遲",
+    integration_types={
+        discord.IntegrationType.guild_install,
+        discord.IntegrationType.user_install
+    }
+)
 async def ping(ctx):
     await ctx.respond(f"{round(bot.latency*1000)}(ms)")
 
 #用來取得bot的邀請連結
-@bot.command(description="取得邀請連結")
+@bot.command(
+    description="取得邀請連結",
+    integration_types={
+        discord.IntegrationType.guild_install,
+        discord.IntegrationType.user_install
+    }
+)
 async def invitation(ctx):
     color = random.randint(0, 16777215)
     embed=discord.Embed(title="------連結------", url=Setting["Invitation"], description="狠狠的點下去吧", color=color)

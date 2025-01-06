@@ -6,7 +6,13 @@ class MinecraftStatus(commands.Cog):
 	def __init__(self, bot):
 		self.bot = bot
 
-	@commands.slash_command(description="檢查Minecraft伺服器狀態")
+	@commands.slash_command(
+		description="檢查Minecraft伺服器狀態",
+		integration_types={
+			discord.IntegrationType.guild_install,
+			discord.IntegrationType.user_install
+		}
+	)
 	@discord.option("server_ip", type=discord.SlashCommandOptionType.string, description="伺服器IP")
 	@discord.option("port", type=discord.SlashCommandOptionType.integer, description="伺服器Port", required=False)
 	async def mc_status(self, ctx, server_ip: str, port: int = 25565):

@@ -48,7 +48,9 @@ class Channel(commands.Cog):
 
     dynamic_voice = discord.SlashCommandGroup("dynamic_voice", "dynamic_voice command group")
 
-    @dynamic_voice.command(description="管理動態語音頻道")
+    @dynamic_voice.command(
+        description="管理動態語音頻道"
+    )
     @discord.option("action", type=discord.SlashCommandOptionType.string, description="add/remove", choices=["add", "remove"])
     @discord.option("name", type=discord.SlashCommandOptionType.string, description="母頻道名稱")
     async def management(self, ctx, action: str, name: str):
@@ -91,7 +93,9 @@ class Channel(commands.Cog):
         else:
             await ctx.respond("請輸入正確的動作(add/remove)")
 
-    @dynamic_voice.command(description="更新動態語音子頻道名稱")
+    @dynamic_voice.command(
+        description="更新動態語音子頻道名稱"
+    )
     @discord.option("parent_channel_name", type=discord.SlashCommandOptionType.string, description="母頻道名稱")
     @discord.option("new_voice_name", type=discord.SlashCommandOptionType.string, description="新的子頻道名稱(可以用{}代表第一個進入語音的使用者)")
     async def update_voice_name(self, ctx, parent_channel_name, new_voice_name):
@@ -109,7 +113,9 @@ class Channel(commands.Cog):
         self.DumpDynamicVoiceName(DynamicVoiceName)
         await ctx.respond(f'已將 {parent_channel_name} 的子頻道名稱更新為 {new_voice_name}')
 
-    @commands.slash_command(description="將語音頻道內所有人移動到另一個語音頻道")
+    @commands.slash_command(
+        description="將語音頻道內所有人移動到另一個語音頻道"
+    )
     @discord.option("source", type=discord.SlashCommandOptionType.channel, description="源頻道", channel_types=[discord.ChannelType.voice])
     @discord.option("target", type=discord.SlashCommandOptionType.channel, description="目標頻道", channel_types=[discord.ChannelType.voice])
     async def move_voice(self, ctx, source: discord.VoiceChannel, target: discord.VoiceChannel):
@@ -124,7 +130,9 @@ class Channel(commands.Cog):
         await asyncio.gather(*[member.move_to(target) for member in source.members])
         await ctx.respond(f"已將 [{source.name}] 的所有人移動到 [{target.name}]")
 
-    @commands.slash_command(description="創建身分組並且添加文字和語音頻道")
+    @commands.slash_command(
+        description="創建身分組並且添加文字和語音頻道"
+    )
     @discord.option("name", type=discord.SlashCommandOptionType.string, description="身分組名稱")
     async def create_role(self, ctx, name: str):
         guild = ctx.guild

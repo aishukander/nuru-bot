@@ -8,7 +8,13 @@ class AnimeSearch(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.slash_command(description="找出圖片出自哪部動漫的哪裡(檔案/url擇一)")
+    @commands.slash_command(
+        description="找出圖片出自哪部動漫的哪裡(檔案/url擇一)",
+        integration_types={
+            discord.IntegrationType.guild_install,
+            discord.IntegrationType.user_install
+        }
+    )
     @discord.option("image_file", type=discord.SlashCommandOptionType.attachment, description="圖片檔案", required=False)
     @discord.option("image_url", type=discord.SlashCommandOptionType.string, description="圖片連結", required=False)
     async def anime_search(self, ctx, image_file: discord.Attachment = None, image_url: str = None):

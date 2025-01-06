@@ -9,7 +9,13 @@ class Help(commands.Cog):
     help = discord.SlashCommandGroup("help", "help command group")
 
     #help指令
-    @help.command(description="一般使用者的指令說明")
+    @help.command(
+        description="一般使用者的指令說明",
+        integration_types={
+            discord.IntegrationType.guild_install,
+            discord.IntegrationType.user_install
+        }
+    )
     async def general(self,ctx):
         color = random.randint(0, 16777215)
         embed=discord.Embed(title="help", color=color)
@@ -29,7 +35,9 @@ class Help(commands.Cog):
         await ctx.respond(embed=embed)
 
     #AdminHelp指令
-    @help.command(description="管理員的指令說明")
+    @help.command(
+        description="管理員的指令說明"
+    )
     async def admin(self,ctx):
         if ctx.author.guild_permissions.administrator:
             color = random.randint(0, 16777215)
