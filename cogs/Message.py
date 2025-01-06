@@ -1,11 +1,9 @@
 import discord
 from discord.ext import commands
-import os
 import re
 import asyncio
 import random
 import json
-from secrets import choice
 from pathlib import Path
 
 json_dir = Path(__file__).resolve().parents[1] / "json"
@@ -18,14 +16,18 @@ class Message(commands.Cog):
         with open(json_dir / "Setting.json", "r", encoding="utf8") as jfile:
             self.Setting = json.load(jfile)
 
-    def GetPicture():
-        filenames = []
-        for entry in os.listdir(CallPicture_dir):
-            full_path = os.path.join(CallPicture_dir, entry)
-            if os.path.isfile(full_path):
-                filename_without_extension = os.path.splitext(entry)[0]
-                filenames.append(filename_without_extension)
-        return filenames
+    def picture_autocomplete(ctx: discord.AutocompleteContext):
+        query = ctx.value.lower()
+        options = []
+        for entry in CallPicture_dir.iterdir():
+            if entry.is_file():
+                filename_without_extension = entry.stem
+                options.append(filename_without_extension)
+        return [
+            discord.OptionChoice(name=pic, value=pic)
+            for pic in options
+            if pic.lower().startswith(query)
+        ][:25]
 
     #讓機器人覆誦你輸入的訊息
     @commands.slash_command(description="讓機器人覆誦你輸入的訊息")
@@ -59,7 +61,7 @@ class Message(commands.Cog):
 
     @commands.slash_command(description="讓mumei告訴你該不該買") 
     async def buy_or_not(self,ctx):
-        Buy_OR_Not = choice(self.Setting['Buy_OR_Not'])
+        Buy_OR_Not = random.choice(self.Setting['Buy_OR_Not'])
         await ctx.respond(Buy_OR_Not)    
 
     @commands.slash_command(description="傳送訊息至指定伺服器的指定頻道")
@@ -75,7 +77,7 @@ class Message(commands.Cog):
             channel = discord.utils.find(lambda c: c.name == channel_name, guild.text_channels)
             if channel is None: 
                  return await ctx.respond("未找到頻道!")
-         
+             
             try:
                 await channel.send(message)
                 await ctx.respond(f"訊息已成功發送至 {guild.name} 的 {channel} 頻道!") 
@@ -95,15 +97,18 @@ class Message(commands.Cog):
 
     #直接把圖片丟至CallPicture即可。
     @commands.slash_command(description="給出你指定的圖片")
-    @discord.option("picture", type=discord.SlashCommandOptionType.string, description="哪個圖片", choices = GetPicture())
+    @discord.option("picture", type=discord.SlashCommandOptionType.string, description="哪個圖片", autocomplete=picture_autocomplete)
     async def called_figure(self, ctx, picture: str):
-        for Extension in self.Setting["Picture_Extension"]:
-            try:
-                file = discord.File(f"{CallPicture_dir}/{picture}.{Extension}", filename=f"{picture}.{Extension}")
+        file_path = None
+        for file in CallPicture_dir.iterdir():
+            if file.name.startswith(picture + "."):
+                file_path = file
                 break
-            except:
-                pass
-        await ctx.respond(file = file)
+        if file_path is None:
+            await ctx.respond("找不到該圖片")
+            return
+        file = discord.File(file_path, filename=file_path.name)
+        await ctx.respond(file=file)
 
 def setup(bot):
     bot.add_cog(Message(bot))
