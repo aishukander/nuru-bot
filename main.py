@@ -1,7 +1,6 @@
 #各種使用的模組
 """======================================================================================="""
 import discord
-import os
 import random
 import json
 from pathlib import Path
@@ -20,11 +19,9 @@ with open(json_dir / "Token.json", "r", encoding="utf8") as jfile:
 bot = discord.Bot()
 
 def CogsList(Loaded = False):
-    if Loaded == False:
-        CogsList = []
-        for filename in os.listdir('./cogs'):
-            if filename.endswith('.py'):
-                CogsList.append(filename[:-3])
+    if not Loaded:
+        cogs_path = Path('./cogs')
+        CogsList = [file.stem for file in cogs_path.glob('*.py')]
         return CogsList
     else:
         Cogslist = []
