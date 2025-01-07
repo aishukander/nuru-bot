@@ -31,20 +31,26 @@ def Guild_Admin_Examine(func):
             await ctx.respond("你不在伺服器內")
     return wrapper
 
-def CogsList(Loaded = False):
-    if not Loaded:
-        cogs_path = Path('./cogs')
-        CogsList = [file.stem for file in cogs_path.glob('*.py')]
-        return CogsList
-    else:
-        Cogslist = []
+def Cogs_NotLoaded(ctx = None):
+    cogs_path = Path('./cogs')
+    CogsList = [file.stem for file in cogs_path.glob('*.py')]
+
+    Only_Exists_NotLoaded = [cog for cog in CogsList if cog not in Cogs_Loaded()]
+
+    return Only_Exists_NotLoaded
+    
+def Cogs_Loaded(ctx = None):
+    Cogslist = []
+    try:
         for cog in [cog for cog in bot.cogs]:
             Cogslist.append(cog)
-        return Cogslist
+    except AttributeError:
+        pass
+    return Cogslist
 
 #載入所有位於cogs的cog
 def load_cogs():
-    for filename in CogsList(False):
+    for filename in Cogs_NotLoaded():
         bot.load_extension(f'cogs.{filename}')
         print(f"載入 {filename} 完成")
 
@@ -71,7 +77,12 @@ cogs = discord.SlashCommandGroup("cogs", "cogs management instructions")
 @cogs.command(
     description="加載指定的cog"
 )
-@discord.option("extension", type=discord.SlashCommandOptionType.string, description="cogs名稱", choices = CogsList(False))
+@discord.option(
+    "extension", 
+    type=discord.SlashCommandOptionType.string, 
+    description="cogs名稱", 
+    autocomplete = Cogs_NotLoaded
+)
 @Guild_Admin_Examine
 async def load(ctx, extension: str):
     try:
@@ -83,7 +94,12 @@ async def load(ctx, extension: str):
 @cogs.command(
     description="卸載指定的cog"
 )
-@discord.option("extension", type=discord.SlashCommandOptionType.string, description="cogs名稱", choices = CogsList(True))
+@discord.option(
+    "extension", 
+    type=discord.SlashCommandOptionType.string, 
+    description="cogs名稱", 
+    autocomplete = Cogs_Loaded
+)
 @Guild_Admin_Examine
 async def unload(ctx, extension: str):
     try:
@@ -95,7 +111,12 @@ async def unload(ctx, extension: str):
 @cogs.command(
     description="重載指定的cog"
 )
-@discord.option("extension", type=discord.SlashCommandOptionType.string, description="cogs名稱", choices = CogsList(True))
+@discord.option(
+    "extension", 
+    type=discord.SlashCommandOptionType.string, 
+    description="cogs名稱", 
+    autocomplete = Cogs_Loaded
+)
 @Guild_Admin_Examine
 async def reload(ctx, extension: str):
     try:
@@ -109,7 +130,7 @@ async def reload(ctx, extension: str):
 )
 @Guild_Admin_Examine
 async def list(ctx):
-    loaded_cogs = CogsList(True)
+    loaded_cogs = Cogs_Loaded()
     message = "已載入的 cog 如下：\n"
     for cog in loaded_cogs:
         message += f"* {cog}\n"
