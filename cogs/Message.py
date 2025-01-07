@@ -5,6 +5,7 @@ import asyncio
 import random
 import json
 from pathlib import Path
+from functools import wraps
 
 json_dir = Path(__file__).resolve().parents[1] / "json"
 CallPicture_dir = Path(__file__).resolve().parents[1] / "CallPicture"
@@ -15,6 +16,18 @@ class Message(commands.Cog):
 
         with open(json_dir / "Setting.json", "r", encoding="utf8") as jfile:
             self.Setting = json.load(jfile)
+
+    def Guild_Admin_Examine(func):
+            @wraps(func)
+            async def wrapper(self, ctx, *args, **kwargs):
+                try:
+                    if ctx.author.guild_permissions.administrator:
+                        return await func(self, ctx, *args, **kwargs)
+                    else:
+                        await ctx.respond("你沒有管理者權限用來執行這個指令")
+                except AttributeError:
+                    await ctx.respond("你不在伺服器內")
+            return wrapper
 
     def picture_autocomplete(ctx: discord.AutocompleteContext):
         query = ctx.value.lower()
@@ -34,25 +47,21 @@ class Message(commands.Cog):
         description="讓機器人覆誦你輸入的訊息"
     )
     @discord.option("msg", type=discord.SlashCommandOptionType.string, description="要覆誦的訊息")
+    @Guild_Admin_Examine
     async def say(self, ctx, msg: str):
-        if ctx.author.guild_permissions.administrator:
-            await ctx.respond(msg)
-        else:
-            await ctx.respond("你沒有管理者權限用來執行這個指令")
+        await ctx.respond(msg)
 
     #刪除所選數量的訊息
     @commands.slash_command(
         description="刪除所選數量的訊息"
     )
     @discord.option("num", type=discord.SlashCommandOptionType.integer, description="要刪除的訊息數量")
+    @Guild_Admin_Examine
     async def delete_msg(self, ctx, num: int):
-        if ctx.author.guild_permissions.administrator:
-            await ctx.respond(f"準備開始刪除 {num} 則訊息")
-            await asyncio.sleep(1)
-            await ctx.channel.purge(limit=num+1)
-            await ctx.send(f"已刪除 {num} 則訊息")
-        else:
-            await ctx.respond("你沒有管理者權限用來執行這個指令")
+        await ctx.respond(f"準備開始刪除 {num} 則訊息")
+        await asyncio.sleep(1)
+        await ctx.channel.purge(limit=num+1)
+        await ctx.send(f"已刪除 {num} 則訊息")
 
     #讓bot私訊你來呈現一個記事本
     @commands.slash_command(
@@ -86,23 +95,21 @@ class Message(commands.Cog):
     @discord.option("message", type=discord.SlashCommandOptionType.string, description="要傳送的訊息")
     @discord.option("guild_name", type=discord.SlashCommandOptionType.string, description="伺服器名稱")
     @discord.option("channel_name", type=discord.SlashCommandOptionType.string, description="頻道名稱")
+    @Guild_Admin_Examine
     async def send_msg(self, ctx, message: str, guild_name: str, channel_name: str):
-        if ctx.author.guild_permissions.administrator:
-            guild = discord.utils.find(lambda g: g.name == guild_name, self.bot.guilds)
-            if guild is None:
-                return await ctx.respond("未找到伺服器!")
+        guild = discord.utils.find(lambda g: g.name == guild_name, self.bot.guilds)
+        if guild is None:
+            return await ctx.respond("未找到伺服器!")
         
-            channel = discord.utils.find(lambda c: c.name == channel_name, guild.text_channels)
-            if channel is None: 
-                 return await ctx.respond("未找到頻道!")
+        channel = discord.utils.find(lambda c: c.name == channel_name, guild.text_channels)
+        if channel is None: 
+                return await ctx.respond("未找到頻道!")
              
-            try:
-                await channel.send(message)
-                await ctx.respond(f"訊息已成功發送至 {guild.name} 的 {channel} 頻道!") 
-            except:
-                await ctx.respond("訊息發送錯誤！")
-        else:
-            await ctx.respond("你沒有管理者權限用來執行這個指令")
+        try:
+            await channel.send(message)
+            await ctx.respond(f"訊息已成功發送至 {guild.name} 的 {channel} 頻道!") 
+        except:
+            await ctx.respond("訊息發送錯誤！")
 
     #Word-Changer功能的整合
     @commands.slash_command(

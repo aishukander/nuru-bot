@@ -5,6 +5,7 @@ import discord
 from discord.ext import commands
 from pathlib import Path
 import google.generativeai as genai
+from functools import wraps
 
 json_dir = Path(__file__).resolve().parents[1] / "json"
 
@@ -13,6 +14,18 @@ class Gemini(commands.Cog):
         self.bot = bot
         self.message_history = {}
         self.DMC_on = False
+
+    def Guild_Admin_Examine(func):
+            @wraps(func)
+            async def wrapper(self, ctx, *args, **kwargs):
+                try:
+                    if ctx.author.guild_permissions.administrator:
+                        return await func(self, ctx, *args, **kwargs)
+                    else:
+                        await ctx.respond("你沒有管理者權限用來執行這個指令")
+                except AttributeError:
+                    await ctx.respond("你不在伺服器內")
+            return wrapper
 
     with open(json_dir / "Setting.json", "r", encoding="utf8") as jfile:
         Setting = json.load(jfile)
@@ -153,20 +166,16 @@ class Gemini(commands.Cog):
         description="管理Gemini在私訊時是否直接回覆"
     )
     @discord.option("action", type=discord.SlashCommandOptionType.string, description="on/off")
+    @Guild_Admin_Examine
     async def gemini_private_management(self, ctx, action: str):
-        if ctx.author.guild_permissions.administrator:
-            if action.lower() == "on":
-                self.DMC_on = True
-                await ctx.respond("已啟用Gemini私訊時的直接觸發")
-       
-            elif action.lower() == "off":
-                self.DMC_on = False
-                await ctx.respond("已暫時關閉Gemini私訊時的直接觸發")
-
-            else:
-                await ctx.respond("請輸入正確的動作(on/off)")
+        if action.lower() == "on":
+            self.DMC_on = True
+            await ctx.respond("已啟用Gemini私訊時的直接觸發")
+        elif action.lower() == "off":
+            self.DMC_on = False
+            await ctx.respond("已暫時關閉Gemini私訊時的直接觸發")
         else:
-            await ctx.respond("你沒有管理者權限用來執行這個指令")
+            await ctx.respond("請輸入正確的動作(on/off)")
 
 def setup(bot):
     bot.add_cog(Gemini(bot))

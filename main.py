@@ -4,6 +4,7 @@ import discord
 import random
 import json
 from pathlib import Path
+from functools import wraps
 """======================================================================================="""
 
 intents = discord.Intents.all()
@@ -17,6 +18,18 @@ with open(json_dir / "Token.json", "r", encoding="utf8") as jfile:
     Token = json.load(jfile)
 
 bot = discord.Bot()
+
+def Guild_Admin_Examine(func):
+    @wraps(func)
+    async def wrapper(ctx, *args, **kwargs):
+        try:
+            if ctx.author.guild_permissions.administrator:
+                return await func(ctx, *args, **kwargs)
+            else:
+                await ctx.respond("你沒有管理者權限用來執行這個指令")
+        except AttributeError:
+            await ctx.respond("你不在伺服器內")
+    return wrapper
 
 def CogsList(Loaded = False):
     if not Loaded:
@@ -59,58 +72,48 @@ cogs = discord.SlashCommandGroup("cogs", "cogs management instructions")
     description="加載指定的cog"
 )
 @discord.option("extension", type=discord.SlashCommandOptionType.string, description="cogs名稱", choices = CogsList(False))
+@Guild_Admin_Examine
 async def load(ctx, extension: str):
-    #檢測使用者的伺服器管理員權限
-    if ctx.author.guild_permissions.administrator:
-        try:
-            bot.load_extension(f"cogs.{extension}")
-            await ctx.respond(f"{extension}模塊加載完成")
-        except Exception as e:
-            await ctx.respond(f"加載模塊時發生錯誤: {e}")
-    #告知使用者沒有管理員權限
-    else:
-        await ctx.respond("你沒有管理者權限用來執行這個指令")
+    try:
+        bot.load_extension(f"cogs.{extension}")
+        await ctx.respond(f"{extension}模塊加載完成")
+    except Exception as e:
+        await ctx.respond(f"加載模塊時發生錯誤: {e}")
 
 @cogs.command(
     description="卸載指定的cog"
 )
 @discord.option("extension", type=discord.SlashCommandOptionType.string, description="cogs名稱", choices = CogsList(True))
+@Guild_Admin_Examine
 async def unload(ctx, extension: str):
-    if ctx.author.guild_permissions.administrator:
-        try:
-            bot.unload_extension(f"cogs.{extension}")
-            await ctx.respond(f"{extension}模塊卸載完成")
-        except Exception as e:
-            await ctx.respond(f"卸載模塊時發生錯誤: {e}")
-    else:
-        await ctx.respond("你沒有管理者權限用來執行這個指令")
+    try:
+        bot.unload_extension(f"cogs.{extension}")
+        await ctx.respond(f"{extension}模塊卸載完成")
+    except Exception as e:
+        await ctx.respond(f"卸載模塊時發生錯誤: {e}")
 
 @cogs.command(
     description="重載指定的cog"
 )
 @discord.option("extension", type=discord.SlashCommandOptionType.string, description="cogs名稱", choices = CogsList(True))
+@Guild_Admin_Examine
 async def reload(ctx, extension: str):
-    if ctx.author.guild_permissions.administrator:
-        try:
-            bot.reload_extension(f"cogs.{extension}")
-            await ctx.respond(f"{extension}模塊重載完成")
-        except Exception as e:
-            await ctx.respond(f"重載模塊時發生錯誤: {e}")
-    else:
-        await ctx.respond("你沒有管理者權限用來執行這個指令")
+    try:
+        bot.reload_extension(f"cogs.{extension}")
+        await ctx.respond(f"{extension}模塊重載完成")
+    except Exception as e:
+        await ctx.respond(f"重載模塊時發生錯誤: {e}")
 
 @cogs.command(
     description="列出已載入的cog"
 )
+@Guild_Admin_Examine
 async def list(ctx):
-    if ctx.author.guild_permissions.administrator:
-        loaded_cogs = CogsList(True)
-        message = "已載入的 cog 如下：\n"
-        for cog in loaded_cogs:
-            message += f"* {cog}\n"
-        await ctx.respond(message)
-    else:
-        await ctx.respond("你沒有管理者權限用來執行這個指令")
+    loaded_cogs = CogsList(True)
+    message = "已載入的 cog 如下：\n"
+    for cog in loaded_cogs:
+        message += f"* {cog}\n"
+    await ctx.respond(message)
 
 bot.add_application_command(cogs)
 """======================================================================================="""
