@@ -15,8 +15,18 @@ class AnimeSearch(commands.Cog):
             discord.IntegrationType.user_install
         }
     )
-    @discord.option("image_file", type=discord.SlashCommandOptionType.attachment, description="圖片檔案", required=False)
-    @discord.option("image_url", type=discord.SlashCommandOptionType.string, description="圖片連結", required=False)
+    @discord.option(
+        "image_file", 
+        type=discord.SlashCommandOptionType.attachment, 
+        description="圖片檔案", 
+        required=False
+    )
+    @discord.option(
+        "image_url", 
+        type=discord.SlashCommandOptionType.string, 
+        description="圖片連結", 
+        required=False
+    )
     async def anime_search(self, ctx, image_file: discord.Attachment = None, image_url: str = None):
         await ctx.defer()
         try:

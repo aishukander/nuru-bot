@@ -13,8 +13,17 @@ class MinecraftStatus(commands.Cog):
 			discord.IntegrationType.user_install
 		}
 	)
-	@discord.option("server_ip", type=discord.SlashCommandOptionType.string, description="伺服器IP")
-	@discord.option("port", type=discord.SlashCommandOptionType.integer, description="伺服器Port", required=False)
+	@discord.option(
+		"server_ip", 
+		type=discord.SlashCommandOptionType.string, 
+		description="伺服器IP"
+	)
+	@discord.option(
+		"port", 
+		type=discord.SlashCommandOptionType.integer, 
+		description="伺服器Port", 
+		required=False
+	)
 	async def mc_status(self, ctx, server_ip: str, port: int = 25565):
 		url = f"https://api.mcsrvstat.us/2/{server_ip}:{port}"
 		try:

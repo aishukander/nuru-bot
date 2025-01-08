@@ -165,7 +165,11 @@ class Gemini(commands.Cog):
     @commands.slash_command(
         description="管理Gemini在私訊時是否直接回覆"
     )
-    @discord.option("action", type=discord.SlashCommandOptionType.string, description="on/off")
+    @discord.option(
+        "action", 
+        type=discord.SlashCommandOptionType.string, 
+        description="on/off"
+    )
     @Guild_Admin_Examine
     async def gemini_private_management(self, ctx, action: str):
         if action.lower() == "on":

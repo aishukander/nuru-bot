@@ -51,8 +51,17 @@ class Channel(commands.Cog):
     @dynamic_voice.command(
         description="管理動態語音頻道"
     )
-    @discord.option("action", type=discord.SlashCommandOptionType.string, description="add/remove", choices=["add", "remove"])
-    @discord.option("name", type=discord.SlashCommandOptionType.string, description="母頻道名稱")
+    @discord.option(
+        "action", 
+        type=discord.SlashCommandOptionType.string, 
+        description="add/remove", 
+        choices=["add", "remove"]
+    )
+    @discord.option(
+        "name", 
+        type=discord.SlashCommandOptionType.string, 
+        description="母頻道名稱"
+    )
     async def management(self, ctx, action: str, name: str):
         if not ctx.author.guild_permissions.administrator:
             await ctx.respond("你沒有管理者權限用來執行這個指令")
@@ -96,8 +105,16 @@ class Channel(commands.Cog):
     @dynamic_voice.command(
         description="更新動態語音子頻道名稱"
     )
-    @discord.option("parent_channel_name", type=discord.SlashCommandOptionType.string, description="母頻道名稱")
-    @discord.option("new_voice_name", type=discord.SlashCommandOptionType.string, description="新的子頻道名稱(可以用{}代表第一個進入語音的使用者)")
+    @discord.option(
+        "parent_channel_name", 
+        type=discord.SlashCommandOptionType.string, 
+        description="母頻道名稱"
+    )
+    @discord.option(
+        "new_voice_name", 
+        type=discord.SlashCommandOptionType.string, 
+        description="新的子頻道名稱(可以用{}代表第一個進入語音的使用者)"
+    )
     async def update_voice_name(self, ctx, parent_channel_name, new_voice_name):
         if not ctx.author.guild_permissions.administrator:
             await ctx.respond("你沒有管理者權限用來執行這個指令")
@@ -116,8 +133,18 @@ class Channel(commands.Cog):
     @commands.slash_command(
         description="將語音頻道內所有人移動到另一個語音頻道"
     )
-    @discord.option("source", type=discord.SlashCommandOptionType.channel, description="源頻道", channel_types=[discord.ChannelType.voice])
-    @discord.option("target", type=discord.SlashCommandOptionType.channel, description="目標頻道", channel_types=[discord.ChannelType.voice])
+    @discord.option(
+        "source", 
+        type=discord.SlashCommandOptionType.channel, 
+        description="源頻道", 
+        channel_types=[discord.ChannelType.voice]
+    )
+    @discord.option(
+        "target", 
+        type=discord.SlashCommandOptionType.channel, 
+        description="目標頻道", 
+        channel_types=[discord.ChannelType.voice]
+    )
     async def move_voice(self, ctx, source: discord.VoiceChannel, target: discord.VoiceChannel):
         if not ctx.author.guild_permissions.administrator:
             await ctx.respond("你沒有管理者權限用來執行這個指令")
@@ -133,7 +160,11 @@ class Channel(commands.Cog):
     @commands.slash_command(
         description="創建身分組並且添加文字和語音頻道"
     )
-    @discord.option("name", type=discord.SlashCommandOptionType.string, description="身分組名稱")
+    @discord.option(
+        "name", 
+        type=discord.SlashCommandOptionType.string, 
+        description="身分組名稱"
+    )
     async def create_role(self, ctx, name: str):
         guild = ctx.guild
         role = await guild.create_role(name=name)

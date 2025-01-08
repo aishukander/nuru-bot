@@ -46,7 +46,11 @@ class Message(commands.Cog):
     @commands.slash_command(
         description="讓機器人覆誦你輸入的訊息"
     )
-    @discord.option("msg", type=discord.SlashCommandOptionType.string, description="要覆誦的訊息")
+    @discord.option(
+        "msg", 
+        type=discord.SlashCommandOptionType.string, 
+        description="要覆誦的訊息"
+    )
     @Guild_Admin_Examine
     async def say(self, ctx, msg: str):
         await ctx.respond(msg)
@@ -55,7 +59,11 @@ class Message(commands.Cog):
     @commands.slash_command(
         description="刪除所選數量的訊息"
     )
-    @discord.option("num", type=discord.SlashCommandOptionType.integer, description="要刪除的訊息數量")
+    @discord.option(
+        "num", 
+        type=discord.SlashCommandOptionType.integer, 
+        description="要刪除的訊息數量"
+    )
     @Guild_Admin_Examine
     async def delete_msg(self, ctx, num: int):
         await ctx.respond(f"準備開始刪除 {num} 則訊息")
@@ -92,9 +100,21 @@ class Message(commands.Cog):
     @commands.slash_command(
         description="傳送訊息至指定伺服器的指定頻道"
     )
-    @discord.option("message", type=discord.SlashCommandOptionType.string, description="要傳送的訊息")
-    @discord.option("guild_name", type=discord.SlashCommandOptionType.string, description="伺服器名稱")
-    @discord.option("channel_name", type=discord.SlashCommandOptionType.string, description="頻道名稱")
+    @discord.option(
+        "message", 
+        type=discord.SlashCommandOptionType.string, 
+        description="要傳送的訊息"
+    )
+    @discord.option(
+        "guild_name", 
+        type=discord.SlashCommandOptionType.string, 
+        description="伺服器名稱"
+    )
+    @discord.option(
+        "channel_name", 
+        type=discord.SlashCommandOptionType.string, 
+        description="頻道名稱"
+    )
     @Guild_Admin_Examine
     async def send_msg(self, ctx, message: str, guild_name: str, channel_name: str):
         guild = discord.utils.find(lambda g: g.name == guild_name, self.bot.guilds)
@@ -119,9 +139,21 @@ class Message(commands.Cog):
             discord.IntegrationType.user_install
         }
     )
-    @discord.option("text", type=discord.SlashCommandOptionType.string, description="要修改的文字")
-    @discord.option("old_msg", type=discord.SlashCommandOptionType.string, description="要被取代的文字")
-    @discord.option("new_msg", type=discord.SlashCommandOptionType.string, description="新的文字")
+    @discord.option(
+        "text", 
+        type=discord.SlashCommandOptionType.string, 
+        description="要修改的文字"
+    )
+    @discord.option(
+        "old_msg", 
+        type=discord.SlashCommandOptionType.string, 
+        description="要被取代的文字"
+    )
+    @discord.option(
+        "new_msg", 
+        type=discord.SlashCommandOptionType.string, 
+        description="新的文字"
+    )
     async def word_changer(self, ctx, text: str, old_msg: str, new_msg: str):
         new_text = re.sub(old_msg, new_msg, text)
         await ctx.respond(new_text)
@@ -134,7 +166,12 @@ class Message(commands.Cog):
             discord.IntegrationType.user_install
         }
     )
-    @discord.option("picture", type=discord.SlashCommandOptionType.string, description="哪個圖片", autocomplete=picture_autocomplete)
+    @discord.option(
+        "picture", 
+        type=discord.SlashCommandOptionType.string, 
+        description="哪個圖片", 
+        autocomplete=picture_autocomplete
+    )
     async def called_figure(self, ctx, picture: str):
         file_path = None
         for file in CallPicture_dir.iterdir():
