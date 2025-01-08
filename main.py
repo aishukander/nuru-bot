@@ -19,15 +19,6 @@ with open(json_dir / "Token.json", "r", encoding="utf8") as jfile:
 
 bot = discord.Bot()
 
-def Error_Handling(func):
-    @wraps(func)
-    async def wrapper(ctx, *args, **kwargs):
-        try:
-            return await func(ctx, *args, **kwargs)
-        except Exception as e:
-            await ctx.respond(f"發生錯誤: {e}")
-    return wrapper
-
 def Guild_Admin_Examine(func):
     @wraps(func)
     async def wrapper(ctx, *args, **kwargs):
@@ -93,10 +84,12 @@ cogs = discord.SlashCommandGroup("cogs", "cogs management instructions")
     autocomplete = Cogs_NotLoaded
 )
 @Guild_Admin_Examine
-@Error_Handling
 async def load(ctx, extension: str):
-    bot.load_extension(f"cogs.{extension}")
-    await ctx.respond(f"{extension}模塊加載完成")
+    try:
+        bot.load_extension(f"cogs.{extension}")
+        await ctx.respond(f"{extension}模塊加載完成")
+    except Exception as e:
+        await ctx.respond(f"加載模塊時發生錯誤: {e}")
 
 @cogs.command(
     description="卸載指定的cog"
@@ -108,10 +101,12 @@ async def load(ctx, extension: str):
     autocomplete = Cogs_Loaded
 )
 @Guild_Admin_Examine
-@Error_Handling
 async def unload(ctx, extension: str):
-    bot.unload_extension(f"cogs.{extension}")
-    await ctx.respond(f"{extension}模塊卸載完成")
+    try:
+        bot.unload_extension(f"cogs.{extension}")
+        await ctx.respond(f"{extension}模塊卸載完成")
+    except Exception as e:
+        await ctx.respond(f"卸載模塊時發生錯誤: {e}")
 
 @cogs.command(
     description="重載指定的cog"
@@ -123,10 +118,12 @@ async def unload(ctx, extension: str):
     autocomplete = Cogs_Loaded
 )
 @Guild_Admin_Examine
-@Error_Handling
 async def reload(ctx, extension: str):
-    bot.reload_extension(f"cogs.{extension}")
-    await ctx.respond(f"{extension}模塊重載完成")
+    try:
+        bot.reload_extension(f"cogs.{extension}")
+        await ctx.respond(f"{extension}模塊重載完成")
+    except Exception as e:
+        await ctx.respond(f"重載模塊時發生錯誤: {e}")
 
 @cogs.command(
     description="列出已載入的cog"
