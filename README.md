@@ -16,8 +16,8 @@ services:
     image: aishukander/mumei-bot
     restart: unless-stopped
     volumes:
-      - /mnt/omv/Docker/mumei-bot/json:/bot/json
-      - /mnt/omv/Docker/mumei-bot/CallPicture:/bot/CallPicture
+      - /opt/mumei-bot/json:/bot/json
+      - /opt/mumei-bot/CallPicture:/bot/CallPicture
 ```
 
 Docker cli <br>
