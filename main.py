@@ -31,26 +31,44 @@ def Guild_Admin_Examine(func):
             await ctx.respond("你不在伺服器內")
     return wrapper
 
-def Cogs_NotLoaded(ctx = None):
+def Cogs_NotLoaded(ctx: discord.AutocompleteContext):
+    query = ctx.value.lower()
     cogs_path = Path('./cogs')
     CogsList = [file.stem for file in cogs_path.glob('*.py')]
 
-    Only_Exists_NotLoaded = [cog for cog in CogsList if cog not in Cogs_Loaded()]
+    Cogs_Loaded = []
+    try:
+        for cog in [cog for cog in bot.cogs]:
+            Cogs_Loaded.append(cog)
+    except AttributeError:
+        pass
 
-    return Only_Exists_NotLoaded
+    Only_Exists_NotLoaded = [cog for cog in CogsList if cog not in Cogs_Loaded]
+    return [
+        discord.OptionChoice(name=pic, value=pic)
+        for pic in Only_Exists_NotLoaded
+        if pic.lower().startswith(query)
+    ]
     
-def Cogs_Loaded(ctx = None):
+def Cogs_Loaded(ctx: discord.AutocompleteContext):
+    query = ctx.value.lower()
     Cogslist = []
     try:
         for cog in [cog for cog in bot.cogs]:
             Cogslist.append(cog)
     except AttributeError:
         pass
-    return Cogslist
+    return [
+        discord.OptionChoice(name=pic, value=pic)
+        for pic in Cogslist
+        if pic.lower().startswith(query)
+    ]
 
 #載入所有位於cogs的cog
 def load_cogs():
-    for filename in Cogs_NotLoaded():
+    cogs_path = Path('./cogs')
+    CogsList = [file.stem for file in cogs_path.glob('*.py')]
+    for filename in CogsList:
         bot.load_extension(f'cogs.{filename}')
         print(f"載入 {filename} 完成")
 
