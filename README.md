@@ -22,10 +22,16 @@ services:
     image: aishukander/mumei-bot
     restart: unless-stopped
     volumes:
-      - /opt/mumei-bot/json:/code/json
+      - /mnt/omv/Docker/mumei-bot/json:/bot/json
+      - /mnt/omv/Docker/mumei-bot/CallPicture:/bot/CallPicture
 ```
 Docker cli  
 ```
-docker run -d --name=mumei-bot --restart=unless-stopped -v /opt/mumei-bot/json:/code/json aishukander/mumei-bot
+docker run -d \
+--name=mumei-bot \
+--restart=unless-stopped \
+-v /opt/mumei-bot/json:/bot/json \
+-v /opt/mumei-bot/CallPicture:/bot/CallPicture \
+aishukander/mumei-bot
 ```
 ---------------------------------------------------------------------------------------------  
