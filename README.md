@@ -4,8 +4,8 @@
 要下載一般最新版本請點Release,選最上面的版本然後下載mumei-bot.zip  
 [要下載最新測試版請點這裡](https://github.com/aishukander/mumei-bot/archive/refs/heads/main.zip)  
 ---------------------------------------------------------------------------------------------  
-windows請安裝ffmpeg並啟動rely.ps1  
-linux(Debian)請啟動rely.sh  
+windows啟動rely.ps1  
+linux(Debian)啟動rely.sh  
 ---------------------------------------------------------------------------------------------  
 於json資料夾內新稱 Token.json 並放入以下對應資料  
 "BOT_TOKEN":"",  
