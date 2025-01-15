@@ -40,7 +40,7 @@ class Message(commands.Cog):
                 .rsplit(".", 1)[0]
                 for entry in CallPicture_dir.rglob("*") if entry.is_file() and entry.name != "README.md"
             )
-            if pic.lower().startswith(query)
+            if query in pic.lower()
         ][:25]
         return options
 
