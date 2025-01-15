@@ -30,17 +30,19 @@ class Message(commands.Cog):
             return wrapper
 
     def picture_autocomplete(ctx: discord.AutocompleteContext):
-            query = ctx.value.lower()
-            options = []
-            for entry in CallPicture_dir.rglob('*'):
-                if entry.is_file():
-                    filename_without_extension = entry.stem
-                    options.append(filename_without_extension)
-            return [
-                discord.OptionChoice(name=pic, value=pic)
-                for pic in options
-                if pic.lower().startswith(query)
-            ][:25]
+        query = ctx.value.lower()
+        options = [
+            discord.OptionChoice(name=pic, value=pic)
+            for pic in (
+                str(entry.relative_to(CallPicture_dir))
+                .replace("/", "-")
+                .replace("\\", "-")
+                .rsplit(".", 1)[0]
+                for entry in CallPicture_dir.rglob("*") if entry.is_file() and entry.name != "README.md"
+            )
+            if pic.lower().startswith(query)
+        ][:25]
+        return options
 
     #讓機器人覆誦你輸入的訊息
     @commands.slash_command(
@@ -94,7 +96,7 @@ class Message(commands.Cog):
         }
     ) 
     async def buy_or_not(self,ctx):
-        Buy_OR_Not = random.choice(self.Setting['Buy_OR_Not'])
+        Buy_OR_Not = random.choice(self.Setting["Buy_OR_Not"])
         await ctx.respond(Buy_OR_Not)    
 
     @commands.slash_command(
@@ -173,16 +175,19 @@ class Message(commands.Cog):
         autocomplete=picture_autocomplete
     )
     async def called_figure(self, ctx, picture: str):
-            file_path = None
-            for file in CallPicture_dir.rglob('*'):
-                if file.is_file() and file.name.startswith(picture + "."):
-                    file_path = file
-                    break
-            if file_path is None:
-                await ctx.respond("找不到該圖片")
-                return
-            file = discord.File(file_path, filename=file_path.name)
-            await ctx.respond(file=file)
+        try:
+            file_path = next(
+                file for file in CallPicture_dir.rglob("*") 
+                if file.is_file() and 
+                   str(file.relative_to(CallPicture_dir))
+                   .replace("/", "-")
+                   .replace("\\", "-")
+                   .rsplit(".", 1)[0] == picture
+            )
+        except StopIteration:
+            await ctx.respond("找不到該圖片")
+            return
+        await ctx.respond(file=discord.File(file_path, filename=file_path.name))
 
 def setup(bot):
     bot.add_cog(Message(bot))
