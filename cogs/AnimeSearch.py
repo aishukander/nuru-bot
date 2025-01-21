@@ -37,9 +37,8 @@ class AnimeSearch(commands.Cog):
             else:
                 await ctx.respond("請提供圖片檔案或連結")
                 return
-            response = requests.get("https://api.trace.moe/search?anilistInfo&cutBorders&url={}"
-              .format(urllib.parse.quote_plus(url))
-            ).json()
+            api_url = f"https://api.trace.moe/search?anilistInfo&cutBorders&url={urllib.parse.quote_plus(url)}"
+            response = requests.get(api_url).json()
             result = response["result"][0]
 
             Time = f"{round(result['from'] // 60)}分{round(result['from'] % 60):02}秒"
