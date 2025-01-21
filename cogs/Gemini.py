@@ -55,8 +55,8 @@ class Gemini(commands.Cog):
         {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_NONE"},
         {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_NONE"}
     ]
-    text_model = genai.GenerativeModel(model_name=Setting["Genai_Text_Name"], generation_config=text_generation_config, safety_settings=safety_settings)
-    image_model = genai.GenerativeModel(model_name=Setting["Genai_Image_Name"], generation_config=image_generation_config, safety_settings=safety_settings)
+    text_model = genai.GenerativeModel(model_name=Setting["Gemini_Text_Name"], generation_config=text_generation_config, safety_settings=safety_settings)
+    image_model = genai.GenerativeModel(model_name=Setting["Gemini_Image_Name"], generation_config=image_generation_config, safety_settings=safety_settings)
 
     prompt_parts = "\n".join(Setting["Gemini_Prompt"])
 
