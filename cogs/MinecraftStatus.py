@@ -32,7 +32,7 @@ class MinecraftStatus(commands.Cog):
 			data = response.json()
 			if data['online']:
 				if 'software' not in data:
-					data['software'] = "Vanilla"
+					data['software'] = "Unknown"
 				embed = discord.Embed(title="Minecraft 伺服器狀態", color=discord.Color.green())
 				embed.add_field(name="伺服器", value=f"{server_ip}:{port}", inline=False)
 				embed.add_field(name="玩家數量", value=f"{data['players']['online']}/{data['players']['max']}", inline=False)
