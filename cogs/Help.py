@@ -65,8 +65,9 @@ class Help(commands.Cog):
         embed.add_field(name="/cogs unload [所選模塊]", value="卸載所選的指令模塊(需管理者權限)", inline=False)
         embed.add_field(name="/create_role [身分組]", value="添加對應身分組與其的專用頻道(需管理者權限)", inline=False)
         embed.add_field(name="/delete_msg [訊息數]", value="在此頻道刪除所選數量的訊息(需管理者權限)", inline=False)
-        embed.add_field(name="/dynamic_voice management [add/remove] [動態語音名]", value="管理動態語音(需管理者權限)", inline=False)
-        embed.add_field(name="/dynamic_voice update_voice_name [要修改的母頻道名] [要修改為的動態語音名]", value="範例:~uvn {}的動態語音({}代表第一個進入語音的使用者)(需管理者權限)", inline=False)
+        embed.add_field(name="/dynamic_voice add_voice [動態語音名]", value="新增母頻道(需管理者權限)", inline=False)
+        embed.add_field(name="/dynamic_voice remove_voice [動態語音名]", value="刪除母頻道(需管理者權限)", inline=False)
+        embed.add_field(name="/dynamic_voice set_voice_template [要修改的母頻道名] [要修改為的動態語音名]", value="{}代表第一個進入語音的使用者(需管理者權限)", inline=False)
         embed.add_field(name="/gemini_private_management [on或off]", value="管理Gemini在私訊時是否直接回覆(需管理者權限)", inline=False)
         embed.add_field(name="/help admin", value="管理員指令說明(需管理者權限)", inline=False)
         embed.add_field(name="/help general", value="指令說明", inline=False)
@@ -81,10 +82,6 @@ class Help(commands.Cog):
         embed.add_field(name="/anime_search", value="找出圖片出自哪部動漫的哪裡(檔案/url擇一)", inline=False)
         embed.add_field(name="/word_changer [欲修改文本] [欲修改的字] [修改為的字]", value="用來批量替換文本內的單字", inline=False)
         await ctx.respond(embed=embed)
-
-        #embed=discord.Embed(title="AdminHelp", color=color)
-
-        #await ctx.send(embed=embed)
 
 def setup(bot):
     bot.add_cog(Help(bot))    
