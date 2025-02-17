@@ -3,7 +3,6 @@ from discord.ext import commands
 from pathlib import Path
 import discord
 import yt_dlp
-import os
 
 class Music(commands.Cog):
     def __init__(self, bot):
