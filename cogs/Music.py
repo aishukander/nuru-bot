@@ -25,7 +25,7 @@ class Music(commands.Cog):
             next_file = self.play_list.pop(0)
             self.current_track = next_file
             source = discord.FFmpegPCMAudio(str(next_file))
-            def after_playing(error):
+            def after_playing():
                 try:
                     if next_file.exists():
                         next_file.unlink()  # 刪除tmp資料夾中的檔案
