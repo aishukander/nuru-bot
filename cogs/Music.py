@@ -15,13 +15,15 @@ class Music(commands.Cog):
         with open(json_dir / "Setting.json", "r", encoding="utf8") as jfile:
             self.Setting = json.load(jfile)
 
-        self.play_list = []  # 播放列表
-        self.current_track = None  # 目前正在播放的歌曲
-        self.volume = float(self.Setting["Volume"])  # 預設音量 (1.0 = 100%)
+        self.play_list = []
+        self.current_track = None
+        self.volume = float(self.Setting["Volume"])
         self.ydl_opts = {
             'outtmpl': './tmp/%(title)s.%(ext)s',
             'format': 'bestaudio/best',
             'merge_output_format': 'mp3',
+            'quiet': True,
+            'no_warnings': True,
             'postprocessors': [{
                 'key': 'FFmpegExtractAudio',
                 'preferredcodec': 'mp3',
