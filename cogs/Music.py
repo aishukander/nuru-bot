@@ -17,7 +17,7 @@ class Music(commands.Cog):
 
         self.play_list = []  # 播放列表
         self.current_track = None  # 目前正在播放的歌曲
-        self.volume = float(self.Setting["volume"])  # 預設音量 (1.0 = 100%)
+        self.volume = float(self.Setting["Volume"])  # 預設音量 (1.0 = 100%)
         self.ydl_opts = {
             'outtmpl': './tmp/%(title)s.%(ext)s',
             'format': 'bestaudio/best',
