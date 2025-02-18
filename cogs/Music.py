@@ -3,6 +3,7 @@ from discord.ext import commands
 from pathlib import Path
 import yt_dlp
 import random
+import asyncio
 
 class Music(commands.Cog):
     def __init__(self, bot):
@@ -25,7 +26,7 @@ class Music(commands.Cog):
             next_file = self.play_list.pop(0)
             self.current_track = next_file
             source = discord.FFmpegPCMAudio(str(next_file))
-            def after_playing():
+            def after_playing(error):
                 try:
                     if next_file.exists():
                         next_file.unlink()  # 刪除tmp資料夾中的檔案
@@ -41,6 +42,8 @@ class Music(commands.Cog):
 
     def get_music_names(ctx: discord.AutocompleteContext):
             query = ctx.value
+            if not query or query.strip() == "":
+                return []
             if query.startswith("http://") or query.startswith("https://"):
                 return []
 
@@ -68,7 +71,7 @@ class Music(commands.Cog):
     music = discord.SlashCommandGroup("music", "music command group")
 
     @music.command(
-        description="play music",
+        description="播放音樂",
     )
     @discord.option(
         "search", 
@@ -119,12 +122,12 @@ class Music(commands.Cog):
         if not vc.is_playing():
             self.play_next(vc)
 
-        await ctx.respond(f"已加入歌曲 {file_path.name} 到播放列表！")
+        await ctx.respond(f"已加入歌曲 {file_path.stem} 到播放列表！")
 
     @music.command(
-        description="The playlist is displayed",
+        description="顯示播放清單",
     )
-    async def playlist(self, ctx):
+    async def queue(self, ctx):
         color = random.randint(0, 16777215)
         embed = discord.Embed(title="播放列表", color=color)
         if self.current_track is not None:
@@ -139,15 +142,125 @@ class Music(commands.Cog):
         await ctx.respond(embed=embed)
 
     @music.command(
-        description="Pause playing music",
+        description="暫停音樂",
     )
     async def pause(self, ctx):
+        if ctx.voice_client is None:
+            await ctx.respond("Bot 未在語音頻道中！")
+            return
         vc = ctx.voice_client
-        if vc is not None and vc.is_playing():
+        if vc.is_playing():
             vc.pause()
             await ctx.respond("音樂已暫停！")
         else:
             await ctx.respond("目前沒有正在播放的音樂！")
+
+    @music.command(
+        description="恢復播放音樂",
+    )
+    async def resume(self, ctx):
+        if ctx.voice_client is None:
+            await ctx.respond("Bot 未在語音頻道中！")
+            return
+        vc = ctx.voice_client
+        if vc.is_paused():
+            vc.resume()
+            await ctx.respond("音樂已恢復播放！")
+        else:
+            await ctx.respond("目前音樂沒有暫停！")
+
+    @music.command(
+        description="停止播放音樂",
+    )
+    async def stop(self, ctx):
+        if ctx.voice_client is None:
+            await ctx.respond("Bot 未在語音頻道中！")
+            return
+        self.play_list.clear()
+        vc = ctx.voice_client
+        vc.stop()
+        await vc.disconnect()
+        
+        tmp_path = Path('./tmp')
+        if tmp_path.exists():
+            for file in tmp_path.iterdir():
+                if file.is_file():
+                    try:
+                        file.unlink()
+                    except Exception as e:
+                        print(f"刪除檔案 {file} 失敗: {e}")
+        await ctx.respond("音樂已停止！")
+    
+    @music.command(
+        description="跳過目前播放的音樂",
+    )
+    async def skip(self, ctx):
+        if ctx.voice_client is None:
+            await ctx.respond("Bot 未在語音頻道中！")
+            return
+        vc = ctx.voice_client
+        vc.stop()
+        await ctx.respond("已跳過目前播放的音樂！")
+
+    @music.command(
+        description="移除指定的歌曲",
+    )
+    @discord.option(
+        "index", 
+        type=discord.SlashCommandOptionType.integer, 
+        description="歌曲編號"
+    )
+    async def remove(self, ctx, index: int):
+        if ctx.voice_client is None:
+            await ctx.respond("Bot 未在語音頻道中！")
+            return
+        if index < 1 or index > len(self.play_list):
+            await ctx.respond("歌曲編號不正確！")
+            return
+        removed_file = self.play_list.pop(index-1)
+
+        if removed_file.exists():
+            try:
+                removed_file.unlink()
+            except Exception as e:
+                print(f"無法刪除 {removed_file.name}: {e}")
+        await ctx.respond(f"已移除 {removed_file.name}！")
+
+
+    @music.command(
+        description="隨機播放",
+    )
+    async def random(self, ctx):
+        if ctx.voice_client is None:
+            await ctx.respond("Bot 未在語音頻道中！")
+            return
+        random.shuffle(self.play_list)
+        await ctx.respond("已隨機播放！")
+
+    @music.command(
+        description="播放指定的歌曲",
+    )
+    @discord.option(
+        "index", 
+        type=discord.SlashCommandOptionType.integer, 
+        description="歌曲編號"
+    )
+    async def play_index(self, ctx, index: int):
+        if ctx.voice_client is None:
+            await ctx.respond("Bot 未在語音頻道中！")
+            return
+        if index < 1 or index > len(self.play_list):
+            await ctx.respond("歌曲編號不正確！")
+            return
+        vc = ctx.voice_client
+        if vc.is_playing():
+            vc.stop()
+            # 等待播放狀態完全停止
+            while vc.is_playing():
+                await asyncio.sleep(0.1)
+        self.play_list.insert(0, self.play_list.pop(index-1))
+        self.play_next(vc)
+        await ctx.respond(f"已播放 {self.current_track.name}！")
 
 def setup(bot):
     bot.add_cog(Music(bot))
