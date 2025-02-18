@@ -126,38 +126,39 @@ class Music(commands.Cog):
 
         with yt_dlp.YoutubeDL(self.ydl_opts) as ydl:
             extracted = await asyncio.to_thread(ydl.extract_info, search, download=False)
+
+            # 定義一個內部函數，檢查檔案是否存在，若不存在則進行下載
+            async def get_or_download(url):
+                info = await asyncio.to_thread(ydl.extract_info, url, download=False)
+                file_path = Path(ydl.prepare_filename(info)).with_suffix('.mp3')
+                if not file_path.exists():
+                    info = await asyncio.to_thread(ydl.extract_info, url, download=True)
+                    file_path = Path(ydl.prepare_filename(info)).with_suffix('.mp3')
+                return file_path
+
             if 'entries' in extracted:
-                # 處理歌單，先下載第一首並立即播放
                 entries = extracted['entries']
-                first_info = await asyncio.to_thread(
-                    ydl.extract_info, entries[0]['webpage_url'], download=True
-                )
-                first_file = Path(ydl.prepare_filename(first_info)).with_suffix('.mp3')
-                if not first_file.exists():
-                    raise FileNotFoundError(f"No such file: {first_file}")
-                self.play_list.append(first_file)
+                if len(entries) == 1:
+                    # 單首歌曲，直接下載並加入播放列表
+                    file_path = await get_or_download(entries[0]['webpage_url'])
+                    self.play_list.append(file_path)
+                    playlist_info = f"歌曲 {file_path.stem}"
+                else:
+                    # 歌單情況：先下載第一首立即播放，其餘加入對列
+                    first_file = await get_or_download(entries[0]['webpage_url'])
+                    self.play_list.append(first_file)
 
-                # 取得語音連線
-                vc = await self.ensure_voice_client(channel, ctx.voice_client)
-                if not vc.is_playing():
-                    self.play_next(vc)
+                    vc = await self.ensure_voice_client(channel, ctx.voice_client)
+                    if not vc.is_playing():
+                        self.play_next(vc)
 
-                # 下載剩餘歌曲並加入播放列表
-                for entry in entries[1:]:
-                    song_info = await asyncio.to_thread(
-                        ydl.extract_info, entry['webpage_url'], download=True
-                    )
-                    song_file = Path(ydl.prepare_filename(song_info)).with_suffix('.mp3')
-                    if not song_file.exists():
-                        raise FileNotFoundError(f"No such file: {song_file}")
-                    self.play_list.append(song_file)
-                playlist_info = f"{len(entries)} 首歌曲"
+                    for entry in entries[1:]:
+                        song_file = await get_or_download(entry['webpage_url'])
+                        self.play_list.append(song_file)
+                    playlist_info = f"{len(entries)} 首歌曲"
             else:
                 # 非歌單情況
-                info_downloaded = await asyncio.to_thread(ydl.extract_info, search, download=True)
-                file_path = Path(ydl.prepare_filename(info_downloaded)).with_suffix('.mp3')
-                if not file_path.exists():
-                    raise FileNotFoundError(f"No such file: {file_path}")
+                file_path = await get_or_download(search)   
                 self.play_list.append(file_path)
                 playlist_info = f"歌曲 {file_path.stem}"
 
