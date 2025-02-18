@@ -40,13 +40,11 @@ class Music(commands.Cog):
             pass
 
     def get_music_names(ctx: discord.AutocompleteContext):
-            query = ctx.value  # 從 ctx 取得輸入作為 query
-            # 如果傳入連結，直接返回空陣列
+            query = ctx.value
             if query.startswith("http://") or query.startswith("https://"):
                 return []
 
-            # 使用 ytsearch5 前置字
-            search_query = f"ytsearch25:{query}"
+            search_query = f"ytsearch10:{query}"
             ydl_opts = {
                 'quiet': True,
                 'skip_download': True,
@@ -75,7 +73,8 @@ class Music(commands.Cog):
     @discord.option(
         "search", 
         type=discord.SlashCommandOptionType.string, 
-        description="name or url", 
+        description="name or url",
+        autocomplete=get_music_names
     )
     async def play(self, ctx, search: str):
         # 檢查使用者是否在語音頻道
@@ -149,28 +148,6 @@ class Music(commands.Cog):
             await ctx.respond("音樂已暫停！")
         else:
             await ctx.respond("目前沒有正在播放的音樂！")
-
-    @music.command(
-        description="search name",
-    )
-    @discord.option(
-        "search", 
-        type=discord.SlashCommandOptionType.string, 
-        description="name",
-        autocomplete=get_music_names
-    )
-    async def search(self, ctx, search: str):
-        await ctx.defer()
-        music_names = "test"
-        if not music_names:
-            await ctx.respond("找不到任何音樂！")
-            return
-
-        color = random.randint(0, 16777215)
-        embed = discord.Embed(title="搜尋結果", color=color)
-        for i, name in enumerate(music_names):
-            embed.add_field(name=f"{i+1}.", value=name, inline=False)
-        await ctx.respond(embed=embed)
 
 def setup(bot):
     bot.add_cog(Music(bot))
