@@ -9,6 +9,16 @@ class Music(commands.Cog):
         self.bot = bot
         self.play_list = []  # 播放列表
         self.current_track = None  # 目前正在播放的歌曲
+        self.ydl_opts = {
+            'outtmpl': './tmp/%(title)s.%(ext)s',
+            'format': 'bestaudio/best',
+            'merge_output_format': 'mp3',
+            'postprocessors': [{
+                'key': 'FFmpegExtractAudio',
+                'preferredcodec': 'mp3',
+                'preferredquality': '192',
+            }],
+        }
 
     def play_next(self, vc):
         if self.play_list:
@@ -29,6 +39,34 @@ class Music(commands.Cog):
             # 播放列表結束
             pass
 
+    def get_music_names(ctx: discord.AutocompleteContext):
+            query = ctx.value  # 從 ctx 取得輸入作為 query
+            # 如果傳入連結，直接返回空陣列
+            if query.startswith("http://") or query.startswith("https://"):
+                return []
+
+            # 使用 ytsearch5 前置字
+            search_query = f"ytsearch25:{query}"
+            ydl_opts = {
+                'quiet': True,
+                'skip_download': True,
+                'extract_flat': True,
+                'default_search': 'ytsearch'
+            }
+
+            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                try:
+                    info = ydl.extract_info(search_query, download=False)
+                    entries = info.get('entries', [])
+                    titles = [entry.get("title") for entry in entries if entry.get("title")]
+                    return [
+                        discord.OptionChoice(name=title, value=title)
+                        for title in titles
+                    ]
+                except Exception as e:
+                    print(f"搜尋錯誤: {e}")
+                    return []
+
     music = discord.SlashCommandGroup("music", "music command group")
 
     @music.command(
@@ -48,24 +86,13 @@ class Music(commands.Cog):
         channel = ctx.author.voice.channel
         await ctx.defer()
 
-        ydl_opts = {
-            'outtmpl': './tmp/%(title)s.%(ext)s',
-            'format': 'bestaudio/best',
-            'merge_output_format': 'mp3',
-            'postprocessors': [{
-                'key': 'FFmpegExtractAudio',
-                'preferredcodec': 'mp3',
-                'preferredquality': '192',
-            }],
-        }
-
         Path('./tmp').mkdir(parents=True, exist_ok=True)
 
         # 若非連結則加上 ytsearch: 前置
         if not (search.startswith("http://") or search.startswith("https://")):
             search = "ytsearch:" + search
 
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+        with yt_dlp.YoutubeDL(self.ydl_opts) as ydl:
             info = ydl.extract_info(search, download=True)
             if 'entries' in info:
                 info = info['entries'][0]
@@ -110,6 +137,39 @@ class Music(commands.Cog):
             embed.add_field(name="即將播放的歌曲", value=playlist_str, inline=False)
         if not embed.fields:
             embed.description = "播放列表是空的！"
+        await ctx.respond(embed=embed)
+
+    @music.command(
+        description="Pause playing music",
+    )
+    async def pause(self, ctx):
+        vc = ctx.voice_client
+        if vc is not None and vc.is_playing():
+            vc.pause()
+            await ctx.respond("音樂已暫停！")
+        else:
+            await ctx.respond("目前沒有正在播放的音樂！")
+
+    @music.command(
+        description="search name",
+    )
+    @discord.option(
+        "search", 
+        type=discord.SlashCommandOptionType.string, 
+        description="name",
+        autocomplete=get_music_names
+    )
+    async def search(self, ctx, search: str):
+        await ctx.defer()
+        music_names = "test"
+        if not music_names:
+            await ctx.respond("找不到任何音樂！")
+            return
+
+        color = random.randint(0, 16777215)
+        embed = discord.Embed(title="搜尋結果", color=color)
+        for i, name in enumerate(music_names):
+            embed.add_field(name=f"{i+1}.", value=name, inline=False)
         await ctx.respond(embed=embed)
 
 def setup(bot):
