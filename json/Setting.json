@@ -3,6 +3,7 @@
     "Max_History": "100",
     "Gemini_Text_Name": "gemini-1.5-flash",
     "Gemini_Image_Name": "gemini-1.5-flash",
+    "Volume": "1.0",
     "Gemini_Prompt":[
         "(請盡量使用繁體中文)以後對話請依照以下規則:",
         "1.在對話中提到的中文只要沒特別要求'簡體'就都是繁體中文。",

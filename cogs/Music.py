@@ -4,12 +4,20 @@ from pathlib import Path
 import yt_dlp
 import random
 import asyncio
+import json
+
+json_dir = Path(__file__).resolve().parents[1] / "json"
 
 class Music(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+
+        with open(json_dir / "Setting.json", "r", encoding="utf8") as jfile:
+            self.Setting = json.load(jfile)
+
         self.play_list = []  # 播放列表
         self.current_track = None  # 目前正在播放的歌曲
+        self.volume = float(self.Setting["volume"])  # 預設音量 (1.0 = 100%)
         self.ydl_opts = {
             'outtmpl': './tmp/%(title)s.%(ext)s',
             'format': 'bestaudio/best',
@@ -26,6 +34,8 @@ class Music(commands.Cog):
             next_file = self.play_list.pop(0)
             self.current_track = next_file
             source = discord.FFmpegPCMAudio(str(next_file))
+            # 使用 PCMVolumeTransformer 以便後續調整音量
+            transformer = discord.PCMVolumeTransformer(source, volume=self.volume)
             def after_playing(error):
                 try:
                     if next_file.exists():
@@ -34,7 +44,7 @@ class Music(commands.Cog):
                     print(f"檔案刪除失敗: {e}")
                 self.current_track = None
                 self.bot.loop.call_soon_threadsafe(self.play_next, vc)
-            vc.play(source, after=after_playing)
+            vc.play(transformer, after=after_playing)
         else:
             self.current_track = None
             # 播放列表結束
@@ -123,6 +133,28 @@ class Music(commands.Cog):
             self.play_next(vc)
 
         await ctx.respond(f"已加入歌曲 {file_path.stem} 到播放列表！")
+
+    @music.command(
+        description="調整播放音量 (0-150%)"
+    )
+    @discord.option(
+        "volume",
+        type=discord.SlashCommandOptionType.integer,
+        description="音量百分比",
+    )
+    async def volume(self, ctx, volume: int):
+        if ctx.voice_client is None:
+            await ctx.respond("Bot 未在語音頻道中！")
+            return
+        if volume < 0 or volume > 150:
+            await ctx.respond("請輸入 0 到 150 之間的音量百分比！")
+            return
+        # 更新全局預設音量
+        self.volume = volume / 100.0
+        # 若目前正在播放的話，則即時更新音量
+        if ctx.voice_client.source and isinstance(ctx.voice_client.source, discord.PCMVolumeTransformer):
+            ctx.voice_client.source.volume = self.volume
+        await ctx.respond(f"已將音量調整為 {volume}%！")
 
     @music.command(
         description="顯示播放清單",
@@ -225,7 +257,6 @@ class Music(commands.Cog):
             except Exception as e:
                 print(f"無法刪除 {removed_file.name}: {e}")
         await ctx.respond(f"已移除 {removed_file.name}！")
-
 
     @music.command(
         description="隨機播放",
