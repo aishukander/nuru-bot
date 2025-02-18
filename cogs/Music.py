@@ -109,15 +109,23 @@ class Music(commands.Cog):
         with yt_dlp.YoutubeDL(self.ydl_opts) as ydl:
             info = ydl.extract_info(search, download=True)
             if 'entries' in info:
-                info = info['entries'][0]
-            original_file_path = Path(ydl.prepare_filename(info))
-            file_path = original_file_path.with_suffix('.mp3')
-
-        if not file_path.exists():
-            raise FileNotFoundError(f"No such file: {file_path}")
-
-        # 將下載完成的檔案加入播放列表
-        self.play_list.append(file_path)
+                # 處理播放清單：依序加入所有下載完成的檔案
+                files = []
+                for entry in info['entries']:
+                    original_file_path = Path(ydl.prepare_filename(entry))
+                    file_path = original_file_path.with_suffix('.mp3')
+                    if not file_path.exists():
+                        raise FileNotFoundError(f"No such file: {file_path}")
+                    files.append(file_path)
+                self.play_list.extend(files)
+                playlist_info = f"{len(files)} 首歌曲"
+            else:
+                original_file_path = Path(ydl.prepare_filename(info))
+                file_path = original_file_path.with_suffix('.mp3')
+                if not file_path.exists():
+                    raise FileNotFoundError(f"No such file: {file_path}")
+                self.play_list.append(file_path)
+                playlist_info = f"歌曲 {file_path.stem}"
 
         # 連線到使用者所在的語音頻道
         if ctx.voice_client is None:
@@ -126,15 +134,14 @@ class Music(commands.Cog):
             vc = ctx.voice_client
             if vc.channel != channel:
                 await vc.move_to(channel)
-            # 檢查連線狀態，如已斷線則重新連線
             if not vc.is_connected():
                 vc = await channel.connect()
 
-        # 若目前未播放任何音樂，即開始依序播放列表中的歌曲
+        # 若目前未播放任何音樂，即開始依序播放播放列表中的歌曲
         if not vc.is_playing():
             self.play_next(vc)
 
-        await ctx.respond(f"已加入歌曲 {file_path.stem} 到播放列表！")
+        await ctx.respond(f"已加入 {playlist_info} 到播放列表！")
 
     @music.command(
         description="調整播放音量 (0-150%)"
