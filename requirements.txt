@@ -4,3 +4,5 @@ aiohttp
 psutil
 requests
 audioop-lts
+yt_dlp
+PyNaCl
