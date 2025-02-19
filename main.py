@@ -26,7 +26,7 @@ def Guild_Admin_Examine(func):
             if ctx.author.guild_permissions.administrator:
                 return await func(ctx, *args, **kwargs)
             else:
-                await ctx.respond("你沒有管理者權限用來執行這個指令")
+                await ctx.respond("你沒有管理者權限用來執行這個指令", ephemeral=True)
         except AttributeError:
             await ctx.respond("你不在伺服器內")
     return wrapper
@@ -105,9 +105,9 @@ cogs = discord.SlashCommandGroup("cogs", "cogs management instructions")
 async def load(ctx, extension: str):
     try:
         bot.load_extension(f"cogs.{extension}")
-        await ctx.respond(f"{extension}模塊加載完成")
+        await ctx.respond(f"{extension}模塊加載完成", ephemeral=True)
     except Exception as e:
-        await ctx.respond(f"加載模塊時發生錯誤: {e}")
+        await ctx.respond(f"加載模塊時發生錯誤: {e}", ephemeral=True)
 
 @cogs.command(
     description="卸載指定的cog"
@@ -122,9 +122,9 @@ async def load(ctx, extension: str):
 async def unload(ctx, extension: str):
     try:
         bot.unload_extension(f"cogs.{extension}")
-        await ctx.respond(f"{extension}模塊卸載完成")
+        await ctx.respond(f"{extension}模塊卸載完成", ephemeral=True)
     except Exception as e:
-        await ctx.respond(f"卸載模塊時發生錯誤: {e}")
+        await ctx.respond(f"卸載模塊時發生錯誤: {e}", ephemeral=True)
 
 @cogs.command(
     description="重載指定的cog"
@@ -139,9 +139,9 @@ async def unload(ctx, extension: str):
 async def reload(ctx, extension: str):
     try:
         bot.reload_extension(f"cogs.{extension}")
-        await ctx.respond(f"{extension}模塊重載完成")
+        await ctx.respond(f"{extension}模塊重載完成", ephemeral=True)
     except Exception as e:
-        await ctx.respond(f"重載模塊時發生錯誤: {e}")
+        await ctx.respond(f"重載模塊時發生錯誤: {e}", ephemeral=True)
 
 @cogs.command(
     description="列出已載入的cog"
@@ -152,7 +152,7 @@ async def list(ctx):
     message = "已載入的 cog 如下：\n"
     for cog in loaded_cogs:
         message += f"* {cog}\n"
-    await ctx.respond(message)
+    await ctx.respond(message, ephemeral=True)
 
 bot.add_application_command(cogs)
 """======================================================================================="""
@@ -166,7 +166,7 @@ bot.add_application_command(cogs)
     }
 )
 async def ping(ctx):
-    await ctx.respond(f"{round(bot.latency*1000)}(ms)")
+    await ctx.respond(f"{round(bot.latency*1000)}(ms)", ephemeral=True)
 
 #用來取得bot的邀請連結
 @bot.command(

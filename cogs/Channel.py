@@ -3,6 +3,7 @@ import asyncio
 from discord.ext import commands
 import json
 from pathlib import Path
+from functools import wraps
 
 json_dir = Path(__file__).resolve().parents[1] / "json"
 
@@ -53,6 +54,18 @@ class Channel(commands.Cog):
             if pic.lower().startswith(query)
         ]
 
+    def Guild_Admin_Examine(func):
+            @wraps(func)
+            async def wrapper(self, ctx, *args, **kwargs):
+                try:
+                    if ctx.author.guild_permissions.administrator:
+                        return await func(self, ctx, *args, **kwargs)
+                    else:
+                        await ctx.respond("你沒有管理者權限用來執行這個指令", ephemeral=True)
+                except AttributeError:
+                    await ctx.respond("你不在伺服器內")
+            return wrapper
+
     @commands.Cog.listener() 
     async def on_voice_state_update(self, member: discord.Member, before: discord.VoiceState, after: discord.VoiceState):
         guild_id = str(member.guild.id)
@@ -87,21 +100,18 @@ class Channel(commands.Cog):
         type=discord.SlashCommandOptionType.string, 
         description="母頻道名稱"
     )
+    @Guild_Admin_Examine
     async def add_voice(self, ctx: discord.ApplicationContext, name: str):
-        if not ctx.author.guild_permissions.administrator:
-            await ctx.respond("你沒有管理者權限用來執行這個指令")
-            return
-
         guild_id = str(ctx.guild.id)
         try:
             channel = await ctx.guild.create_voice_channel(name)
             self.origin_channels.setdefault(guild_id, []).append(channel.id)
             self.save_origin_channels(self.origin_channels)
-            await ctx.respond(f"動態語音 {channel.name} 已建立")
+            await ctx.respond(f"動態語音 {channel.name} 已建立", ephemeral=True)
         except discord.Forbidden:
-            await ctx.respond("機器人缺少創建語音頻道的權限")
+            await ctx.respond("機器人缺少創建語音頻道的權限", ephemeral=True)
         except discord.HTTPException as e:
-            await ctx.respond(f"建立失敗: {e}")
+            await ctx.respond(f"建立失敗: {e}", ephemeral=True)
 
     @dynamic_voice.command(
         description="移除動態語音頻道"
@@ -112,15 +122,12 @@ class Channel(commands.Cog):
         description="母頻道名稱",
         autocomplete=get_dynamic_voice_channel_names
     )
+    @Guild_Admin_Examine
     async def remove_voice(self, ctx: discord.ApplicationContext, name: str):
-        if not ctx.author.guild_permissions.administrator:
-            await ctx.respond("你沒有管理者權限用來執行這個指令")
-            return
-
         guild_id = str(ctx.guild.id)
         channels = self.origin_channels.get(guild_id)
         if not channels:
-            await ctx.respond("此伺服器未設定動態語音")
+            await ctx.respond("此伺服器未設定動態語音", ephemeral=True)
             return
 
         for idx, parent_channel_id in enumerate(channels):
@@ -129,7 +136,7 @@ class Channel(commands.Cog):
                 try:
                     await channel.delete()
                 except (discord.Forbidden, discord.HTTPException) as e:
-                    await ctx.respond(f"刪除頻道失敗: {e}")
+                    await ctx.respond(f"刪除頻道失敗: {e}", ephemeral=True)
                     return
                 del self.origin_channels[guild_id][idx]
                 if not self.origin_channels[guild_id]:
@@ -140,9 +147,9 @@ class Channel(commands.Cog):
                 if key in dynamic_voice_name:
                     dynamic_voice_name.pop(key)
                     self.dump_dynamic_voice_name(dynamic_voice_name)
-                await ctx.respond(f"動態語音 {name} 已刪除")
+                await ctx.respond(f"動態語音 {name} 已刪除", ephemeral=True)
                 return
-        await ctx.respond(f"未找到 {name} 動態語音")
+        await ctx.respond(f"未找到 {name} 動態語音", ephemeral=True)
 
     @dynamic_voice.command(
         description="更新動態語音子頻道名稱"
@@ -158,21 +165,18 @@ class Channel(commands.Cog):
         type=discord.SlashCommandOptionType.string, 
         description="新的子頻道名稱(可以用{}代表第一個進入語音的使用者)"
     )
+    @Guild_Admin_Examine
     async def set_voice_template(self, ctx: discord.ApplicationContext, parent_channel_name: str, new_voice_name: str):
-        if not ctx.author.guild_permissions.administrator:
-            await ctx.respond("你沒有管理者權限用來執行這個指令")
-            return
-
         dynamic_voice_name = self.load_dynamic_voice_name()
         parent_channel = discord.utils.get(ctx.guild.voice_channels, name=parent_channel_name)
         if not parent_channel:
-            await ctx.respond(f'未找到名為 {parent_channel_name} 的母頻道')
+            await ctx.respond(f'未找到名為 {parent_channel_name} 的母頻道', ephemeral=True)
             return
 
         key = f'{ctx.guild.id}_{parent_channel.id}'
         dynamic_voice_name[key] = new_voice_name
         self.dump_dynamic_voice_name(dynamic_voice_name)
-        await ctx.respond(f'已將 {parent_channel_name} 的子頻道名稱更新為 {new_voice_name}')
+        await ctx.respond(f'已將 {parent_channel_name} 的子頻道名稱更新為 {new_voice_name}', ephemeral=True)
 
     @commands.slash_command(
         description="將語音頻道內所有人移動到另一個語音頻道"
@@ -191,18 +195,18 @@ class Channel(commands.Cog):
     )
     async def move_voice(self, ctx: discord.ApplicationContext, source: discord.VoiceChannel, target: discord.VoiceChannel):
         if not ctx.author.guild_permissions.administrator:
-            await ctx.respond("你沒有管理者權限用來執行這個指令")
+            await ctx.respond("你沒有管理者權限用來執行這個指令", ephemeral=True)
             return
 
         if not source.members:
-            await ctx.respond(f"[{source.name}] 沒有人在裡面")
+            await ctx.respond(f"[{source.name}] 沒有人在裡面", ephemeral=True)
             return
 
         try:
             await asyncio.gather(*[member.move_to(target) for member in source.members])
-            await ctx.respond(f"已將 [{source.name}] 的所有人移動到 [{target.name}]")
+            await ctx.respond(f"已將 [{source.name}] 的所有人移動到 [{target.name}]", ephemeral=True)
         except (discord.Forbidden, discord.HTTPException) as e:
-            await ctx.respond(f"移動失敗: {e}")
+            await ctx.respond(f"移動失敗: {e}", ephemeral=True)
 
     @commands.slash_command(
         description="創建身分組並且添加文字和語音頻道"
@@ -223,9 +227,9 @@ class Channel(commands.Cog):
             }
             await category.create_text_channel(name, overwrites=overwrites)
             await category.create_voice_channel(name, overwrites=overwrites)
-            await ctx.respond("完成")
+            await ctx.respond("完成", ephemeral=True)
         except (discord.Forbidden, discord.HTTPException) as e:
-            await ctx.respond(f"創建失敗: {e}")
+            await ctx.respond(f"創建失敗: {e}", ephemeral=True)
 
 def setup(bot: commands.Bot):
     bot.add_cog(Channel(bot))

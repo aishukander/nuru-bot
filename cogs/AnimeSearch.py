@@ -35,7 +35,7 @@ class AnimeSearch(commands.Cog):
             elif image_url:
                 url = image_url
             else:
-                await ctx.respond("請提供圖片檔案或連結")
+                await ctx.respond("請提供圖片檔案或連結", ephemeral=True)
                 return
             api_url = f"https://api.trace.moe/search?anilistInfo&cutBorders&url={urllib.parse.quote_plus(url)}"
             response = requests.get(api_url).json()
@@ -51,7 +51,7 @@ class AnimeSearch(commands.Cog):
             embed.set_footer(text="Data from trace.moe API")
             await ctx.respond(embed=embed)
         except Exception as e:
-            await ctx.respond(f"指令發生錯誤: {e}")
+            await ctx.respond(f"指令發生錯誤: {e}", ephemeral=True)
     
 def setup(bot):
     bot.add_cog(AnimeSearch(bot))

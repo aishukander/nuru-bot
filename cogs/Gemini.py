@@ -22,7 +22,7 @@ class Gemini(commands.Cog):
                     if ctx.author.guild_permissions.administrator:
                         return await func(self, ctx, *args, **kwargs)
                     else:
-                        await ctx.respond("你沒有管理者權限用來執行這個指令")
+                        await ctx.respond("你沒有管理者權限用來執行這個指令", ephemeral=True)
                 except AttributeError:
                     await ctx.respond("你不在伺服器內")
             return wrapper
@@ -163,7 +163,7 @@ class Gemini(commands.Cog):
     async def gemini_reset(self, ctx):
         if ctx.author.id in self.message_history:
             del self.message_history[ctx.author.id]
-        await ctx.respond("🤖 歷史記錄重置")
+        await ctx.respond("🤖 歷史記錄重置", ephemeral=True)
     
     @commands.slash_command(
         description="管理Gemini在私訊時是否直接回覆"
@@ -177,12 +177,12 @@ class Gemini(commands.Cog):
     async def gemini_private(self, ctx, action: str):
         if action.lower() == "on":
             self.DMC_on = True
-            await ctx.respond("已啟用Gemini私訊時的直接觸發")
+            await ctx.respond("已啟用Gemini私訊時的直接觸發", ephemeral=True)
         elif action.lower() == "off":
             self.DMC_on = False
-            await ctx.respond("已暫時關閉Gemini私訊時的直接觸發")
+            await ctx.respond("已暫時關閉Gemini私訊時的直接觸發", ephemeral=True)
         else:
-            await ctx.respond("請輸入正確的動作(on/off)")
+            await ctx.respond("請輸入正確的動作(on/off)", ephemeral=True)
 
 def setup(bot):
     bot.add_cog(Gemini(bot))

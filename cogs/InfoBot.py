@@ -47,7 +47,7 @@ class InfoBot(commands.Cog):
         embed.add_field(name="📡網路發收", value=f"{bytes_sent_per_sec:.2f} Mbps / {bytes_recv_per_sec:.2f} Mbps", inline=True)
         embed.add_field(name="⌛系統啟動時間", value=boot_time_str, inline=True)
         embed.add_field(name="🔍所在伺服器數", value=f"{guild_count} 個", inline=True)
-        await ctx.respond(embed=embed)
+        await ctx.respond(embed=embed, ephemeral=True)
 
 def setup(bot):
     bot.add_cog(InfoBot(bot))

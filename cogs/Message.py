@@ -24,7 +24,7 @@ class Message(commands.Cog):
                     if ctx.author.guild_permissions.administrator:
                         return await func(self, ctx, *args, **kwargs)
                     else:
-                        await ctx.respond("你沒有管理者權限用來執行這個指令")
+                        await ctx.respond("你沒有管理者權限用來執行這個指令", ephemeral=True)
                 except AttributeError:
                     await ctx.respond("你不在伺服器內")
             return wrapper
@@ -68,7 +68,7 @@ class Message(commands.Cog):
     )
     @Guild_Admin_Examine
     async def delete_msg(self, ctx, num: int):
-        await ctx.respond(f"準備開始刪除 {num} 則訊息")
+        await ctx.respond(f"準備開始刪除 {num} 則訊息", ephemeral=True)
         await asyncio.sleep(1)
         await ctx.channel.purge(limit=num+1)
         await ctx.send(f"已刪除 {num} 則訊息")
@@ -86,7 +86,7 @@ class Message(commands.Cog):
         user = ctx.author
         embed=discord.Embed(title="這是一個記事本", color=color)
         await user.send(embed=embed)
-        await ctx.respond("完成")
+        await ctx.respond("完成", ephemeral=True)
 
     @commands.slash_command(
         description="讓mumei告訴你該不該買",
@@ -97,7 +97,7 @@ class Message(commands.Cog):
     ) 
     async def buy_or_not(self,ctx):
         Buy_OR_Not = random.choice(self.Setting["Buy_OR_Not"])
-        await ctx.respond(Buy_OR_Not)    
+        await ctx.respond(Buy_OR_Not, ephemeral=True)    
 
     @commands.slash_command(
         description="傳送訊息至指定伺服器的指定頻道"
@@ -121,17 +121,17 @@ class Message(commands.Cog):
     async def send_msg(self, ctx, message: str, guild_name: str, channel_name: str):
         guild = discord.utils.find(lambda g: g.name == guild_name, self.bot.guilds)
         if guild is None:
-            return await ctx.respond("未找到伺服器!")
+            return await ctx.respond("未找到伺服器!", ephemeral=True)
         
         channel = discord.utils.find(lambda c: c.name == channel_name, guild.text_channels)
         if channel is None: 
-                return await ctx.respond("未找到頻道!")
+                return await ctx.respond("未找到頻道!", ephemeral=True)
              
         try:
             await channel.send(message)
-            await ctx.respond(f"訊息已成功發送至 {guild.name} 的 {channel} 頻道!") 
+            await ctx.respond(f"訊息已成功發送至 {guild.name} 的 {channel} 頻道!", ephemeral=True) 
         except:
-            await ctx.respond("訊息發送錯誤！")
+            await ctx.respond("訊息發送錯誤！", ephemeral=True)
 
     #Word-Changer功能的整合
     @commands.slash_command(
@@ -158,7 +158,7 @@ class Message(commands.Cog):
     )
     async def word_changer(self, ctx, text: str, old_msg: str, new_msg: str):
         new_text = re.sub(old_msg, new_msg, text)
-        await ctx.respond(new_text)
+        await ctx.respond(new_text, ephemeral=True)
 
     #直接把圖片丟至CallPicture即可。
     @commands.slash_command(
@@ -185,7 +185,7 @@ class Message(commands.Cog):
                    .rsplit(".", 1)[0] == picture
             )
         except StopIteration:
-            await ctx.respond("找不到該圖片")
+            await ctx.respond("找不到該圖片", ephemeral=True)
             return
         await ctx.respond(file=discord.File(file_path, filename=file_path.name))
 
