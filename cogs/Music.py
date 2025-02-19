@@ -11,15 +11,16 @@ json_dir = Path(__file__).resolve().parents[1] / "json"
 class Music(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.progress_bars = ["░", "█"]
-        self.bar_length = 20
 
         with open(json_dir / "Setting.json", "r", encoding="utf8") as jfile:
             self.Setting = json.load(jfile)
 
         self.default_volume = float(self.Setting["Volume"])
-        self.guild_data = {}  # guild_id -> {"play_list": [], "current_track": None, "volume": <float>}
-        self.file_usage = {}  # 全域，用來記錄每首檔案的使用次數
+        self.inactive_timeout = int(self.Setting["Inactive_Timeout"]) # 單位秒
+        self.progress_bars = self.Setting["Progress_Bars"]
+        self.bar_length = 20
+        self.guild_data = {}  # guild_id -> {"play_list": [], "current_track": None, "volume": <float>, "inactive_task": None}
+        self.file_usage = {}
         
         self.ydl_opts = {
             'outtmpl': './tmp/%(title)s.%(ext)s',
@@ -39,12 +40,30 @@ class Music(commands.Cog):
             self.guild_data[guild.id] = {
                 "play_list": [],
                 "current_track": None,
-                "volume": self.default_volume
+                "volume": self.default_volume,
+                "inactive_task": None
             }
         return self.guild_data[guild.id]
 
+    async def check_inactivity(self, guild_id: int):
+        await asyncio.sleep(self.inactive_timeout)
+        data = self.guild_data.get(guild_id)
+        if data and data["inactive_task"]:
+            voice_client = self.bot.get_guild(guild_id).voice_client
+            if voice_client and not voice_client.is_playing():
+                await voice_client.disconnect()
+                data["inactive_task"] = None
+
     def play_next(self, vc):
         server = self.get_guild_data(vc.guild)
+        
+        # 重設計時器
+        if server["inactive_task"]:
+            server["inactive_task"].cancel()
+        server["inactive_task"] = asyncio.create_task(
+            self.check_inactivity(vc.guild.id)
+        )
+
         if vc.is_playing():
             self.bot.loop.call_later(0.1, self.play_next, vc)
             return
@@ -77,6 +96,12 @@ class Music(commands.Cog):
                 self.bot.loop.call_later(0.5, self.play_next, vc)
         else:
             server["current_track"] = None
+            # 當播放列表為空時也要檢查是否需要離開
+            if server["inactive_task"]:
+                server["inactive_task"].cancel()
+            server["inactive_task"] = asyncio.create_task(
+                self.check_inactivity(vc.guild.id)
+            )
 
     def get_music_names(ctx: discord.AutocompleteContext):
         query = ctx.value
@@ -278,6 +303,9 @@ class Music(commands.Cog):
         
         # 找到所有正在進行的下載任務
         data = self.get_guild_data(ctx.guild)
+        if data["inactive_task"]:
+            data["inactive_task"].cancel()
+            data["inactive_task"] = None
         data["play_list"].clear()
     
         # 停止當前播放並斷開連接
@@ -543,9 +571,14 @@ class QueueControlView(discord.ui.View):
         # 找到所有正在進行的下載任務
         data = self.cog.get_guild_data(self.ctx.guild)
     
+        # 取消計時器
+        if data["inactive_task"]:
+            data["inactive_task"].cancel()
+            data["inactive_task"] = None
+    
         # 清空播放列表
         data["play_list"].clear()
-    
+
         # 停止當前播放並斷開連接
         vc = self.ctx.voice_client
         vc.stop()
@@ -560,7 +593,7 @@ class QueueControlView(discord.ui.View):
                         file.unlink()
                     except Exception as e:
                         print(f"刪除檔案 {file} 失敗: {e}")
-    
+
         # 取消所有正在進行的下載任務
         try:
             tasks = [task for task in asyncio.all_tasks() 
