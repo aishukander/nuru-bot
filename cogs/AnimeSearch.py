@@ -28,7 +28,7 @@ class AnimeSearch(commands.Cog):
         required=False
     )
     async def anime_search(self, ctx, image_file: discord.Attachment = None, image_url: str = None):
-        await ctx.defer()
+        await ctx.defer(ephemeral=True)
         try:
             if image_file:
                 url = image_file.url

@@ -128,7 +128,7 @@ class Music(commands.Cog):
             await ctx.respond("你必須先加入一個語音頻道！", ephemeral=True)
             return
         channel = ctx.author.voice.channel
-        await ctx.defer()
+        await ctx.defer(ephemeral=True)
         Path('./tmp').mkdir(parents=True, exist_ok=True)
 
         if not (search.startswith("http://") or search.startswith("https://")):
