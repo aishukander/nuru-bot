@@ -343,7 +343,7 @@ class Music(commands.Cog):
 
 class QueueControlView(discord.ui.View):
     def __init__(self, cog, ctx):
-        super().__init__(timeout=60)
+        super().__init__(timeout=30)
         self.cog = cog
         self.ctx = ctx
         self.current_page = 0
@@ -368,6 +368,17 @@ class QueueControlView(discord.ui.View):
 
         # 初次建立時更新按鈕（依據頁數決定是否要加入上一頁或下一頁）
         self.update_page_buttons()
+
+    def on_timeout(self):
+        self.disable_all_items()
+        # 若有原始訊息，可更新 view 來顯示禁用的按鈕
+        asyncio.create_task(self.update_view_on_timeout())
+
+    async def update_view_on_timeout(self):
+        try:
+            await self.ctx.interaction.edit_original_response(view=self)
+        except Exception as e:
+            print(f"更新 View 失敗: {e}")
 
     def disable_all_items(self):
         for item in self.children:
@@ -498,7 +509,6 @@ class QueueControlView(discord.ui.View):
         self.disable_all_items()  # 停止後停用所有按鈕
         embed = self.build_queue_embed_with_status("音樂已停止！")
         await interaction.response.edit_message(embed=embed, view=self)
-        await interaction.followup.send("音樂已停止！", ephemeral=True)
 
 def setup(bot):
     bot.add_cog(Music(bot))
