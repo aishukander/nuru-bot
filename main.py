@@ -147,11 +147,19 @@ async def reload(ctx, extension: str):
     description="列出已載入的cog"
 )
 @Guild_Admin_Examine
-async def list(ctx):
-    loaded_cogs = Cogs_Loaded()
+async def show(ctx):
+    try:
+        loaded_cogs = [cog for cog in bot.cogs]
+    except AttributeError:
+        loaded_cogs = None
+
+    if not loaded_cogs:
+        await ctx.respond("目前沒有已載入的 cog", ephemeral=True)
+        return
+    
     message = "已載入的 cog 如下：\n"
     for cog in loaded_cogs:
-        message += f"* {cog}\n"
+        message += f"• {cog}\n"
     await ctx.respond(message, ephemeral=True)
 
 bot.add_application_command(cogs)
