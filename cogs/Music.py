@@ -138,6 +138,10 @@ class Music(commands.Cog):
             extracted = await asyncio.to_thread(ydl.extract_info, search, download=False)
 
             async def get_or_download(url, progress_message, current, total):
+                # 設置任務名稱
+                current_task = asyncio.current_task()
+                if current_task:
+                    current_task.set_name(f'yt_dlp_download_{url}')
                 # 顯示目前已完成的數量（current-1，因為當前正在下載的不計入）
                 progress = "▰" * (current-1) + "▱" * (total - (current-1))
                 await progress_message.edit(content=f"下載進度: {progress} ({current-1}/{total})")
@@ -257,11 +261,17 @@ class Music(commands.Cog):
         if ctx.voice_client is None:
             await ctx.respond("Bot 未在語音頻道中！", ephemeral=True)
             return
+        
+        # 找到所有正在進行的下載任務
         data = self.get_guild_data(ctx.guild)
         data["play_list"].clear()
+    
+        # 停止當前播放並斷開連接
         vc = ctx.voice_client
         vc.stop()
         await vc.disconnect()
+    
+        # 清理暫存檔案
         tmp_path = Path('./tmp')
         if tmp_path.exists():
             for file in tmp_path.iterdir():
@@ -270,6 +280,16 @@ class Music(commands.Cog):
                         file.unlink()
                     except Exception as e:
                         print(f"刪除檔案 {file} 失敗: {e}")
+    
+        # 取消所有正在進行的下載任務
+        try:
+            tasks = [task for task in asyncio.all_tasks() 
+                    if task.get_name().startswith('yt_dlp_download')]
+            for task in tasks:
+                task.cancel()
+        except Exception as e:
+            print(f"取消下載任務失敗: {e}")
+        
         await ctx.respond("音樂已停止！", ephemeral=True)
     
     @music.command(
@@ -505,11 +525,19 @@ class QueueControlView(discord.ui.View):
             embed = self.build_queue_embed_with_status("Bot 未在語音頻道中！")
             await interaction.response.edit_message(embed=embed, view=self)
             return
+
+        # 找到所有正在進行的下載任務
         data = self.cog.get_guild_data(self.ctx.guild)
+    
+        # 清空播放列表
         data["play_list"].clear()
+    
+        # 停止當前播放並斷開連接
         vc = self.ctx.voice_client
         vc.stop()
         await vc.disconnect()
+
+        # 清理暫存檔案
         tmp_path = Path('./tmp')
         if tmp_path.exists():
             for file in tmp_path.iterdir():
@@ -518,7 +546,17 @@ class QueueControlView(discord.ui.View):
                         file.unlink()
                     except Exception as e:
                         print(f"刪除檔案 {file} 失敗: {e}")
-        self.disable_all_items()  # 停止後停用所有按鈕
+    
+        # 取消所有正在進行的下載任務
+        try:
+            tasks = [task for task in asyncio.all_tasks() 
+                    if task.get_name().startswith('yt_dlp_download')]
+            for task in tasks:
+                task.cancel()
+        except Exception as e:
+            print(f"取消下載任務失敗: {e}")
+
+        self.disable_all_items()
         embed = self.build_queue_embed_with_status("音樂已停止！")
         await interaction.response.edit_message(embed=embed, view=self)
 
