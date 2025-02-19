@@ -42,16 +42,16 @@ class Music(commands.Cog):
         return self.guild_data[guild.id]
 
     def play_next(self, vc):
-        data = self.get_guild_data(vc.guild)
+        server = self.get_guild_data(vc.guild)
         if vc.is_playing():
             self.bot.loop.call_later(0.1, self.play_next, vc)
             return
 
-        if data["play_list"]:
-            next_file = data["play_list"].pop(0)
-            data["current_track"] = next_file
+        if server["play_list"]:
+            next_file = server["play_list"].pop(0)
+            server["current_track"] = next_file
             source = discord.FFmpegPCMAudio(str(next_file))
-            transformer = discord.PCMVolumeTransformer(source, volume=data["volume"])
+            transformer = discord.PCMVolumeTransformer(source, volume=server["volume"])
 
             def after_playing(error):
                 usage = self.file_usage.get(str(next_file), 0)
@@ -65,7 +65,7 @@ class Music(commands.Cog):
                         print(f"檔案刪除失敗: {e}")
                     if str(next_file) in self.file_usage:
                         del self.file_usage[str(next_file)]
-                data["current_track"] = None
+                server["current_track"] = None
                 self.bot.loop.call_later(0.5, self.play_next, vc)
     
             try:
@@ -74,7 +74,7 @@ class Music(commands.Cog):
                 print(f"播放錯誤: {e}")
                 self.bot.loop.call_later(0.5, self.play_next, vc)
         else:
-            data["current_track"] = None
+            server["current_track"] = None
 
     def get_music_names(ctx: discord.AutocompleteContext):
         query = ctx.value
@@ -108,7 +108,7 @@ class Music(commands.Cog):
             return await channel.connect()
         if voice_client.channel != channel:
             await voice_client.move_to(channel)
-        if not voice_client.is_connected():
+        if not voice_client.is_connected(): 
             return await channel.connect()
         return voice_client
 
@@ -215,7 +215,8 @@ class Music(commands.Cog):
             embed.add_field(name="即將播放的歌曲", value=playlist_str, inline=False)
         if not embed.fields:
             embed.description = "播放列表是空的！"
-        await ctx.respond(embed=embed)
+        view = QueueControlView(self, ctx)
+        await ctx.respond(embed=embed, view=view)
 
     @music.command(
         description="暫停音樂",
@@ -347,6 +348,88 @@ class Music(commands.Cog):
         data["play_list"].insert(0, data["play_list"].pop(index - 1))
         self.play_next(vc)
         await ctx.respond(f"已播放 {data['current_track'].name}！")
+
+class QueueControlView(discord.ui.View):
+    def __init__(self, cog, ctx):
+        super().__init__(timeout=60)
+        self.cog = cog
+        self.ctx = ctx
+
+    def build_queue_embed(self):
+        data = self.cog.get_guild_data(self.ctx.guild)
+        color = random.randint(0, 16777215)
+        embed = discord.Embed(title="播放列表", color=color)
+        if data["current_track"] is not None:
+            embed.add_field(name="正在播放", value=data["current_track"].name, inline=False)
+        if data["play_list"]:
+            playlist_str = ""
+            for i, file in enumerate(data["play_list"]):
+                playlist_str += f"{i+1}. {file.name}\n"
+            embed.add_field(name="即將播放的歌曲", value=playlist_str, inline=False)
+        if not embed.fields:
+            embed.description = "播放列表是空的！"
+        return embed
+
+    @discord.ui.button(label="刷新清單", style=discord.ButtonStyle.primary)
+    async def refresh_button(self, button: discord.ui.Button, interaction: discord.Interaction):
+        embed = self.build_queue_embed()
+        await interaction.response.edit_message(embed=embed, view=self)
+
+    @discord.ui.button(label="暫停播放", style=discord.ButtonStyle.secondary)
+    async def pause_button(self, button: discord.ui.Button, interaction: discord.Interaction):
+        if self.ctx.voice_client is None:
+            await interaction.response.send_message("Bot 未在語音頻道中！", ephemeral=True)
+            return
+        vc = self.ctx.voice_client
+        if vc.is_playing():
+            vc.pause()
+            await interaction.response.send_message("音樂已暫停！", ephemeral=True)
+        else:
+            await interaction.response.send_message("目前沒有正在播放的音樂！", ephemeral=True)
+
+    @discord.ui.button(label="回復播放", style=discord.ButtonStyle.secondary)
+    async def resume_button(self, button: discord.ui.Button, interaction: discord.Interaction):
+        if self.ctx.voice_client is None:
+            await interaction.response.send_message("Bot 未在語音頻道中！", ephemeral=True)
+            return
+        vc = self.ctx.voice_client
+        if vc.is_paused():
+            vc.resume()
+            await interaction.response.send_message("音樂已恢復播放！", ephemeral=True)
+        else:
+            await interaction.response.send_message("目前音樂沒有暫停！", ephemeral=True)
+
+    @discord.ui.button(label="跳過", style=discord.ButtonStyle.primary)
+    async def skip_button(self, button: discord.ui.Button, interaction: discord.Interaction):
+        if self.ctx.voice_client is None:
+            await interaction.response.send_message("Bot 未在語音頻道中！", ephemeral=True)
+            return
+        vc = self.ctx.voice_client
+        vc.stop()
+        await interaction.response.send_message("已跳過目前播放的音樂！", ephemeral=True)
+        # 可選：刷新播放清單
+        embed = self.build_queue_embed()
+        await interaction.edit_original_message(embed=embed, view=self)
+
+    @discord.ui.button(label="終止播放", style=discord.ButtonStyle.danger)
+    async def stop_button(self, button: discord.ui.Button, interaction: discord.Interaction):
+        if self.ctx.voice_client is None:
+            await interaction.response.send_message("Bot 未在語音頻道中！", ephemeral=True)
+            return
+        data = self.cog.get_guild_data(self.ctx.guild)
+        data["play_list"].clear()
+        vc = self.ctx.voice_client
+        vc.stop()
+        await vc.disconnect()
+        tmp_path = Path('./tmp')
+        if tmp_path.exists():
+            for file in tmp_path.iterdir():
+                if file.is_file():
+                    try:
+                        file.unlink()
+                    except Exception as e:
+                        print(f"刪除檔案 {file} 失敗: {e}")
+        await interaction.response.send_message("音樂已停止！", ephemeral=True)
 
 def setup(bot):
     bot.add_cog(Music(bot))
