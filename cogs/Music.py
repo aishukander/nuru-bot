@@ -356,7 +356,8 @@ class QueueControlView(discord.ui.View):
         self.button_prev = discord.ui.Button(label="上一頁", style=discord.ButtonStyle.primary, custom_id="prev_page")
         self.button_prev.callback = self.prev_page_callback
 
-        self.button_toggle = discord.ui.Button(label="暫停/回復", style=discord.ButtonStyle.primary, custom_id="toggle")
+        initial_label = "暫停" if self.ctx.voice_client and self.ctx.voice_client.is_playing() else "播放"
+        self.button_toggle = discord.ui.Button(label=initial_label, style=discord.ButtonStyle.primary, custom_id="toggle")
         self.button_toggle.callback = self.toggle_callback
 
         self.button_skip = discord.ui.Button(label="跳過", style=discord.ButtonStyle.primary, custom_id="skip")
@@ -453,11 +454,14 @@ class QueueControlView(discord.ui.View):
         if vc.is_playing():
             vc.pause()
             status = "音樂已暫停！"
+            self.button_toggle.label = "播放"  # 更新按鈕文字，讓使用者看到可點擊「播放」
         elif vc.is_paused():
             vc.resume()
             status = "音樂已恢復播放！"
+            self.button_toggle.label = "暫停"  # 更新按鈕文字，讓使用者看到可點擊「暫停」
         else:
             status = "目前沒有正在播放的音樂！"
+        self.update_page_buttons()  # 重新更新按鈕
         embed = self.build_queue_embed_with_status(status)
         await interaction.response.edit_message(embed=embed, view=self)
 
