@@ -4,8 +4,16 @@
 [要下載最新測試版請點這裡](https://github.com/aishukander/mumei-bot/archive/refs/heads/main.zip) <br>
 
 ## 初始化
-等容器創建完畢再自行添加Token.json至/opt/mumei-bot/json內  
-或是直接複製一份完整的json資料夾進/opt/mumei-bot/  
+等容器創建完畢再自行添加Token.json至/opt/mumei-bot/json內 <br>
+或是直接複製一份完整的json資料夾進/opt/mumei-bot/ <br>
+
+Token.json
+```json
+{
+    "Bot_Token":"",
+    "Google_AI_Key":""
+}
+```
 
 ## 啟動
 Docker compose <br>
