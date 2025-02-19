@@ -11,8 +11,10 @@ json_dir = Path(__file__).resolve().parents[1] / "json"
 class Music(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+
         with open(json_dir / "Setting.json", "r", encoding="utf8") as jfile:
             self.Setting = json.load(jfile)
+
         self.play_list = []
         self.file_usage = {}  # 新增，記錄每首檔案在播放清單內的次數
         self.current_track = None
