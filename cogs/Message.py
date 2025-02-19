@@ -68,7 +68,7 @@ class Message(commands.Cog):
     )
     @Guild_Admin_Examine
     async def delete_msg(self, ctx, num: int):
-        await ctx.respond(f"準備開始刪除 {num} 則訊息", ephemeral=True)
+        await ctx.respond(f"準備開始刪除 {num} 則訊息")
         await asyncio.sleep(1)
         await ctx.channel.purge(limit=num+1)
         await ctx.send(f"已刪除 {num} 則訊息")
