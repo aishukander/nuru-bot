@@ -203,19 +203,11 @@ class Music(commands.Cog):
         description="顯示播放清單",
     )
     async def queue(self, ctx):
-        data = self.get_guild_data(ctx.guild)
-        color = random.randint(0, 16777215)
-        embed = discord.Embed(title="播放列表", color=color)
-        if data["current_track"] is not None:
-            embed.add_field(name="正在播放", value=data["current_track"].name, inline=False)
-        if data["play_list"]:
-            playlist_str = ""
-            for i, file in enumerate(data["play_list"]):
-                playlist_str += f"{i+1}. {file.name}\n"
-            embed.add_field(name="即將播放的歌曲", value=playlist_str, inline=False)
-        if not embed.fields:
-            embed.description = "播放列表是空的！"
+        if ctx.voice_client is None:
+            await ctx.respond("Bot 未在語音頻道中！")
+            return
         view = QueueControlView(self, ctx)
+        embed = view.build_queue_embed()
         await ctx.respond(embed=embed, view=view)
 
     @music.command(
@@ -354,6 +346,31 @@ class QueueControlView(discord.ui.View):
         super().__init__(timeout=60)
         self.cog = cog
         self.ctx = ctx
+        self.current_page = 0
+        self.items_per_page = 10
+
+        # 建立按鈕實例並指定 callback
+        self.button_next = discord.ui.Button(label="下一頁", style=discord.ButtonStyle.primary, custom_id="next_page")
+        self.button_next.callback = self.next_page_callback
+
+        self.button_prev = discord.ui.Button(label="上一頁", style=discord.ButtonStyle.primary, custom_id="prev_page")
+        self.button_prev.callback = self.prev_page_callback
+
+        self.button_toggle = discord.ui.Button(label="暫停/回復", style=discord.ButtonStyle.primary, custom_id="toggle")
+        self.button_toggle.callback = self.toggle_callback
+
+        self.button_skip = discord.ui.Button(label="跳過", style=discord.ButtonStyle.primary, custom_id="skip")
+        self.button_skip.callback = self.skip_callback
+
+        self.button_stop = discord.ui.Button(label="終止播放", style=discord.ButtonStyle.danger, custom_id="stop")
+        self.button_stop.callback = self.stop_callback
+
+        # 初次建立時更新按鈕（依據頁數決定是否要加入上一頁或下一頁）
+        self.update_page_buttons()
+
+    def disable_all_items(self):
+        for item in self.children:
+            item.disabled = True
 
     def build_queue_embed(self):
         data = self.cog.get_guild_data(self.ctx.guild)
@@ -362,59 +379,104 @@ class QueueControlView(discord.ui.View):
         if data["current_track"] is not None:
             embed.add_field(name="正在播放", value=data["current_track"].name, inline=False)
         if data["play_list"]:
+            playlist = data["play_list"]
+            total_pages = (len(playlist) - 1) // self.items_per_page + 1
+            if self.current_page >= total_pages:
+                self.current_page = total_pages - 1
+            start_index = self.current_page * self.items_per_page
+            end_index = start_index + self.items_per_page
+            page_items = playlist[start_index:end_index]
             playlist_str = ""
-            for i, file in enumerate(data["play_list"]):
-                playlist_str += f"{i+1}. {file.name}\n"
+            for i, file in enumerate(page_items, start=start_index+1):
+                playlist_str += f"{i}. {file.name}\n"
             embed.add_field(name="即將播放的歌曲", value=playlist_str, inline=False)
+            embed.set_footer(text=f"頁數: {self.current_page + 1}/{total_pages}")
         if not embed.fields:
             embed.description = "播放列表是空的！"
         return embed
 
-    @discord.ui.button(label="刷新清單", style=discord.ButtonStyle.primary)
-    async def refresh_button(self, button: discord.ui.Button, interaction: discord.Interaction):
+    def build_queue_embed_with_status(self, status_message: str):
+        embed = self.build_queue_embed()
+        embed.add_field(name="狀態", value=status_message, inline=False)
+        return embed
+
+    def update_page_buttons(self):
+        # 先清除所有按鈕
+        self.clear_items()
+        data = self.cog.get_guild_data(self.ctx.guild)
+        total_pages = (len(data["play_list"]) - 1) // self.items_per_page + 1
+
+        # 若不是第一頁則加入上一頁
+        if self.current_page > 0:
+            self.add_item(self.button_prev)
+        # 若不是最後一頁則加入下一頁
+        if self.current_page < total_pages - 1:
+            self.add_item(self.button_next)
+        # 固定加入其他按鈕
+        self.add_item(self.button_toggle)
+        self.add_item(self.button_skip)
+        self.add_item(self.button_stop)
+
+    async def next_page_callback(self, interaction: discord.Interaction):
+        if self.ctx.voice_client is None:
+            self.disable_all_items()
+            embed = self.build_queue_embed_with_status("Bot 未在語音頻道中！")
+            await interaction.response.edit_message(embed=embed, view=self)
+            return
+        data = self.cog.get_guild_data(self.ctx.guild)
+        total_pages = (len(data["play_list"]) - 1) // self.items_per_page + 1
+        if self.current_page < total_pages - 1:
+            self.current_page += 1
+        self.update_page_buttons()
         embed = self.build_queue_embed()
         await interaction.response.edit_message(embed=embed, view=self)
 
-    @discord.ui.button(label="暫停播放", style=discord.ButtonStyle.secondary)
-    async def pause_button(self, button: discord.ui.Button, interaction: discord.Interaction):
+    async def prev_page_callback(self, interaction: discord.Interaction):
         if self.ctx.voice_client is None:
-            await interaction.response.send_message("Bot 未在語音頻道中！", ephemeral=True)
+            self.disable_all_items()
+            embed = self.build_queue_embed_with_status("Bot 未在語音頻道中！")
+            await interaction.response.edit_message(embed=embed, view=self)
+            return
+        if self.current_page > 0:
+            self.current_page -= 1
+        self.update_page_buttons()
+        embed = self.build_queue_embed()
+        await interaction.response.edit_message(embed=embed, view=self)
+
+    async def toggle_callback(self, interaction: discord.Interaction):
+        if self.ctx.voice_client is None:
+            self.disable_all_items()  # Bot 不在語音頻道，停用所有按鈕
+            embed = self.build_queue_embed_with_status("Bot 未在語音頻道中！")
+            await interaction.response.edit_message(embed=embed, view=self)
             return
         vc = self.ctx.voice_client
         if vc.is_playing():
             vc.pause()
-            await interaction.response.send_message("音樂已暫停！", ephemeral=True)
-        else:
-            await interaction.response.send_message("目前沒有正在播放的音樂！", ephemeral=True)
-
-    @discord.ui.button(label="回復播放", style=discord.ButtonStyle.secondary)
-    async def resume_button(self, button: discord.ui.Button, interaction: discord.Interaction):
-        if self.ctx.voice_client is None:
-            await interaction.response.send_message("Bot 未在語音頻道中！", ephemeral=True)
-            return
-        vc = self.ctx.voice_client
-        if vc.is_paused():
+            status = "音樂已暫停！"
+        elif vc.is_paused():
             vc.resume()
-            await interaction.response.send_message("音樂已恢復播放！", ephemeral=True)
+            status = "音樂已恢復播放！"
         else:
-            await interaction.response.send_message("目前音樂沒有暫停！", ephemeral=True)
+            status = "目前沒有正在播放的音樂！"
+        embed = self.build_queue_embed_with_status(status)
+        await interaction.response.edit_message(embed=embed, view=self)
 
-    @discord.ui.button(label="跳過", style=discord.ButtonStyle.primary)
-    async def skip_button(self, button: discord.ui.Button, interaction: discord.Interaction):
+    async def skip_callback(self, interaction: discord.Interaction):
         if self.ctx.voice_client is None:
-            await interaction.response.send_message("Bot 未在語音頻道中！", ephemeral=True)
+            self.disable_all_items()
+            embed = self.build_queue_embed_with_status("Bot 未在語音頻道中！")
+            await interaction.response.edit_message(embed=embed, view=self)
             return
         vc = self.ctx.voice_client
         vc.stop()
-        await interaction.response.send_message("已跳過目前播放的音樂！", ephemeral=True)
-        # 刷新播放清單
-        embed = self.build_queue_embed()
-        await interaction.edit_original_response(embed=embed, view=self)
+        embed = self.build_queue_embed_with_status("已跳過目前播放的音樂！")
+        await interaction.response.edit_message(embed=embed, view=self)
 
-    @discord.ui.button(label="終止播放", style=discord.ButtonStyle.danger)
-    async def stop_button(self, button: discord.ui.Button, interaction: discord.Interaction):
+    async def stop_callback(self, interaction: discord.Interaction):
         if self.ctx.voice_client is None:
-            await interaction.response.send_message("Bot 未在語音頻道中！", ephemeral=True)
+            self.disable_all_items()
+            embed = self.build_queue_embed_with_status("Bot 未在語音頻道中！")
+            await interaction.response.edit_message(embed=embed, view=self)
             return
         data = self.cog.get_guild_data(self.ctx.guild)
         data["play_list"].clear()
@@ -429,7 +491,10 @@ class QueueControlView(discord.ui.View):
                         file.unlink()
                     except Exception as e:
                         print(f"刪除檔案 {file} 失敗: {e}")
-        await interaction.response.send_message("音樂已停止！", ephemeral=True)
+        self.disable_all_items()  # 停止後停用所有按鈕
+        embed = self.build_queue_embed_with_status("音樂已停止！")
+        await interaction.response.edit_message(embed=embed, view=self)
+        await interaction.followup.send("音樂已停止！", ephemeral=True)
 
 def setup(bot):
     bot.add_cog(Music(bot))
