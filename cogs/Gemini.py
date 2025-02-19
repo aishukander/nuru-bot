@@ -90,16 +90,7 @@ class Gemini(commands.Cog):
                                     await self.split_and_send_messages(message, response, 1700)
                                     return
                                 
-                else:
-            
-                    if "RESET" in cleaned_text: 
-                
-                        if message.author.id in self.message_history:
-                            del self.message_history[message.author.id]
-                        
-                        await message.channel.send("🤖 歷史記錄重置")  
-                        return
-                        
+                else:   
                     await message.add_reaction('💬')
                 
                     if self.MAX_HISTORY == 0:
@@ -161,6 +152,18 @@ class Gemini(commands.Cog):
     def clean_discord_message(self, input_string):
         pattern = re.compile(r"<[^>]+>")
         return pattern.sub("", input_string)
+
+    @commands.slash_command(
+        description="重置你的歷史訊息記錄",
+        integration_types={
+            discord.IntegrationType.guild_install,
+            discord.IntegrationType.user_install
+        }
+    )
+    async def gemini_reset(self, ctx):
+        if ctx.author.id in self.message_history:
+            del self.message_history[ctx.author.id]
+        await ctx.respond("🤖 歷史記錄重置")
     
     @commands.slash_command(
         description="管理Gemini在私訊時是否直接回覆"
@@ -171,7 +174,7 @@ class Gemini(commands.Cog):
         description="on/off"
     )
     @Guild_Admin_Examine
-    async def gemini_private_management(self, ctx, action: str):
+    async def gemini_private(self, ctx, action: str):
         if action.lower() == "on":
             self.DMC_on = True
             await ctx.respond("已啟用Gemini私訊時的直接觸發")
