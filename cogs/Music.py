@@ -11,6 +11,8 @@ json_dir = Path(__file__).resolve().parents[1] / "json"
 class Music(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        self.progress_bars = ["░", "█"]
+        self.bar_length = 20
 
         with open(json_dir / "Setting.json", "r", encoding="utf8") as jfile:
             self.Setting = json.load(jfile)
@@ -142,20 +144,32 @@ class Music(commands.Cog):
                 current_task = asyncio.current_task()
                 if current_task:
                     current_task.set_name(f'yt_dlp_download_{url}')
-                # 顯示目前已完成的數量（current-1，因為當前正在下載的不計入）
-                progress = "▰" * (current-1) + "▱" * (total - (current-1))
-                await progress_message.edit(content=f"下載進度: {progress} ({current-1}/{total})")
+
+                # 計算完成的比例
+                progress_ratio = (current - 1) / total
+                # 計算已完成和未完成的區塊數
+                filled_length = int(self.bar_length * progress_ratio)
+                remaining_length = self.bar_length - filled_length
     
+                # 建立進度條
+                progress = (self.progress_bars[1] * filled_length + 
+                           self.progress_bars[0] * remaining_length)
+                await progress_message.edit(content=f"下載進度: {progress} ({current-1}/{total})")
+
                 info = await asyncio.to_thread(ydl.extract_info, url, download=False)
                 file_path = Path(ydl.prepare_filename(info)).with_suffix('.mp3')
                 if not file_path.exists():
                     info = await asyncio.to_thread(ydl.extract_info, url, download=True)
                     file_path = Path(ydl.prepare_filename(info)).with_suffix('.mp3')
-    
-                # 下載完成後更新進度
-                progress = "▰" * current + "▱" * (total - current)
+
+                # 下載完成後更新最終進度
+                progress_ratio = current / total
+                filled_length = int(self.bar_length * progress_ratio)
+                remaining_length = self.bar_length - filled_length
+                progress = (self.progress_bars[1] * filled_length + 
+                           self.progress_bars[0] * remaining_length)
                 await progress_message.edit(content=f"下載進度: {progress} ({current}/{total})")
-    
+
                 return file_path
 
             data = self.get_guild_data(ctx.guild)
@@ -497,11 +511,11 @@ class QueueControlView(discord.ui.View):
         if vc.is_playing():
             vc.pause()
             status = "音樂已暫停！"
-            self.button_toggle.label = "播放"  # 更新按鈕文字，讓使用者看到可點擊「播放」
+            self.button_toggle.label = "播放"
         elif vc.is_paused():
             vc.resume()
             status = "音樂已恢復播放！"
-            self.button_toggle.label = "暫停"  # 更新按鈕文字，讓使用者看到可點擊「暫停」
+            self.button_toggle.label = "暫停"
         else:
             status = "目前沒有正在播放的音樂！"
         self.update_page_buttons()  # 重新更新按鈕
