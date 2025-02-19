@@ -137,46 +137,58 @@ class Music(commands.Cog):
         with yt_dlp.YoutubeDL(self.ydl_opts) as ydl:
             extracted = await asyncio.to_thread(ydl.extract_info, search, download=False)
 
-            async def get_or_download(url):
+            async def get_or_download(url, progress_message, current, total):
+                # 顯示目前已完成的數量（current-1，因為當前正在下載的不計入）
+                progress = "▰" * (current-1) + "▱" * (total - (current-1))
+                await progress_message.edit(content=f"下載進度: {progress} ({current-1}/{total})")
+    
                 info = await asyncio.to_thread(ydl.extract_info, url, download=False)
                 file_path = Path(ydl.prepare_filename(info)).with_suffix('.mp3')
                 if not file_path.exists():
                     info = await asyncio.to_thread(ydl.extract_info, url, download=True)
                     file_path = Path(ydl.prepare_filename(info)).with_suffix('.mp3')
+    
+                # 下載完成後更新進度
+                progress = "▰" * current + "▱" * (total - current)
+                await progress_message.edit(content=f"下載進度: {progress} ({current}/{total})")
+    
                 return file_path
 
             data = self.get_guild_data(ctx.guild)
+            progress_message = await ctx.followup.send("準備下載中...", ephemeral=True)
+
             if 'entries' in extracted:
                 entries = extracted['entries']
-                if len(entries) == 1:
-                    file_path = await get_or_download(entries[0]['webpage_url'])
+                total_songs = len(entries)
+
+                if total_songs == 1:
+                    file_path = await get_or_download(entries[0]['webpage_url'], progress_message, 1, 1)
                     data["play_list"].append(file_path)
                     self.file_usage[str(file_path)] = self.file_usage.get(str(file_path), 0) + 1
                     playlist_info = f"歌曲 {file_path.stem}"
                 else:
-                    first_file = await get_or_download(entries[0]['webpage_url'])
-                    data["play_list"].append(first_file)
-                    self.file_usage[str(first_file)] = self.file_usage.get(str(first_file), 0) + 1
-
-                    vc = await self.ensure_voice_client(channel, ctx.voice_client)
-                    if not vc.is_playing():
-                        self.play_next(vc)
-
-                    for entry in entries[1:]:
-                        song_file = await get_or_download(entry['webpage_url'])
-                        data["play_list"].append(song_file)
-                        self.file_usage[str(song_file)] = self.file_usage.get(str(song_file), 0) + 1
-                    playlist_info = f"{len(entries)} 首歌曲"
+                    for i, entry in enumerate(entries, 1):
+                        file_path = await get_or_download(entry['webpage_url'], progress_message, i, total_songs)
+                        data["play_list"].append(file_path)
+                        self.file_usage[str(file_path)] = self.file_usage.get(str(file_path), 0) + 1
+                    
+                        if i == 1:  # 第一首歌開始播放
+                            vc = await self.ensure_voice_client(channel, ctx.voice_client)
+                            if not vc.is_playing():
+                                self.play_next(vc)
+                
+                    playlist_info = f"{total_songs} 首歌曲"
             else:
-                file_path = await get_or_download(search)   
+                file_path = await get_or_download(search, progress_message, 1, 1)
                 data["play_list"].append(file_path)
                 self.file_usage[str(file_path)] = self.file_usage.get(str(file_path), 0) + 1
                 playlist_info = f"歌曲 {file_path.stem}"
 
-        vc = await self.ensure_voice_client(channel, ctx.voice_client)
-        if not vc.is_playing():
-            self.play_next(vc)
-        await ctx.respond(f"已加入 {playlist_info} 到播放列表！", ephemeral=True)
+            vc = await self.ensure_voice_client(channel, ctx.voice_client)
+            if not vc.is_playing():
+                self.play_next(vc)
+            
+            await progress_message.edit(content=f"已加入 {playlist_info} 到播放列表！")
 
     @music.command(
         description="調整播放音量 (0-150%)"
