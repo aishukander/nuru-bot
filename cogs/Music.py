@@ -125,7 +125,7 @@ class Music(commands.Cog):
     )
     async def play(self, ctx, search: str):
         if ctx.author.voice is None:
-            await ctx.respond("你必須先加入一個語音頻道！")
+            await ctx.respond("你必須先加入一個語音頻道！", ephemeral=True)
             return
         channel = ctx.author.voice.channel
         await ctx.defer()
@@ -176,7 +176,7 @@ class Music(commands.Cog):
         vc = await self.ensure_voice_client(channel, ctx.voice_client)
         if not vc.is_playing():
             self.play_next(vc)
-        await ctx.respond(f"已加入 {playlist_info} 到播放列表！")
+        await ctx.respond(f"已加入 {playlist_info} 到播放列表！", ephemeral=True)
 
     @music.command(
         description="調整播放音量 (0-150%)"
@@ -188,62 +188,62 @@ class Music(commands.Cog):
     )
     async def volume(self, ctx, volume: int):
         if ctx.voice_client is None:
-            await ctx.respond("Bot 未在語音頻道中！")
+            await ctx.respond("Bot 未在語音頻道中！", ephemeral=True)
             return
         if volume < 0 or volume > 150:
-            await ctx.respond("請輸入 0 到 150 之間的音量百分比！")
+            await ctx.respond("請輸入 0 到 150 之間的音量百分比！", ephemeral=True)
             return
         data = self.get_guild_data(ctx.guild)
         data["volume"] = volume / 100.0
         if ctx.voice_client.source and isinstance(ctx.voice_client.source, discord.PCMVolumeTransformer):
             ctx.voice_client.source.volume = data["volume"]
-        await ctx.respond(f"已將音量調整為 {volume}%！")
+        await ctx.respond(f"已將音量調整為 {volume}%！", ephemeral=True)
 
     @music.command(
         description="顯示播放清單",
     )
     async def queue(self, ctx):
         if ctx.voice_client is None:
-            await ctx.respond("Bot 未在語音頻道中！")
+            await ctx.respond("Bot 未在語音頻道中！", ephemeral=True)
             return
         view = QueueControlView(self, ctx)
         embed = view.build_queue_embed()
-        await ctx.respond(embed=embed, view=view)
+        await ctx.respond(embed=embed, view=view, ephemeral=True)
 
     @music.command(
         description="暫停音樂",
     )
     async def pause(self, ctx):
         if ctx.voice_client is None:
-            await ctx.respond("Bot 未在語音頻道中！")
+            await ctx.respond("Bot 未在語音頻道中！", ephemeral=True)
             return
         vc = ctx.voice_client
         if vc.is_playing():
             vc.pause()
-            await ctx.respond("音樂已暫停！")
+            await ctx.respond("音樂已暫停！", ephemeral=True)
         else:
-            await ctx.respond("目前沒有正在播放的音樂！")
+            await ctx.respond("目前沒有正在播放的音樂！", ephemeral=True)
 
     @music.command(
         description="恢復播放音樂",
     )
     async def resume(self, ctx):
         if ctx.voice_client is None:
-            await ctx.respond("Bot 未在語音頻道中！")
+            await ctx.respond("Bot 未在語音頻道中！", ephemeral=True)
             return
         vc = ctx.voice_client
         if vc.is_paused():
             vc.resume()
-            await ctx.respond("音樂已恢復播放！")
+            await ctx.respond("音樂已恢復播放！", ephemeral=True)
         else:
-            await ctx.respond("目前音樂沒有暫停！")
+            await ctx.respond("目前音樂沒有暫停！", ephemeral=True)
 
     @music.command(
         description="停止播放音樂",
     )
     async def stop(self, ctx):
         if ctx.voice_client is None:
-            await ctx.respond("Bot 未在語音頻道中！")
+            await ctx.respond("Bot 未在語音頻道中！", ephemeral=True)
             return
         data = self.get_guild_data(ctx.guild)
         data["play_list"].clear()
@@ -258,18 +258,18 @@ class Music(commands.Cog):
                         file.unlink()
                     except Exception as e:
                         print(f"刪除檔案 {file} 失敗: {e}")
-        await ctx.respond("音樂已停止！")
+        await ctx.respond("音樂已停止！", ephemeral=True)
     
     @music.command(
         description="跳過目前播放的音樂",
     )
     async def skip(self, ctx):
         if ctx.voice_client is None:
-            await ctx.respond("Bot 未在語音頻道中！")
+            await ctx.respond("Bot 未在語音頻道中！", ephemeral=True)
             return
         vc = ctx.voice_client
         vc.stop()
-        await ctx.respond("已跳過目前播放的音樂！")
+        await ctx.respond("已跳過目前播放的音樂！", ephemeral=True)
 
     @music.command(
         description="移除指定的歌曲",
@@ -281,11 +281,11 @@ class Music(commands.Cog):
     )
     async def remove(self, ctx, index: int):
         if ctx.voice_client is None:
-            await ctx.respond("Bot 未在語音頻道中！")
+            await ctx.respond("Bot 未在語音頻道中！", ephemeral=True)
             return
         data = self.get_guild_data(ctx.guild)
         if index < 1 or index > len(data["play_list"]):
-            await ctx.respond("歌曲編號不正確！")
+            await ctx.respond("歌曲編號不正確！", ephemeral=True)
             return
         removed_file = data["play_list"].pop(index-1)
         usage = self.file_usage.get(str(removed_file), 0)
@@ -299,18 +299,18 @@ class Music(commands.Cog):
                 print(f"無法刪除 {removed_file.name}: {e}")
             if str(removed_file) in self.file_usage:
                 del self.file_usage[str(removed_file)]
-        await ctx.respond(f"已移除 {removed_file.name}！")
+        await ctx.respond(f"已移除 {removed_file.name}！", ephemeral=True)
 
     @music.command(
         description="隨機播放",
     )
     async def random(self, ctx):
         if ctx.voice_client is None:
-            await ctx.respond("Bot 未在語音頻道中！")
+            await ctx.respond("Bot 未在語音頻道中！", ephemeral=True)
             return
         data = self.get_guild_data(ctx.guild)
         random.shuffle(data["play_list"])
-        await ctx.respond("已隨機播放！")
+        await ctx.respond("已隨機播放！", ephemeral=True)
 
     @music.command(
         description="播放指定的歌曲",
@@ -322,14 +322,14 @@ class Music(commands.Cog):
     )
     async def play_index(self, ctx, index: int):
         if ctx.author.voice is None:
-            await ctx.respond("你必須先加入一個語音頻道！")
+            await ctx.respond("你必須先加入一個語音頻道！", ephemeral=True)
             return
         channel = ctx.author.voice.channel
         data = self.get_guild_data(ctx.guild)
         vc = await self.ensure_voice_client(channel, ctx.voice_client)
     
         if index < 1 or index > len(data["play_list"]):
-            await ctx.respond("歌曲編號不正確！")
+            await ctx.respond("歌曲編號不正確！", ephemeral=True)
             return
 
         if vc.is_playing():
@@ -339,7 +339,7 @@ class Music(commands.Cog):
     
         data["play_list"].insert(0, data["play_list"].pop(index - 1))
         self.play_next(vc)
-        await ctx.respond(f"已播放 {data['current_track'].name}！")
+        await ctx.respond(f"已播放 {data['current_track'].name}！", ephemeral=True)
 
 class QueueControlView(discord.ui.View):
     def __init__(self, cog, ctx):
