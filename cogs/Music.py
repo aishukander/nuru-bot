@@ -11,11 +11,10 @@ json_dir = Path(__file__).resolve().parents[1] / "json"
 class Music(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-
         with open(json_dir / "Setting.json", "r", encoding="utf8") as jfile:
             self.Setting = json.load(jfile)
-
         self.play_list = []
+        self.file_usage = {}  # 新增，記錄每首檔案在播放清單內的次數
         self.current_track = None
         self.volume = float(self.Setting["Volume"])
         self.ydl_opts = {
@@ -32,7 +31,6 @@ class Music(commands.Cog):
         }
 
     def play_next(self, vc):
-        # 若還在播放中則延遲後再嘗試，避免重複播放
         if vc.is_playing():
             self.bot.loop.call_later(0.1, self.play_next, vc)
             return
@@ -44,13 +42,19 @@ class Music(commands.Cog):
             transformer = discord.PCMVolumeTransformer(source, volume=self.volume)
 
             def after_playing(error):
-                try:
-                    if next_file.exists():
-                        next_file.unlink()  # 刪除 tmp 資料夾中的檔案
-                except Exception as e:
-                    print(f"檔案刪除失敗: {e}")
+                # 依照 file_usage 來決定是否刪除檔案
+                usage = self.file_usage.get(str(next_file), 0)
+                if usage > 1:
+                    self.file_usage[str(next_file)] = usage - 1
+                else:
+                    try:
+                        if next_file.exists():
+                            next_file.unlink()  # 當次數歸零時刪除檔案
+                    except Exception as e:
+                        print(f"檔案刪除失敗: {e}")
+                    if str(next_file) in self.file_usage:
+                        del self.file_usage[str(next_file)]
                 self.current_track = None
-                # 延遲一下再嘗試下一首
                 self.bot.loop.call_later(0.5, self.play_next, vc)
 
             try:
@@ -139,14 +143,14 @@ class Music(commands.Cog):
             if 'entries' in extracted:
                 entries = extracted['entries']
                 if len(entries) == 1:
-                    # 單首歌曲，直接下載並加入播放列表
                     file_path = await get_or_download(entries[0]['webpage_url'])
                     self.play_list.append(file_path)
+                    self.file_usage[str(file_path)] = self.file_usage.get(str(file_path), 0) + 1
                     playlist_info = f"歌曲 {file_path.stem}"
                 else:
-                    # 歌單情況：先下載第一首立即播放，其餘加入對列
                     first_file = await get_or_download(entries[0]['webpage_url'])
                     self.play_list.append(first_file)
+                    self.file_usage[str(first_file)] = self.file_usage.get(str(first_file), 0) + 1
 
                     vc = await self.ensure_voice_client(channel, ctx.voice_client)
                     if not vc.is_playing():
@@ -155,11 +159,12 @@ class Music(commands.Cog):
                     for entry in entries[1:]:
                         song_file = await get_or_download(entry['webpage_url'])
                         self.play_list.append(song_file)
+                        self.file_usage[str(song_file)] = self.file_usage.get(str(song_file), 0) + 1
                     playlist_info = f"{len(entries)} 首歌曲"
             else:
-                # 非歌單情況
                 file_path = await get_or_download(search)   
                 self.play_list.append(file_path)
+                self.file_usage[str(file_path)] = self.file_usage.get(str(file_path), 0) + 1
                 playlist_info = f"歌曲 {file_path.stem}"
 
         # 連線到使用者所在的語音頻道
@@ -287,12 +292,18 @@ class Music(commands.Cog):
             await ctx.respond("歌曲編號不正確！")
             return
         removed_file = self.play_list.pop(index-1)
-
-        if removed_file.exists():
+        # 更新 file_usage: 若存在則減少或直接移除
+        usage = self.file_usage.get(str(removed_file), 0)
+        if usage > 1:
+            self.file_usage[str(removed_file)] = usage - 1
+        else:
             try:
-                removed_file.unlink()
+                if removed_file.exists():
+                    removed_file.unlink()
             except Exception as e:
                 print(f"無法刪除 {removed_file.name}: {e}")
+            if str(removed_file) in self.file_usage:
+                del self.file_usage[str(removed_file)]
         await ctx.respond(f"已移除 {removed_file.name}！")
 
     @music.command(
