@@ -407,9 +407,9 @@ class QueueControlView(discord.ui.View):
         vc = self.ctx.voice_client
         vc.stop()
         await interaction.response.send_message("已跳過目前播放的音樂！", ephemeral=True)
-        # 可選：刷新播放清單
+        # 刷新播放清單
         embed = self.build_queue_embed()
-        await interaction.edit_original_message(embed=embed, view=self)
+        await interaction.edit_original_response(embed=embed, view=self)
 
     @discord.ui.button(label="終止播放", style=discord.ButtonStyle.danger)
     async def stop_button(self, button: discord.ui.Button, interaction: discord.Interaction):
