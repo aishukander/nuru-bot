@@ -1,4 +1,4 @@
-/json/Token.json
-/cogs/__pycache__/*.pyc
-/modules/__pycache__/*.pyc
-/.venv
+json/Token.json
+cogs/__pycache__/*.pyc
+modules/__pycache__/*.pyc
+.venv
