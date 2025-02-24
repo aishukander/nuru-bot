@@ -1,5 +1,6 @@
 services:
   mumei-bot:
+    build: .
     container_name: mumei-bot
     image: aishukander/mumei-bot
     restart: unless-stopped
