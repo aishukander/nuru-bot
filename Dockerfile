@@ -19,9 +19,10 @@ RUN apt-get update && \
     apt-get install -y --no-install-recommends wget xz-utils jq && \
     wget https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz && \
     tar xf ffmpeg-release-amd64-static.tar.xz && \
-    rm -f ffmpeg-release-amd64-static.tar.xz && \
     mv ffmpeg-*-amd64-static/ffmpeg /usr/local/bin/ && \
-    mv ffmpeg-*-amd64-static/ffprobe /usr/local/bin/
+    mv ffmpeg-*-amd64-static/ffprobe /usr/local/bin/ && \
+    rm -f ffmpeg-release-amd64-static.tar.xz && \
+    rm -rf ffmpeg-*-amd64-static
 
 RUN mkdir -p /tmp/json && \
     find /bot/json -type f ! -name 'Token.json' -exec cp {} /tmp/json/ \; && \
