@@ -19,13 +19,14 @@ RUN apt-get update && \
     apt-get install -y --no-install-recommends wget xz-utils jq && \
     wget https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz && \
     tar xf ffmpeg-release-amd64-static.tar.xz && \
+    rm -f ffmpeg-release-amd64-static.tar.xz && \
     mv ffmpeg-*-amd64-static/ffmpeg /usr/local/bin/ && \
     mv ffmpeg-*-amd64-static/ffprobe /usr/local/bin/
 
-RUN mkdir -p /tmp/data && \
-    find /bot/json -type f ! -name 'Token.json' -exec cp {} /tmp/data/ \; && \
-    jq 'with_entries(.value = "")' /bot/json/Token.json > /tmp/data/Token.json && \
-    rm -r /bot/json
+RUN mkdir -p /tmp/json && \
+    find /bot/json -type f ! -name 'Token.json' -exec cp {} /tmp/json/ \; && \
+    jq 'with_entries(.value = "")' /bot/json/Token.json > /tmp/json/Token.json && \
+    rm -rf /bot/json/*
 
 ######## 第二階段：運行環境 ########
 FROM python:${Python_Version}
@@ -42,7 +43,7 @@ WORKDIR /bot
 # 複製編譯完成的FFmpeg二進位檔
 COPY --from=builder /usr/local/bin/ffmpeg /usr/local/bin/ffmpeg
 COPY --from=builder /usr/local/bin/ffprobe /usr/local/bin/ffprobe
-COPY --from=builder /tmp/data/ /tmp/data/
+COPY --from=builder /tmp/json/ /tmp/json/
 COPY --from=builder /bot/ /bot/
 
 # 安裝opus庫

@@ -1,8 +1,8 @@
 #!/bin/bash
 
-if [ -d '/tmp/data' ] && [ -d /bot/json/ ] && [ ! "$(ls -A /bot/json/)" ]; then
-    cp -r /tmp/data/* /bot/json/
+if [ -d '/tmp/json' ] && [ -d /bot/json/ ] && [ ! "$(ls -A /bot/json/)" ]; then
+    cp -r /tmp/json/* /bot/json/
 fi
 
-rm -rf /tmp/data
+rm -rf /tmp/json
 exec python /bot/main.py
