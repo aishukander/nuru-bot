@@ -39,7 +39,7 @@ ENV \
 
 WORKDIR /bot
 
-# 複製編譯完成的FFmpeg二進位檔
+# 複製所需檔案
 COPY --from=builder /usr/local/bin/ffmpeg /usr/local/bin/ffmpeg
 COPY --from=builder /usr/local/bin/ffprobe /usr/local/bin/ffprobe
 COPY --from=builder /tmp/json/ /tmp/json/
