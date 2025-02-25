@@ -1,6 +1,5 @@
 # 定義Python版本
 ARG Python_Version=3.13.1-slim
-ARG Mumei_Version=10.7.0
 
 ######## 第一階段：編譯FFmpeg ########
 FROM python:${Python_Version} AS builder
@@ -31,7 +30,6 @@ RUN mkdir -p /tmp/json && \
 
 ######## 第二階段：運行環境 ########
 FROM python:${Python_Version}
-LABEL version="${Mumei_Version}"
 LABEL org.opencontainers.image.authors="aishukander <hank960924@gmail.com>"
 
 ENV \
