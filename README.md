@@ -4,16 +4,7 @@
 
 ## 初始化
 (音樂功能依賴FFmpeg) <br>
-等容器創建完畢再自行添加Token.json至/opt/mumei-bot/json內 <br>
-或是直接複製一份完整的json資料夾進/opt/mumei-bot/ <br>
-
-Token.json
-```json
-{
-    "Bot_Token":"",
-    "Google_AI_Key":""
-}
-```
+容器啟動完成後將Token.json的內容填上即可（預設位置在/opt/mumei-bot/json/）。 <br>
 
 ## 啟動
 Docker compose <br>
