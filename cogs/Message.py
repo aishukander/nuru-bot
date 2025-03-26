@@ -89,7 +89,7 @@ class Message(commands.Cog):
         await ctx.respond("完成", ephemeral=True)
 
     @commands.slash_command(
-        description="讓mumei告訴你該不該買",
+        description="讓nuru告訴你該不該買",
         integration_types={
             discord.IntegrationType.guild_install,
             discord.IntegrationType.user_install
