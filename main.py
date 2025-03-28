@@ -86,7 +86,7 @@ async def on_ready():
     print(border)
 
     #bot的狀態顯示
-    await bot.change_presence(activity = discord.Activity(type=discord.ActivityType.watching, name="@mumei的訊息"))
+    await bot.change_presence(activity = discord.Activity(type=discord.ActivityType.watching, name="@nuru的訊息"))
 
 #用於加載、卸載、重讀不同cosg檔
 """======================================================================================="""
