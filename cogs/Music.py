@@ -25,12 +25,13 @@ class Music(commands.Cog):
         self.ydl_opts = {
             'outtmpl': './tmp/%(title)s.%(ext)s',
             'format': 'bestaudio/best',
-            'merge_output_format': 'mp3',
+            'merge_output_format': 'opus',
             'quiet': True,
             'no_warnings': True,
+            'concurrent_fragment_downloads': 3,
             'postprocessors': [{
                 'key': 'FFmpegExtractAudio',
-                'preferredcodec': 'mp3',
+                'preferredcodec': 'opus',
                 'preferredquality': '192',
             }],
         }
@@ -182,10 +183,10 @@ class Music(commands.Cog):
                 await progress_message.edit(content=f"下載進度: {progress} ({current-1}/{total})")
 
                 info = await asyncio.to_thread(ydl.extract_info, url, download=False)
-                file_path = Path(ydl.prepare_filename(info)).with_suffix('.mp3')
+                file_path = Path(ydl.prepare_filename(info)).with_suffix('.opus')
                 if not file_path.exists():
                     info = await asyncio.to_thread(ydl.extract_info, url, download=True)
-                    file_path = Path(ydl.prepare_filename(info)).with_suffix('.mp3')
+                    file_path = Path(ydl.prepare_filename(info)).with_suffix('.opus')
 
                 # 下載完成後更新最終進度
                 progress_ratio = current / total
@@ -463,7 +464,7 @@ class QueueControlView(discord.ui.View):
         color = random.randint(0, 16777215)
         embed = discord.Embed(title="播放列表", color=color)
         if data["current_track"] is not None:
-            embed.add_field(name="正在播放", value=data["current_track"].name, inline=False)
+            embed.add_field(name="正在播放", value=data["current_track"].stem, inline=False)
         if data["play_list"]:
             playlist = data["play_list"]
             total_pages = (len(playlist) - 1) // self.items_per_page + 1
@@ -474,7 +475,7 @@ class QueueControlView(discord.ui.View):
             page_items = playlist[start_index:end_index]
             playlist_str = ""
             for i, file in enumerate(page_items, start=start_index+1):
-                playlist_str += f"{i}. {file.name}\n"
+                playlist_str += f"{i}. {file.stem}\n"
             embed.add_field(name="即將播放的歌曲", value=playlist_str, inline=False)
             embed.set_footer(text=f"頁數: {self.current_page + 1}/{total_pages}")
         if not embed.fields:
