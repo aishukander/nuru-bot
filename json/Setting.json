@@ -5,6 +5,7 @@
     "Gemini_Image_Name": "gemini-2.0-flash",
     "Volume": "0.5",
     "Inactive_Timeout":"300",
+    "Music_Concurrent_Downloads":"3",
     "Progress_Bars":["░", "█"],
     "Gemini_Prompt":[
         "以後對話請依照以下規則:",

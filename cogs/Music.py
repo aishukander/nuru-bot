@@ -28,7 +28,7 @@ class Music(commands.Cog):
             'merge_output_format': 'opus',
             'quiet': True,
             'no_warnings': True,
-            'concurrent_fragment_downloads': 3,
+            'concurrent_fragment_downloads': int(self.Setting["Music_Concurrent_Downloads"]),
             'postprocessors': [{
                 'key': 'FFmpegExtractAudio',
                 'preferredcodec': 'opus',
