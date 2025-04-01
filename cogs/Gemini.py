@@ -66,7 +66,10 @@ class Gemini(commands.Cog):
         if message.author == self.bot.user:
             return
 
-        if self.bot.user.mentioned_in(message) or (self.DMC_on and isinstance(message.channel, discord.DMChannel)):
+        if (
+            (self.bot.user.mentioned_in(message) and not message.mention_everyone)
+            or (self.DMC_on and isinstance(message.channel, discord.DMChannel))
+        ):
        
             cleaned_text = self.clean_discord_message(message.content)
        
@@ -171,7 +174,8 @@ class Gemini(commands.Cog):
     @discord.option(
         "action", 
         type=discord.SlashCommandOptionType.string, 
-        description="on/off"
+        description="on/off",
+        choices=["on", "off"]
     )
     @Guild_Admin_Examine
     async def gemini_private(self, ctx, action: str):
