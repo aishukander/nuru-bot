@@ -24,16 +24,19 @@ class Music(commands.Cog):
         
         self.ydl_opts = {
             'outtmpl': './tmp/%(title)s.%(ext)s',
+            'format': 'bestaudio[acodec=opus]/bestaudio/best',
             'format': 'bestaudio/best',
             'merge_output_format': 'opus',
             'quiet': True,
             'no_warnings': True,
+            'audio_quality': 0,
             'concurrent_fragment_downloads': int(self.Setting["Music_Concurrent_Downloads"]),
             'postprocessors': [{
                 'key': 'FFmpegExtractAudio',
                 'preferredcodec': 'opus',
-                'preferredquality': '192',
+                'preferredquality': '320',
             }],
+            'ffmpeg_args': ['-af', 'loudnorm=I=-16:TP=-1.5:LRA=11'],
         }
 
     def get_guild_data(self, guild: discord.Guild):
