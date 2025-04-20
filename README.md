@@ -3,7 +3,7 @@
 [要下載最新測試版請點這裡](https://github.com/aishukander/nuru-bot/archive/refs/heads/main.zip) <br>
 
 ## 初始化
-(音樂功能依賴FFmpeg) <br>
+音樂功能依賴FFmpeg，容器外使用時系統必需安裝FFmpeg。 <br>
 容器啟動完成後將Token.json的內容填上即可（預設位置在/opt/nuru-bot/json/）。 <br>
 
 ## 啟動
