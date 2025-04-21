@@ -55,8 +55,7 @@ class Channel(commands.Cog):
             origin_channels = {}
 
         query = ctx.value.lower()
-        guild = ctx.interaction.guild
-        guild_id = str(guild.id)
+        guild_id = str(ctx.interaction.guild.id)
         choices = []
         if guild_id in origin_channels:
             for cid in origin_channels[guild_id]:
