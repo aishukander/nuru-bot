@@ -31,6 +31,7 @@ def Guild_Admin_Examine(func):
             await ctx.respond("你不在伺服器內")
     return wrapper
 
+@staticmethod
 def Cogs_NotLoaded(ctx: discord.AutocompleteContext):
     query = ctx.value.lower()
     cogs_path = Path('./cogs')
@@ -49,7 +50,8 @@ def Cogs_NotLoaded(ctx: discord.AutocompleteContext):
         for pic in Only_Exists_NotLoaded
         if pic.lower().startswith(query)
     ]
-    
+
+@staticmethod
 def Cogs_Loaded(ctx: discord.AutocompleteContext):
     query = ctx.value.lower()
     Cogslist = []

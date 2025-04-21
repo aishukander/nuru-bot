@@ -29,6 +29,7 @@ class Message(commands.Cog):
                     await ctx.respond("你不在伺服器內")
             return wrapper
 
+    @staticmethod
     def picture_autocomplete(ctx: discord.AutocompleteContext):
         query = ctx.value.lower()
         options = [

@@ -107,6 +107,7 @@ class Music(commands.Cog):
                 self.check_inactivity(vc.guild.id)
             )
 
+    @staticmethod
     def get_music_names(ctx: discord.AutocompleteContext):
         query = ctx.value
         if not query or query.strip() == "":
