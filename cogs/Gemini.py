@@ -9,18 +9,6 @@ from functools import wraps
 
 json_dir = Path(__file__).resolve().parents[1] / "json"
 
-def guild_admin_examine(func):
-    @wraps(func)
-    async def wrapper(self, ctx, *args, **kwargs):
-        try:
-            if ctx.author.guild_permissions.administrator:
-                return await func(self, ctx, *args, **kwargs)
-            else:
-                await ctx.respond("你沒有管理者權限用來執行這個指令", ephemeral=True)
-        except AttributeError:
-            await ctx.respond("你不在伺服器內")
-    return wrapper
-
 class Gemini(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -65,6 +53,19 @@ class Gemini(commands.Cog):
             safety_settings=self.safety_settings
         )
         self.prompt_parts = "\n".join(self.setting["Gemini_Prompt"])
+
+    @staticmethod
+    def guild_admin_examine(func):
+        @wraps(func)
+        async def wrapper(self, ctx, *args, **kwargs):
+            try:
+                if ctx.author.guild_permissions.administrator:
+                    return await func(self, ctx, *args, **kwargs)
+                else:
+                    await ctx.respond("你沒有管理者權限用來執行這個指令", ephemeral=True)
+            except AttributeError:
+                await ctx.respond("你不在伺服器內")
+        return wrapper
 
     @commands.Cog.listener()
     async def on_message(self, message):

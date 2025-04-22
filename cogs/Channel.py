@@ -7,22 +7,23 @@ from functools import wraps
 
 json_dir = Path(__file__).resolve().parents[1] / "json"
 
-def guild_admin_examine(func):
-    @wraps(func)
-    async def wrapper(self, ctx, *args, **kwargs):
-        try:
-            if ctx.author.guild_permissions.administrator:
-                return await func(self, ctx, *args, **kwargs)
-            await ctx.respond("你沒有管理者權限用來執行這個指令", ephemeral=True)
-        except AttributeError:
-            await ctx.respond("你不在伺服器內", ephemeral=True)
-    return wrapper
-
 class Channel(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.voice_channel_set = set()
         self.origin_channels = self.load_origin_channels()
+
+    @staticmethod
+    def guild_admin_examine(func):
+        @wraps(func)
+        async def wrapper(self, ctx, *args, **kwargs):
+            try:
+                if ctx.author.guild_permissions.administrator:
+                    return await func(self, ctx, *args, **kwargs)
+                await ctx.respond("你沒有管理者權限用來執行這個指令", ephemeral=True)
+            except AttributeError:
+                await ctx.respond("你不在伺服器內", ephemeral=True)
+        return wrapper
 
     def load_origin_channels(self):
         try:

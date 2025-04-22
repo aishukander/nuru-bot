@@ -17,6 +17,7 @@ class Message(commands.Cog):
         with open(json_dir / "Setting.json", "r", encoding="utf8") as jfile:
             self.Setting = json.load(jfile)
 
+    @staticmethod
     def Guild_Admin_Examine(func):
             @wraps(func)
             async def wrapper(self, ctx, *args, **kwargs):
