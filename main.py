@@ -69,10 +69,31 @@ def Cogs_Loaded(ctx: discord.AutocompleteContext):
 #載入所有位於cogs的cog
 def load_cogs():
     cogs_path = Path('./cogs')
+    # 取得cogs資料夾下所有.py檔案的檔名
     CogsList = [file.stem for file in cogs_path.glob('*.py')]
+    total = len(CogsList)
+    bar_length = 30
+    errors = []
+    loaded_count = 0
+
     for filename in CogsList:
-        bot.load_extension(f'cogs.{filename}')
-        print(f"載入 {filename} 完成")
+        try:
+            bot.load_extension(f'cogs.{filename}')
+            status = "OK"
+            loaded_count += 1
+        except Exception as e:
+            status = "FAIL"
+            errors.append((filename, str(e)))
+
+        filled = int(bar_length * loaded_count / total)
+        bar = "█" * filled + "-" * (bar_length - filled)
+        # 同一行顯示進度（成功數/總數），並清除殘留
+        print(f"\rLoading cogs: |{bar}| {loaded_count}/{total} {filename} ... {status}",
+              end="\033[K", flush=True)
+
+    print()  # 換行後顯示所有錯誤
+    for fname, msg in errors:
+        print(f"  ❌ Error loading {fname}: {msg}")
 
 load_cogs()
 
