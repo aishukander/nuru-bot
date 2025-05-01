@@ -146,9 +146,7 @@ class Music(commands.Cog):
 
     music = discord.SlashCommandGroup("music", "music command group")
 
-    @music.command(
-        description="播放音樂",
-    )
+    @music.command(description="播放音樂")
     @discord.option(
         "search", 
         type=discord.SlashCommandOptionType.string, 
@@ -238,9 +236,7 @@ class Music(commands.Cog):
             
             await progress_message.edit(content=f"已加入 {playlist_info} 到播放列表！")
 
-    @music.command(
-        description="調整播放音量 (0-150%)"
-    )
+    @music.command(description="調整播放音量 (0-150%)")
     @discord.option(
         "volume",
         type=discord.SlashCommandOptionType.integer,
@@ -259,9 +255,7 @@ class Music(commands.Cog):
             ctx.voice_client.source.volume = data["volume"]
         await ctx.respond(f"已將音量調整為 {volume}%！", ephemeral=True)
 
-    @music.command(
-        description="顯示播放清單",
-    )
+    @music.command(description="顯示播放清單")
     async def queue(self, ctx):
         if ctx.voice_client is None:
             await ctx.respond("Bot 未在語音頻道中！", ephemeral=True)
@@ -270,9 +264,7 @@ class Music(commands.Cog):
         embed = view.build_queue_embed()
         await ctx.respond(embed=embed, view=view, ephemeral=True)
 
-    @music.command(
-        description="暫停音樂",
-    )
+    @music.command(escription="暫停音樂")
     async def pause(self, ctx):
         if ctx.voice_client is None:
             await ctx.respond("Bot 未在語音頻道中！", ephemeral=True)
@@ -284,9 +276,7 @@ class Music(commands.Cog):
         else:
             await ctx.respond("目前沒有正在播放的音樂！", ephemeral=True)
 
-    @music.command(
-        description="恢復播放音樂",
-    )
+    @music.command(description="恢復播放音樂")
     async def resume(self, ctx):
         if ctx.voice_client is None:
             await ctx.respond("Bot 未在語音頻道中！", ephemeral=True)
@@ -298,9 +288,7 @@ class Music(commands.Cog):
         else:
             await ctx.respond("目前音樂沒有暫停！", ephemeral=True)
 
-    @music.command(
-        description="停止播放音樂",
-    )
+    @music.command(description="停止播放音樂")
     async def stop(self, ctx):
         if ctx.voice_client is None:
             await ctx.respond("Bot 未在語音頻道中！", ephemeral=True)
@@ -339,9 +327,7 @@ class Music(commands.Cog):
         
         await ctx.respond("音樂已停止！", ephemeral=True)
     
-    @music.command(
-        description="跳過目前播放的音樂",
-    )
+    @music.command(description="跳過目前播放的音樂")
     async def skip(self, ctx):
         if ctx.voice_client is None:
             await ctx.respond("Bot 未在語音頻道中！", ephemeral=True)
@@ -350,9 +336,7 @@ class Music(commands.Cog):
         vc.stop()
         await ctx.respond("已跳過目前播放的音樂！", ephemeral=True)
 
-    @music.command(
-        description="移除指定的歌曲",
-    )
+    @music.command(description="移除指定的歌曲")
     @discord.option(
         "index", 
         type=discord.SlashCommandOptionType.integer, 
@@ -380,9 +364,7 @@ class Music(commands.Cog):
                 del self.file_usage[str(removed_file)]
         await ctx.respond(f"已移除 {removed_file.name}！", ephemeral=True)
 
-    @music.command(
-        description="隨機播放",
-    )
+    @music.command(description="隨機播放")
     async def random(self, ctx):
         if ctx.voice_client is None:
             await ctx.respond("Bot 未在語音頻道中！", ephemeral=True)
@@ -391,9 +373,7 @@ class Music(commands.Cog):
         random.shuffle(data["play_list"])
         await ctx.respond("已隨機播放！", ephemeral=True)
 
-    @music.command(
-        description="播放指定的歌曲",
-    )
+    @music.command(description="播放指定的歌曲")
     @discord.option(
         "index", 
         type=discord.SlashCommandOptionType.integer, 

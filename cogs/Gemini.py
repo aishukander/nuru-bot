@@ -179,9 +179,7 @@ class Gemini(commands.Cog):
             del self.message_history[ctx.author.id]
         await ctx.respond("🤖 歷史記錄重置", ephemeral=True)
 
-    @commands.slash_command(
-        description="管理Gemini在私訊時是否直接回覆"
-    )
+    @commands.slash_command(description="管理Gemini在私訊時是否直接回覆")
     @discord.option(
         "action",
         type=discord.SlashCommandOptionType.string,

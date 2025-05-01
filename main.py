@@ -99,7 +99,6 @@ load_cogs()
 
 @bot.event
 async def on_ready():
-
     #啟動時會在終端機印出的訊息
     bot_name = f"Bot Logged in as {bot.user}"
     border = "=" * 40
@@ -115,9 +114,7 @@ async def on_ready():
 """======================================================================================="""
 cogs = discord.SlashCommandGroup("cogs", "cogs management instructions")
 
-@cogs.command(
-    description="加載指定的cog"
-)
+@cogs.command(description="加載指定的cog")
 @discord.option(
     "extension", 
     type=discord.SlashCommandOptionType.string, 
@@ -132,9 +129,7 @@ async def load(ctx, extension: str):
     except Exception as e:
         await ctx.respond(f"加載模塊時發生錯誤: {e}", ephemeral=True)
 
-@cogs.command(
-    description="卸載指定的cog"
-)
+@cogs.command(description="卸載指定的cog")
 @discord.option(
     "extension", 
     type=discord.SlashCommandOptionType.string, 
@@ -149,9 +144,7 @@ async def unload(ctx, extension: str):
     except Exception as e:
         await ctx.respond(f"卸載模塊時發生錯誤: {e}", ephemeral=True)
 
-@cogs.command(
-    description="重載指定的cog"
-)
+@cogs.command(description="重載指定的cog")
 @discord.option(
     "extension", 
     type=discord.SlashCommandOptionType.string, 
@@ -166,9 +159,7 @@ async def reload(ctx, extension: str):
     except Exception as e:
         await ctx.respond(f"重載模塊時發生錯誤: {e}", ephemeral=True)
 
-@cogs.command(
-    description="列出已載入的cog"
-)
+@cogs.command(description="列出已載入的cog")
 @Guild_Admin_Examine
 async def show(ctx):
     try:

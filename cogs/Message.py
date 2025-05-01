@@ -47,9 +47,7 @@ class Message(commands.Cog):
         return options
 
     #讓機器人覆誦你輸入的訊息
-    @commands.slash_command(
-        description="讓機器人覆誦你輸入的訊息"
-    )
+    @commands.slash_command(description="讓機器人覆誦你輸入的訊息")
     @discord.option(
         "msg", 
         type=discord.SlashCommandOptionType.string, 
@@ -60,9 +58,7 @@ class Message(commands.Cog):
         await ctx.respond(msg)
 
     #刪除所選數量的訊息
-    @commands.slash_command(
-        description="刪除所選數量的訊息"
-    )
+    @commands.slash_command(description="刪除所選數量的訊息")
     @discord.option(
         "num", 
         type=discord.SlashCommandOptionType.integer, 
@@ -101,9 +97,7 @@ class Message(commands.Cog):
         Buy_OR_Not = random.choice(self.Setting["Buy_OR_Not"])
         await ctx.respond(Buy_OR_Not, ephemeral=True)    
 
-    @commands.slash_command(
-        description="傳送訊息至指定伺服器的指定頻道"
-    )
+    @commands.slash_command(description="傳送訊息至指定伺服器的指定頻道")
     @discord.option(
         "message", 
         type=discord.SlashCommandOptionType.string, 
