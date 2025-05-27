@@ -37,8 +37,8 @@ class Message(commands.Cog):
             discord.OptionChoice(name=pic, value=pic)
             for pic in (
                 str(entry.relative_to(CallPicture_dir))
-                .replace("/", "-")
-                .replace("\\", "-")
+                .replace("/", " ")
+                .replace("\\", " ")
                 .rsplit(".", 1)[0]
                 for entry in CallPicture_dir.rglob("*") if entry.is_file() and entry.name != "README.md"
             )
@@ -176,8 +176,8 @@ class Message(commands.Cog):
                 file for file in CallPicture_dir.rglob("*") 
                 if file.is_file() and 
                    str(file.relative_to(CallPicture_dir))
-                   .replace("/", "-")
-                   .replace("\\", "-")
+                   .replace("/", " ")
+                   .replace("\\", " ")
                    .rsplit(".", 1)[0] == picture
             )
         except StopIteration:
