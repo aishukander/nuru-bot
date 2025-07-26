@@ -1,11 +1,12 @@
 import discord
 import asyncio
 from discord.ext import commands
-import json
+import tomllib
+import tomli_w
 from pathlib import Path
 from functools import wraps
 
-json_dir = Path(__file__).resolve().parents[1] / "json"
+toml_dir = Path(__file__).resolve().parents[1] / "toml"
 
 class Channel(commands.Cog):
     def __init__(self, bot):
@@ -25,33 +26,43 @@ class Channel(commands.Cog):
                 await ctx.respond("你不在伺服器內", ephemeral=True)
         return wrapper
 
-    def load_origin_channels(self):
+    def load_dynamic_voice_data(self):
         try:
-            with open(json_dir / "DynamicVoiceID.json", "r", encoding="utf8") as jfile:
-                return json.load(jfile)
+            with open(toml_dir / "DynamicVoice.toml", "rb") as tfile:
+                return tomllib.load(tfile)
         except FileNotFoundError:
-            return {}
+            return {"ID": {}, "Name": {}}
+
+    def load_origin_channels(self):
+        data = self.load_dynamic_voice_data()
+        return data.get("ID", {})
 
     def load_dynamic_voice_name(self):
-        try:
-            with open(json_dir / "DynamicVoiceName.json", "r", encoding="utf8") as jfile:
-                return json.load(jfile)
-        except FileNotFoundError:
-            return {}
+        data = self.load_dynamic_voice_data()
+        return data.get("Name", {})
 
-    def dump_dynamic_voice_name(self, dynamic_voice_name: dict):
-        with open(json_dir / "DynamicVoiceName.json", "w", encoding="utf8") as f:
-            json.dump(dynamic_voice_name, f, indent=4, ensure_ascii=False)
+    def save_dynamic_voice_data(self, origin_channels: dict, dynamic_voice_names: dict):
+        data = {
+            "ID": origin_channels,
+            "Name": dynamic_voice_names
+        }
+        with open(toml_dir / "DynamicVoice.toml", "wb") as f:
+            tomli_w.dump(data, f)
 
     def save_origin_channels(self, origin_channels: dict):
-        with open(json_dir / "DynamicVoiceID.json", "w", encoding="utf8") as f:
-            json.dump(origin_channels, f, indent=4, ensure_ascii=False)
+        dynamic_voice_names = self.load_dynamic_voice_name()
+        self.save_dynamic_voice_data(origin_channels, dynamic_voice_names)
+
+    def dump_dynamic_voice_name(self, dynamic_voice_name: dict):
+        origin_channels = self.load_origin_channels()
+        self.save_dynamic_voice_data(origin_channels, dynamic_voice_name)
 
     @staticmethod
     def get_dynamic_voice_channel_names(ctx: discord.AutocompleteContext):
         try:
-            with open(json_dir / "DynamicVoiceID.json", "r", encoding="utf8") as jfile:
-                origin_channels = json.load(jfile)
+            with open(toml_dir / "DynamicVoice.toml", "rb") as tfile:
+                data = tomllib.load(tfile)
+                origin_channels = data.get("ID", {})
         except FileNotFoundError:
             origin_channels = {}
 

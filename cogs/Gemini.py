@@ -1,13 +1,13 @@
 import re
 import aiohttp
-import json
+import tomllib
 import discord
 from discord.ext import commands
 from pathlib import Path
 import google.generativeai as gemini
 from functools import wraps
 
-json_dir = Path(__file__).resolve().parents[1] / "json"
+toml_dir = Path(__file__).resolve().parents[1] / "toml"
 
 class Gemini(commands.Cog):
     def __init__(self, bot):
@@ -15,10 +15,10 @@ class Gemini(commands.Cog):
         self.message_history = {}
         self.dmc_on = False
 
-        with open(json_dir / "Setting.json", "r", encoding="utf8") as jfile:
-            self.setting = json.load(jfile)
-        with open(json_dir / "Token.json", "r", encoding="utf8") as jfile:
-            self.token = json.load(jfile)
+        with open(toml_dir / "Setting.toml", "rb") as tfile:
+            self.setting = tomllib.load(tfile)
+        with open(toml_dir / "Token.toml", "rb") as tfile:
+            self.token = tomllib.load(tfile)
 
         self.google_ai_key = self.token["Google_AI_Key"]
         self.max_history = int(self.setting["Max_History"])

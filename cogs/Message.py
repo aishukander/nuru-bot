@@ -3,19 +3,19 @@ from discord.ext import commands
 import re
 import asyncio
 import random
-import json
+import tomllib
 from pathlib import Path
 from functools import wraps
 
-json_dir = Path(__file__).resolve().parents[1] / "json"
+toml_dir = Path(__file__).resolve().parents[1] / "toml"
 CallPicture_dir = Path(__file__).resolve().parents[1] / "CallPicture"
 
 class Message(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-        with open(json_dir / "Setting.json", "r", encoding="utf8") as jfile:
-            self.Setting = json.load(jfile)
+        with open(toml_dir / "Setting.toml", "rb") as tfile:
+            self.Setting = tomllib.load(tfile)
 
     @staticmethod
     def Guild_Admin_Examine(func):

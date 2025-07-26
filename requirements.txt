@@ -6,3 +6,4 @@ requests
 audioop-lts
 yt_dlp
 PyNaCl
+tomli-w

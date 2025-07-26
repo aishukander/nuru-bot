@@ -4,16 +4,16 @@ from pathlib import Path
 import yt_dlp
 import random
 import asyncio
-import json
+import tomllib
 
-json_dir = Path(__file__).resolve().parents[1] / "json"
+toml_dir = Path(__file__).resolve().parents[1] / "toml"
 
 class Music(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-        with open(json_dir / "Setting.json", "r", encoding="utf8") as jfile:
-            self.Setting = json.load(jfile)
+        with open(toml_dir / "Setting.toml", "rb") as tfile:
+            self.Setting = tomllib.load(tfile)
 
         self.default_volume = float(self.Setting["Volume"])
         self.inactive_timeout = int(self.Setting["Inactive_Timeout"]) # 單位秒

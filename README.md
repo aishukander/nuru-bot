@@ -4,7 +4,7 @@
 
 ## 初始化
 音樂功能依賴FFmpeg，容器外使用時系統必需安裝FFmpeg。 <br>
-容器啟動完成後將Token.json的內容填上即可（預設位置在/opt/nuru-bot/json/）。 <br>
+容器啟動完成後將Token.toml的內容填上即可（預設位置在/opt/nuru-bot/toml/）。 <br>
 
 ## 啟動
 Docker compose <br>
@@ -15,7 +15,7 @@ services:
     image: aishukander/nuru-bot
     restart: unless-stopped
     volumes:
-      - /opt/nuru-bot/json:/bot/json
+      - /opt/nuru-bot/toml:/bot/toml
       - /opt/nuru-bot/CallPicture:/bot/CallPicture
 ```
 

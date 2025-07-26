@@ -2,20 +2,20 @@
 """======================================================================================="""
 import discord
 import random
-import json
+import tomllib
 from pathlib import Path
 from functools import wraps
 """======================================================================================="""
 
 intents = discord.Intents.all()
 
-json_dir = Path(__file__).resolve().parent / "json"
+toml_dir = Path(__file__).resolve().parent / "toml"
 
-with open(json_dir / "Setting.json", "r", encoding="utf8") as jfile:
-    Setting = json.load(jfile)
+with open(toml_dir / "Setting.toml", "rb") as tfile:
+    Setting = tomllib.load(tfile)
 
-with open(json_dir / "Token.json", "r", encoding="utf8") as jfile:
-    Token = json.load(jfile)
+with open(toml_dir / "Token.toml", "rb") as tfile:
+    Token = tomllib.load(tfile)
 
 bot = discord.Bot()
 
