@@ -16,7 +16,7 @@ class Music(commands.Cog):
         with open(toml_dir / "Setting.toml", "rb") as tfile:
             self.Setting = tomllib.load(tfile)
 
-        self.default_volume = float(self.Setting["Volume"])
+        self.default_volume = float(self.Setting["Volume"].rstrip('%')) / 100
         self.inactive_timeout = int(self.Setting["Inactive_Timeout"]) # channel inactivity timeout in seconds
         self.progress_bars = self.Setting["Progress_Bars"] # Progress bar appearance
         self.bar_length = 20 # Progress bar length
