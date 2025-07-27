@@ -30,19 +30,22 @@ class Message(commands.Cog):
                     await ctx.respond("你不在伺服器內")
             return wrapper
 
-    @staticmethod
     def picture_autocomplete(ctx: discord.AutocompleteContext):
         query = ctx.value.lower()
         options = [
-            discord.OptionChoice(name=pic, value=pic)
-            for pic in (
+            discord.OptionChoice(
+                name=pic_name, 
+                value=str(entry.relative_to(CallPicture_dir))
+            )
+            for entry in CallPicture_dir.rglob("*") 
+            if entry.is_file() and entry.name != "README.md"
+            for pic_name in [
                 str(entry.relative_to(CallPicture_dir))
                 .replace("/", " ")
                 .replace("\\", " ")
                 .rsplit(".", 1)[0]
-                for entry in CallPicture_dir.rglob("*") if entry.is_file() and entry.name != "README.md"
-            )
-            if query in pic.lower()
+            ]
+            if query in pic_name.lower()
         ][:25]
         return options
 
@@ -156,7 +159,6 @@ class Message(commands.Cog):
         new_text = re.sub(old_msg, new_msg, text)
         await ctx.respond(new_text, ephemeral=True)
 
-    #直接把圖片丟至CallPicture即可。
     @commands.slash_command(
         description="給出你指定的圖片",
         integration_types={
@@ -172,15 +174,10 @@ class Message(commands.Cog):
     )
     async def called_figure(self, ctx, picture: str):
         try:
-            file_path = next(
-                file for file in CallPicture_dir.rglob("*") 
-                if file.is_file() and 
-                   str(file.relative_to(CallPicture_dir))
-                   .replace("/", " ")
-                   .replace("\\", " ")
-                   .rsplit(".", 1)[0] == picture
-            )
-        except StopIteration:
+            file_path = CallPicture_dir / picture
+            if not file_path.is_file():
+                raise FileNotFoundError
+        except Exception:
             await ctx.respond("找不到該圖片", ephemeral=True)
             return
         await ctx.respond(file=discord.File(file_path, filename=file_path.name))

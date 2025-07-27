@@ -21,5 +21,5 @@ mumei-bot
 ```
 那就會出現三個選項。 <br>
 * P
-* directory1-P1
-* directory1-directory2-P2
+* directory1 P1
+* directory1 directory2 P2
