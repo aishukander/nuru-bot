@@ -3,8 +3,9 @@ Max_History = "100"
 Gemini_Text_Name = "gemini-2.5-flash-preview-05-20"
 Gemini_Image_Name = "gemini-2.5-flash-preview-05-20"
 Volume = "0.5"
-Inactive_Timeout = "300"
+Inactive_Timeout = "300" # voice channel inactivity timeout in seconds
 Music_Concurrent_Downloads = "3"
+Search_Length = "10" # music search length
 Progress_Bars = ["░", "█"]
 
 Gemini_Prompt = [

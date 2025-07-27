@@ -19,6 +19,7 @@ with open(toml_dir / "Token.toml", "rb") as tfile:
 
 bot = discord.Bot()
 
+# Check user permissions function
 def Guild_Admin_Examine(func):
     @wraps(func)
     async def wrapper(ctx, *args, **kwargs):
@@ -31,45 +32,38 @@ def Guild_Admin_Examine(func):
             await ctx.respond("你不在伺服器內")
     return wrapper
 
-@staticmethod
+# Autocomplete for cogs that are not loaded
 def Cogs_NotLoaded(ctx: discord.AutocompleteContext):
+    if not hasattr(bot, "cogs"):
+        return []
+
     query = ctx.value.lower()
     cogs_path = Path('./cogs')
     CogsList = [file.stem for file in cogs_path.glob('*.py')]
 
-    Cogs_Loaded = []
-    try:
-        for cog in [cog for cog in bot.cogs]:
-            Cogs_Loaded.append(cog)
-    except AttributeError:
-        pass
-
-    Only_Exists_NotLoaded = [cog for cog in CogsList if cog not in Cogs_Loaded]
+    Only_Exists_NotLoaded = [cog for cog in CogsList if cog not in bot.cogs]
     return [
         discord.OptionChoice(name=pic, value=pic)
         for pic in Only_Exists_NotLoaded
         if pic.lower().startswith(query)
     ]
 
-@staticmethod
+# Autocomplete for cogs that are loaded
 def Cogs_Loaded(ctx: discord.AutocompleteContext):
+    if not hasattr(bot, "cogs"):
+        return []
+
     query = ctx.value.lower()
-    Cogslist = []
-    try:
-        for cog in [cog for cog in bot.cogs]:
-            Cogslist.append(cog)
-    except AttributeError:
-        pass
     return [
         discord.OptionChoice(name=pic, value=pic)
-        for pic in Cogslist
+        for pic in bot.cogs
         if pic.lower().startswith(query)
     ]
 
-#載入所有位於cogs的cog
+# Load all cogs from the cogs directory
 def load_cogs():
     cogs_path = Path('./cogs')
-    # 取得cogs資料夾下所有.py檔案的檔名
+    # Get all Python files in the cogs directory
     CogsList = [file.stem for file in cogs_path.glob('*.py')]
     total = len(CogsList)
     bar_length = 30
@@ -87,11 +81,11 @@ def load_cogs():
 
         filled = int(bar_length * loaded_count / total)
         bar = "█" * filled + "-" * (bar_length - filled)
-        # 同一行顯示進度（成功數/總數），並清除殘留
+        # display the loading progress in the terminal
         print(f"\rLoading cogs: |{bar}| {loaded_count}/{total} {filename} ... {status}",
               end="\033[K", flush=True)
 
-    print()  # 換行後顯示所有錯誤
+    print()  # Print a new line after the progress bar
     for fname, msg in errors:
         print(f"  ❌ Error loading {fname}: {msg}")
 
@@ -99,7 +93,7 @@ load_cogs()
 
 @bot.event
 async def on_ready():
-    #啟動時會在終端機印出的訊息
+    # Bot ready event
     bot_name = f"Bot Logged in as {bot.user}"
     border = "=" * 40
     print(border)
@@ -107,10 +101,10 @@ async def on_ready():
     print(f"= {'>>  Bot start  <<'.center(len(border) - 4)} =")
     print(border)
 
-    #bot的狀態顯示
+    # Set the bot's presence
     await bot.change_presence(activity = discord.Activity(type=discord.ActivityType.watching, name="@nuru的訊息"))
 
-#用於加載、卸載、重讀不同cosg檔
+# Slash command group for cogs management
 """======================================================================================="""
 cogs = discord.SlashCommandGroup("cogs", "cogs management instructions")
 
@@ -179,7 +173,7 @@ async def show(ctx):
 bot.add_application_command(cogs)
 """======================================================================================="""
 
-#測試bot的ping值
+# Ping command to test bot latency
 @bot.command(
     description="測試bot的延遲",
     integration_types={
@@ -190,7 +184,7 @@ bot.add_application_command(cogs)
 async def ping(ctx):
     await ctx.respond(f"{round(bot.latency*1000)}(ms)", ephemeral=True)
 
-#用來取得bot的邀請連結
+# Command to get the bot's invitation link
 @bot.command(
     description="取得邀請連結",
     integration_types={

@@ -16,12 +16,13 @@ class Music(commands.Cog):
             self.Setting = tomllib.load(tfile)
 
         self.default_volume = float(self.Setting["Volume"])
-        self.inactive_timeout = int(self.Setting["Inactive_Timeout"]) # 單位秒
-        self.progress_bars = self.Setting["Progress_Bars"]
-        self.bar_length = 20
+        self.inactive_timeout = int(self.Setting["Inactive_Timeout"]) # channel inactivity timeout in seconds
+        self.progress_bars = self.Setting["Progress_Bars"] # Progress bar appearance
+        self.bar_length = 20 # Progress bar length
         self.guild_data = {}  # guild_id -> {"play_list": [], "current_track": None, "volume": <float>, "inactive_task": None}
         self.file_usage = {}
         
+        # https://github.com/yt-dlp/yt-dlp?tab=readme-ov-file#video-format-options
         self.ydl_opts = {
             'outtmpl': './tmp/%(title)s.%(ext)s',
             'format': 'bestaudio[acodec=opus]/bestaudio/best',
@@ -60,8 +61,7 @@ class Music(commands.Cog):
 
     def play_next(self, vc):
         server = self.get_guild_data(vc.guild)
-        
-        # 重設計時器
+        # Reset inactivity timer
         if server["inactive_task"]:
             server["inactive_task"].cancel()
         server["inactive_task"] = asyncio.create_task(
@@ -100,22 +100,23 @@ class Music(commands.Cog):
                 self.bot.loop.call_later(0.5, self.play_next, vc)
         else:
             server["current_track"] = None
-            # 當播放列表為空時也要檢查是否需要離開
+            # Reset inactivity timer if no songs left
             if server["inactive_task"]:
                 server["inactive_task"].cancel()
             server["inactive_task"] = asyncio.create_task(
                 self.check_inactivity(vc.guild.id)
             )
 
-    @staticmethod
-    def get_music_names(ctx: discord.AutocompleteContext):
+    # Music search autocomplete
+    def get_music_names(self, ctx: discord.AutocompleteContext):
         query = ctx.value
+        # No search when not entered or when a link is entered
         if not query or query.strip() == "":
             return []
         if query.startswith("http://") or query.startswith("https://"):
             return []
 
-        search_query = f"ytsearch10:{query}"
+        search_query = f"ytsearch{self.Setting['Search_Length']}:{query}"
         ydl_opts = {
             'quiet': True,
             'skip_download': True,
@@ -151,7 +152,7 @@ class Music(commands.Cog):
         "search", 
         type=discord.SlashCommandOptionType.string, 
         description="name or url",
-        autocomplete=get_music_names
+        autocomplete=lambda ctx: Music.get_music_names(ctx.cog, ctx) if hasattr(ctx, 'cog') and ctx.cog else []
     )
     async def play(self, ctx, search: str):
         if ctx.author.voice is None:
@@ -168,18 +169,18 @@ class Music(commands.Cog):
             extracted = await asyncio.to_thread(ydl.extract_info, search, download=False)
 
             async def get_or_download(url, progress_message, current, total):
-                # 設置任務名稱
+                # Set the current task name for better debugging
                 current_task = asyncio.current_task()
                 if current_task:
                     current_task.set_name(f'yt_dlp_download_{url}')
 
-                # 計算完成的比例
+                # Calculate the proportion of progress bars
                 progress_ratio = (current - 1) / total
-                # 計算已完成和未完成的區塊數
+                # Calculate the proportion of progress bars
                 filled_length = int(self.bar_length * progress_ratio)
                 remaining_length = self.bar_length - filled_length
     
-                # 建立進度條
+                # Create the progress bar
                 progress = (self.progress_bars[1] * filled_length + 
                            self.progress_bars[0] * remaining_length)
                 await progress_message.edit(content=f"下載進度: {progress} ({current-1}/{total})")
@@ -190,7 +191,7 @@ class Music(commands.Cog):
                     info = await asyncio.to_thread(ydl.extract_info, url, download=True)
                     file_path = Path(ydl.prepare_filename(info)).with_suffix('.opus')
 
-                # 下載完成後更新最終進度
+                # Download the progress update
                 progress_ratio = current / total
                 filled_length = int(self.bar_length * progress_ratio)
                 remaining_length = self.bar_length - filled_length
@@ -218,7 +219,8 @@ class Music(commands.Cog):
                         data["play_list"].append(file_path)
                         self.file_usage[str(file_path)] = self.file_usage.get(str(file_path), 0) + 1
                     
-                        if i == 1:  # 第一首歌開始播放
+                        # If this is the first song, ensure the voice client is ready
+                        if i == 1:
                             vc = await self.ensure_voice_client(channel, ctx.voice_client)
                             if not vc.is_playing():
                                 self.play_next(vc)
@@ -294,19 +296,19 @@ class Music(commands.Cog):
             await ctx.respond("Bot 未在語音頻道中！", ephemeral=True)
             return
         
-        # 找到所有正在進行的下載任務
+        # Find all ongoing download tasks
         data = self.get_guild_data(ctx.guild)
         if data["inactive_task"]:
             data["inactive_task"].cancel()
             data["inactive_task"] = None
         data["play_list"].clear()
     
-        # 停止當前播放並斷開連接
+        # Stop the current playback and disconnect
         vc = ctx.voice_client
         vc.stop()
         await vc.disconnect()
     
-        # 清理暫存檔案
+        # Clean up temporary files
         tmp_path = Path('./tmp')
         if tmp_path.exists():
             for file in tmp_path.iterdir():
@@ -316,7 +318,7 @@ class Music(commands.Cog):
                     except Exception as e:
                         print(f"刪除檔案 {file} 失敗: {e}")
     
-        # 取消所有正在進行的下載任務
+        # Cancel all ongoing download tasks
         try:
             tasks = [task for task in asyncio.all_tasks() 
                     if task.get_name().startswith('yt_dlp_download')]
@@ -408,7 +410,7 @@ class QueueControlView(discord.ui.View):
         self.current_page = 0
         self.items_per_page = 10
 
-        # 建立按鈕實例並指定 callback
+        # Create button instances and assign callbacks
         self.button_next = discord.ui.Button(label="下一頁", style=discord.ButtonStyle.primary, custom_id="next_page")
         self.button_next.callback = self.next_page_callback
 
@@ -425,12 +427,12 @@ class QueueControlView(discord.ui.View):
         self.button_stop = discord.ui.Button(label="終止播放", style=discord.ButtonStyle.danger, custom_id="stop")
         self.button_stop.callback = self.stop_callback
 
-        # 初次建立時更新按鈕（依據頁數決定是否要加入上一頁或下一頁）
+        # Add buttons to the view
         self.update_page_buttons()
 
     def on_timeout(self):
         self.disable_all_items()
-        # 若有原始訊息，可更新 view 來顯示禁用的按鈕
+        # If there is an original message, update the view to show the disabled buttons
         asyncio.create_task(self.update_view_on_timeout())
 
     async def update_view_on_timeout(self):
@@ -472,18 +474,18 @@ class QueueControlView(discord.ui.View):
         return embed
 
     def update_page_buttons(self):
-        # 先清除所有按鈕
+        # Clear all buttons first
         self.clear_items()
         data = self.cog.get_guild_data(self.ctx.guild)
         total_pages = (len(data["play_list"]) - 1) // self.items_per_page + 1
 
-        # 若不是第一頁則加入上一頁
+        # If not the first page, add the previous page button
         if self.current_page > 0:
             self.add_item(self.button_prev)
-        # 若不是最後一頁則加入下一頁
+        # If not the last page, add the next page button
         if self.current_page < total_pages - 1:
             self.add_item(self.button_next)
-        # 固定加入其他按鈕
+        # Add the toggle, skip, and stop buttons
         self.add_item(self.button_toggle)
         self.add_item(self.button_skip)
         self.add_item(self.button_stop)
@@ -515,8 +517,9 @@ class QueueControlView(discord.ui.View):
         await interaction.response.edit_message(embed=embed, view=self)
 
     async def toggle_callback(self, interaction: discord.Interaction):
+        # Check if the bot is connected to a voice channel
         if self.ctx.voice_client is None:
-            self.disable_all_items()  # Bot 不在語音頻道，停用所有按鈕
+            self.disable_all_items()
             embed = self.build_queue_embed_with_status("Bot 未在語音頻道中！")
             await interaction.response.edit_message(embed=embed, view=self)
             return
@@ -531,7 +534,7 @@ class QueueControlView(discord.ui.View):
             self.button_toggle.label = "暫停"
         else:
             status = "目前沒有正在播放的音樂！"
-        self.update_page_buttons()  # 重新更新按鈕
+        self.update_page_buttons()  # Update buttons after toggling
         embed = self.build_queue_embed_with_status(status)
         await interaction.response.edit_message(embed=embed, view=self)
 
@@ -553,23 +556,23 @@ class QueueControlView(discord.ui.View):
             await interaction.response.edit_message(embed=embed, view=self)
             return
 
-        # 找到所有正在進行的下載任務
+        # Find all ongoing download tasks
         data = self.cog.get_guild_data(self.ctx.guild)
-    
-        # 取消計時器
+
+        # Cancel the timer
         if data["inactive_task"]:
             data["inactive_task"].cancel()
             data["inactive_task"] = None
-    
-        # 清空播放列表
+
+        # Clear the playback list
         data["play_list"].clear()
 
-        # 停止當前播放並斷開連接
+        # Stop the current playback and disconnect
         vc = self.ctx.voice_client
         vc.stop()
         await vc.disconnect()
 
-        # 清理暫存檔案
+        # Clean up temporary files
         tmp_path = Path('./tmp')
         if tmp_path.exists():
             for file in tmp_path.iterdir():
@@ -579,7 +582,7 @@ class QueueControlView(discord.ui.View):
                     except Exception as e:
                         print(f"刪除檔案 {file} 失敗: {e}")
 
-        # 取消所有正在進行的下載任務
+        # Cancel all ongoing download tasks
         try:
             tasks = [task for task in asyncio.all_tasks() 
                     if task.get_name().startswith('yt_dlp_download')]

@@ -55,17 +55,17 @@ class Gemini(commands.Cog):
         self.prompt_parts = "\n".join(self.setting["Gemini_Prompt"])
 
     @staticmethod
-    def guild_admin_examine(func):
-        @wraps(func)
-        async def wrapper(self, ctx, *args, **kwargs):
-            try:
-                if ctx.author.guild_permissions.administrator:
-                    return await func(self, ctx, *args, **kwargs)
-                else:
-                    await ctx.respond("你沒有管理者權限用來執行這個指令", ephemeral=True)
-            except AttributeError:
-                await ctx.respond("你不在伺服器內")
-        return wrapper
+    def Guild_Admin_Examine(func):
+            @wraps(func)
+            async def wrapper(self, ctx, *args, **kwargs):
+                try:
+                    if ctx.author.guild_permissions.administrator:
+                        return await func(self, ctx, *args, **kwargs)
+                    else:
+                        await ctx.respond("你沒有管理者權限用來執行這個指令", ephemeral=True)
+                except AttributeError:
+                    await ctx.respond("你不在伺服器內")
+            return wrapper
 
     @commands.Cog.listener()
     async def on_message(self, message):
@@ -186,7 +186,7 @@ class Gemini(commands.Cog):
         description="on/off",
         choices=["on", "off"]
     )
-    @guild_admin_examine
+    @Guild_Admin_Examine
     async def gemini_private(self, ctx, action: str):
         if action.lower() == "on":
             self.dmc_on = True

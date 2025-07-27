@@ -5,7 +5,6 @@ from collections import defaultdict
 import random
 from datetime import datetime, timedelta, timezone
 
-# The Cog class containing the slash command
 class Poll(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot

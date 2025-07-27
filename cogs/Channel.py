@@ -57,12 +57,10 @@ class Channel(commands.Cog):
         origin_channels = self.load_origin_channels()
         self.save_dynamic_voice_data(origin_channels, dynamic_voice_name)
 
-    @staticmethod
     def get_dynamic_voice_channel_names(ctx: discord.AutocompleteContext):
         try:
             with open(toml_dir / "DynamicVoice.toml", "rb") as tfile:
-                data = tomllib.load(tfile)
-                origin_channels = data.get("ID", {})
+                origin_channels = tomllib.load(tfile).get("ID", {})
         except FileNotFoundError:
             origin_channels = {}
 
