@@ -1,6 +1,7 @@
 import discord
 from discord.ext import commands
 from pathlib import Path
+from ytmusicapi import YTMusic
 import yt_dlp
 import random
 import asyncio
@@ -110,31 +111,25 @@ class Music(commands.Cog):
     # Music search autocomplete
     def get_music_names(self, ctx: discord.AutocompleteContext):
         query = ctx.value
-        # No search when not entered or when a link is entered
         if not query or query.strip() == "":
-            return []
+         return []
         if query.startswith("http://") or query.startswith("https://"):
             return []
 
-        search_query = f"ytsearch{self.Setting['Search_Length']}:{query}"
-        ydl_opts = {
-            'quiet': True,
-            'skip_download': True,
-            'extract_flat': True,
-            'default_search': 'ytsearch'
-        }
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            try:
-                info = ydl.extract_info(search_query, download=False)
-                entries = info.get('entries', [])
-                titles = [entry.get("title") for entry in entries if entry.get("title")]
-                return [
-                    discord.OptionChoice(name=title, value=title)
-                    for title in titles
-                ]
-            except Exception as e:
-                print(f"搜尋錯誤: {e}")
-                return []
+        results = YTMusic().search(query, filter="songs")
+        results = results[:int(self.Setting["Search_Length"])]
+        seen = set()
+        options = []
+        for entry in results:
+            title = entry.get("title")
+            artists = ", ".join(a["name"] for a in entry.get("artists", [])) if entry.get("artists") else ""
+            display = (f"{title} - {artists}" if artists else title) [:100]
+            # Avoid duplicate displays
+            if display and display not in seen:
+                seen.add(display)
+                value = entry.get("videoId") or title
+                options.append(discord.OptionChoice(name=display, value=value))
+        return options
                 
     async def ensure_voice_client(self, channel, voice_client):
         if voice_client is None:
@@ -152,7 +147,7 @@ class Music(commands.Cog):
         "search", 
         type=discord.SlashCommandOptionType.string, 
         description="name or url",
-        autocomplete=lambda ctx: Music.get_music_names(ctx.cog, ctx) if hasattr(ctx, 'cog') and ctx.cog else []
+        autocomplete=get_music_names
     )
     async def play(self, ctx, search: str):
         if ctx.author.voice is None:
