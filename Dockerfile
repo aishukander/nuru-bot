@@ -15,7 +15,7 @@ COPY . .
 
 # 靜態編譯FFmpeg以及安裝所需套件
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends wget xz-utils jq && \
+    apt-get install -y --no-install-recommends wget xz-utils && \
     wget https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz && \
     tar xf ffmpeg-release-amd64-static.tar.xz && \
     mv ffmpeg-*-amd64-static/ffmpeg /usr/local/bin/ && \
@@ -23,10 +23,10 @@ RUN apt-get update && \
     rm -f ffmpeg-release-amd64-static.tar.xz && \
     rm -rf ffmpeg-*-amd64-static
 
-RUN mkdir -p /tmp/json && \
-    find /bot/json -type f ! -name 'Token.json' -exec cp {} /tmp/json/ \; && \
-    jq 'with_entries(.value = "")' /bot/json/Token.json > /tmp/json/Token.json && \
-    rm -rf /bot/json/*
+RUN mkdir -p /tmp/toml && \
+    find /bot/toml -type f ! -name 'Token.toml' -exec cp {} /tmp/toml/ \; && \
+    mv /bot/toml/default_Token.toml /tmp/toml/Token.toml && \
+    rm -rf /bot/toml/*
 
 ######## 第二階段：運行環境 ########
 FROM python:${Python_Version}
@@ -42,7 +42,7 @@ WORKDIR /bot
 # 複製所需檔案
 COPY --from=builder /usr/local/bin/ffmpeg /usr/local/bin/ffmpeg
 COPY --from=builder /usr/local/bin/ffprobe /usr/local/bin/ffprobe
-COPY --from=builder /tmp/json/ /tmp/json/
+COPY --from=builder /tmp/toml/ /tmp/toml/
 COPY --from=builder /bot/ /bot/
 
 # 安裝opus庫

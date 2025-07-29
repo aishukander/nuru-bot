@@ -5,5 +5,5 @@ services:
     image: aishukander/mumei-bot
     restart: unless-stopped
     volumes:
-      - ./json:/bot/json
+      - ./toml:/bot/toml
       - ./CallPicture:/bot/CallPicture

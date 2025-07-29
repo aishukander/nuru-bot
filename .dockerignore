@@ -1,3 +1,4 @@
 cogs/__pycache__/*.pyc
 modules/__pycache__/*.pyc
 .venv
+Token.toml
