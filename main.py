@@ -102,7 +102,12 @@ async def on_ready():
     print(border)
 
     # Set the bot's presence
-    await bot.change_presence(activity = discord.Activity(type=discord.ActivityType.watching, name="@nuru的訊息"))
+    await bot.change_presence(
+        activity = discord.Activity(
+            type = discord.ActivityType.watching, 
+            name = f"@nuru的訊息 | V : {Setting['Version']}"
+        )
+    )
 
 # Slash command group for cogs management
 """======================================================================================="""

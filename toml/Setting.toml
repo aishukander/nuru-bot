@@ -1,3 +1,4 @@
+Version = "Releases11.1.0"
 Invitation = "https://discord.com/oauth2/authorize?client_id=999157840063242330"
 Max_History = "100" # Gemini max history length
 Gemini_Text_Name = "gemini-2.5-flash-preview-05-20"
