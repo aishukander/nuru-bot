@@ -114,9 +114,10 @@ class Gemini(commands.Cog):
         return getattr(response, "text", str(response))
 
     async def generate_response_with_image_and_text(self, image_data, text, mime_type):
-        image_parts = [{"mime_type": mime_type, "data": image_data}]
-        prompt_parts = [image_parts[0], f"\n{text if text else '這是什麼樣的圖片？'}"]
         try:
+            image_part = gemini.types.Part.from_bytes(data=image_data, mime_type=mime_type)
+            prompt_text = text if text else '這是什麼樣的圖片？'
+            prompt_parts = [prompt_text, image_part]
             response = self.image_model.generate_content(prompt_parts)
         except Exception as e:
             return f"❌ {str(e)}"
