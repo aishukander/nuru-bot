@@ -434,7 +434,6 @@ class PollView(discord.ui.View): # Inherit from discord.ui.View
         self.disable_all_items()
         final_embed = self.create_embed(ended=True) # Create final results embed
 
-        original_message_edited = False
         original_message: discord.Message | None = None
 
         # --- Try to Edit the Original Message ---
@@ -442,7 +441,6 @@ class PollView(discord.ui.View): # Inherit from discord.ui.View
             if interaction: # Ended manually via button
                 # Edit the message the button is attached to
                 await interaction.response.edit_message(embed=final_embed, view=self)
-                original_message_edited = True
                 original_message = interaction.message # Store the message object
             elif self.message_id and self.channel_id: # Ended via timeout or other means without interaction
                 channel = self.bot.get_channel(self.channel_id)
@@ -451,7 +449,6 @@ class PollView(discord.ui.View): # Inherit from discord.ui.View
                     try:
                         message = await channel.fetch_message(self.message_id)
                         await message.edit(embed=final_embed, view=self)
-                        original_message_edited = True
                         original_message = message # Store the message object
                     except discord.NotFound:
                         print(f"Warning: Original poll message {self.message_id} not found for editing.")
