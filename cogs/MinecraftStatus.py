@@ -38,11 +38,11 @@ class MinecraftStatus(commands.Cog):
 				embed.add_field(name="玩家數量", value=f"{data['players']['online']}/{data['players']['max']}", inline=False)
 				embed.add_field(name="伺服器版本", value=f"{data['version']} {data['software']}", inline=False)
 				embed.add_field(name="MOTD", value=''.join(data['motd']['clean']).replace('[', '').replace(']', ''), inline=False)
-				await ctx.respond(embed=embed)
+				await ctx.respond(embed=embed, ephemeral=True)
 			else:
-				await ctx.respond(f"伺服器 {server_ip}:{port} 不在線上")
+				await ctx.respond(f"伺服器 {server_ip}:{port} 不在線上", ephemeral=True)
 		except requests.exceptions.RequestException as e:
-			await ctx.respond(f"無法檢查伺服器狀態: {e}")
+			await ctx.respond(f"無法檢查伺服器狀態: {e}", ephemeral=True)
 
 def setup(bot):
 	bot.add_cog(MinecraftStatus(bot))
