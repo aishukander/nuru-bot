@@ -169,11 +169,8 @@ class Channel(commands.Cog):
     @commands.slash_command(description="將語音頻道內所有人移動到另一頻道")
     @discord.option("source", discord.SlashCommandOptionType.channel, description="來源頻道", channel_types=[discord.ChannelType.voice])
     @discord.option("target", discord.SlashCommandOptionType.channel, description="目標頻道", channel_types=[discord.ChannelType.voice])
+    @guild_admin_examine
     async def move_voice(self, ctx: discord.ApplicationContext, source: discord.VoiceChannel, target: discord.VoiceChannel):
-        if not ctx.author.guild_permissions.administrator:
-            await ctx.respond("你沒有管理者權限用於此指令", ephemeral=True)
-            return
-
         if not source.members:
             await ctx.respond(f"[{source.name}] 目前沒有人在裡面", ephemeral=True)
             return
@@ -186,6 +183,7 @@ class Channel(commands.Cog):
 
     @commands.slash_command(description="建立身分組並創建對應文字/語音頻道")
     @discord.option("name", str, description="身分組名稱")
+    @guild_admin_examine
     async def create_role(self, ctx: discord.ApplicationContext, name: str):
         guild = ctx.guild
         try:
