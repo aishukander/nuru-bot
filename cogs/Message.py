@@ -49,17 +49,6 @@ class Message(commands.Cog):
         ][:25]
         return options
 
-    #讓機器人覆誦你輸入的訊息
-    @commands.slash_command(description="讓機器人覆誦你輸入的訊息")
-    @discord.option(
-        "msg", 
-        type=discord.SlashCommandOptionType.string, 
-        description="要覆誦的訊息"
-    )
-    @Guild_Admin_Examine
-    async def say(self, ctx, msg: str):
-        await ctx.respond(msg)
-
     #刪除所選數量的訊息
     @commands.slash_command(description="刪除所選數量的訊息")
     @discord.option(
@@ -99,38 +88,6 @@ class Message(commands.Cog):
     async def buy_or_not(self,ctx):
         Buy_OR_Not = random.choice(self.Setting["Buy_OR_Not"])
         await ctx.respond(Buy_OR_Not, ephemeral=True)    
-
-    @commands.slash_command(description="傳送訊息至指定伺服器的指定頻道")
-    @discord.option(
-        "message", 
-        type=discord.SlashCommandOptionType.string, 
-        description="要傳送的訊息"
-    )
-    @discord.option(
-        "guild_name", 
-        type=discord.SlashCommandOptionType.string, 
-        description="伺服器名稱"
-    )
-    @discord.option(
-        "channel_name", 
-        type=discord.SlashCommandOptionType.string, 
-        description="頻道名稱"
-    )
-    @Guild_Admin_Examine
-    async def send_msg(self, ctx, message: str, guild_name: str, channel_name: str):
-        guild = discord.utils.find(lambda g: g.name == guild_name, self.bot.guilds)
-        if guild is None:
-            return await ctx.respond("未找到伺服器!", ephemeral=True)
-        
-        channel = discord.utils.find(lambda c: c.name == channel_name, guild.text_channels)
-        if channel is None: 
-                return await ctx.respond("未找到頻道!", ephemeral=True)
-             
-        try:
-            await channel.send(message)
-            await ctx.respond(f"訊息已成功發送至 {guild.name} 的 {channel} 頻道!", ephemeral=True) 
-        except:
-            await ctx.respond("訊息發送錯誤！", ephemeral=True)
 
     #Word-Changer功能的整合
     @commands.slash_command(
