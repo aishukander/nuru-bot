@@ -54,18 +54,14 @@ class Gemini(commands.Cog):
         )
         self.prompt_parts = "\n".join(self.setting["Gemini_Prompt"])
 
-    @staticmethod
-    def Guild_Admin_Examine(func):
-            @wraps(func)
-            async def wrapper(self, ctx, *args, **kwargs):
-                try:
-                    if ctx.author.guild_permissions.administrator:
-                        return await func(self, ctx, *args, **kwargs)
-                    else:
-                        await ctx.respond("你沒有管理者權限用來執行這個指令", ephemeral=True)
-                except AttributeError:
-                    await ctx.respond("你不在伺服器內")
-            return wrapper
+    def Owner_Examine(func):
+        @wraps(func)
+        async def wrapper(self, ctx, *args, **kwargs):
+            if ctx.author.id == int(self.token['Owner_ID']):
+                return await func(self, ctx, *args, **kwargs)
+            else:
+                await ctx.respond("你沒有權限執行這個指令", ephemeral=True)
+        return wrapper
 
     @commands.Cog.listener()
     async def on_message(self, message):
@@ -187,14 +183,14 @@ class Gemini(commands.Cog):
         description="on/off",
         choices=["on", "off"]
     )
-    @Guild_Admin_Examine
+    @Owner_Examine
     async def gemini_private(self, ctx, action: str):
         if action.lower() == "on":
             self.dmc_on = True
-            await ctx.respond("已啟用Gemini私訊時的直接觸發", ephemeral=True)
+            await ctx.respond("已啟用Gemini私訊時的觸發", ephemeral=True)
         elif action.lower() == "off":
             self.dmc_on = False
-            await ctx.respond("已暫時關閉Gemini私訊時的直接觸發", ephemeral=True)
+            await ctx.respond("已關閉Gemini私訊時的觸發", ephemeral=True)
         else:
             await ctx.respond("請輸入正確的動作(on/off)", ephemeral=True)
 
