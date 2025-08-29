@@ -1,4 +1,4 @@
 # Default token file for Nuru Bot
-Admin_ID = ""
+Owner_ID = ""
 Bot_Token = ""
 Google_AI_Key = ""

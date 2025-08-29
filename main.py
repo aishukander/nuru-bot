@@ -20,10 +20,10 @@ with open(toml_dir / "Token.toml", "rb") as tfile:
 bot = discord.Bot()
 
 # Check user permissions function
-def admin_Examine(func):
+def Owner_Examine(func):
     @wraps(func)
     async def wrapper(ctx, *args, **kwargs):
-        if ctx.author.id == int(Token['Admin_ID']):
+        if ctx.author.id == int(Token['Owner_ID']):
             return await func(ctx, *args, **kwargs)
         else:
             await ctx.respond("你沒有權限執行這個指令", ephemeral=True)
@@ -117,7 +117,7 @@ cogs = discord.SlashCommandGroup("cogs", "cogs management instructions")
     description="cogs名稱", 
     autocomplete = Cogs_NotLoaded
 )
-@admin_Examine
+@Owner_Examine
 async def load(ctx, extension: str):
     try:
         bot.load_extension(f"cogs.{extension}")
@@ -132,7 +132,7 @@ async def load(ctx, extension: str):
     description="cogs名稱", 
     autocomplete = Cogs_Loaded
 )
-@admin_Examine
+@Owner_Examine
 async def unload(ctx, extension: str):
     try:
         bot.unload_extension(f"cogs.{extension}")
@@ -147,7 +147,7 @@ async def unload(ctx, extension: str):
     description="cogs名稱", 
     autocomplete = Cogs_Loaded
 )
-@admin_Examine
+@Owner_Examine
 async def reload(ctx, extension: str):
     try:
         bot.reload_extension(f"cogs.{extension}")
@@ -156,7 +156,7 @@ async def reload(ctx, extension: str):
         await ctx.respond(f"重載模塊時發生錯誤: {e}", ephemeral=True)
 
 @cogs.command(description="列出已載入的cog")
-@admin_Examine
+@Owner_Examine
 async def show(ctx):
     try:
         loaded_cogs = [cog for cog in bot.cogs]
