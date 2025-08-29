@@ -58,10 +58,13 @@ class Message(commands.Cog):
     )
     @Guild_Admin_Examine
     async def delete_msg(self, ctx, num: int):
-        await ctx.respond(f"準備開始刪除 {num} 則訊息")
-        await asyncio.sleep(1)
-        await ctx.channel.purge(limit=num+1)
-        await ctx.send(f"已刪除 {num} 則訊息")
+        await ctx.respond(f"準備開始刪除 {num} 則訊息", ephemeral=True)
+        try:
+            await ctx.channel.purge(limit=num)
+        except Exception as e:
+            await ctx.edit(content=f"刪除訊息時發生錯誤: {e}")
+        else:
+            await ctx.edit(content=f"成功刪除了 {num} 則訊息。")
 
     #讓bot私訊你來呈現一個記事本
     @commands.slash_command(
