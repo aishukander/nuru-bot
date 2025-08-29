@@ -1,0 +1,160 @@
+#table as an option is displayed under the help command
+#category.explain under each table as the description of that table
+#A command consists of four parts, namely. Name, explain, template, how_to_use, unfilled will be displayed "這裡沒有留下什麼。"
+#🔧Server administrator only，🪪Bot owners only，🚹Available when applied personally，🔍 has a search function，🪧The bot's responses can be seen by others"
+[Manage]
+category.explain = "與機器人管理或測試有關的指令。"
+
+cogs_load.explain = "🪪 🔍載入選擇的cogs。"
+cogs_load.template = "/cogs load Help"
+cogs_load.how_to_use = "/cogs load <齒輪名稱>"
+
+cogs_unload.explain = "🪪 🔍卸載選擇的cogs。"
+cogs_unload.template = "/cogs unload Help"
+cogs_unload.how_to_use = "/cogs unload <齒輪名稱>"
+
+cogs_reload.explain = "🪪 🔍重新載入選擇的cogs。"
+cogs_reload.template = "/cogs reload Help"
+cogs_reload.how_to_use = "/cogs reload <齒輪名稱>"
+
+cogs_show.explain = "🪪 🔍顯示所有已載入的cogs。"
+cogs_show.template = "/cogs show"
+cogs_show.how_to_use = "/cogs show"
+
+info_bot.explain = "🚹查看機器人的部分資訊，包括CPU使用率、記憶體使用率、硬碟使用率、當前網路收發速度、啟動日期、所在伺服器數量。"
+info_bot.template = "/info_bot"
+info_bot.how_to_use = "/info_bot"
+
+ping.explain = "🚹測試機器人目前與discord的延遲。"
+ping.template = "/ping"
+ping.how_to_use = "/ping"
+
+invitation.explain = "🚹 🪧獲取機器人的邀請連結。"
+invitation.template = "/invitation"
+invitation.how_to_use = "/invitation"
+
+help.explain = "🚹依照Help的內容提供幫助。"
+help.template = "/help"
+help.how_to_use = "/help"
+
+[Poll]
+category.explain = "關於投票的指令。"
+
+create_poll.explain = "🔧 🪧創建一個投票。"
+create_poll.template = "/create_poll poll1 A,B,C,D"
+create_poll.how_to_use = "/create_poll <投票名稱> <投票選項> [結束時間(預設1天)] [可參與投票的使用者(預設所有人)]"
+
+[Music]
+category.explain = "關於音樂的指令。"
+
+music_play.explain = "🔍可輸入名稱後搜尋對應名稱的音樂提供選擇，或是直接以連接播放。"
+music_play.template = "/music play never"
+music_play.how_to_use = "/music play <名稱或連結>"
+
+music_volume.explain = "以百分比調整音樂播放音量，範圍0-150，初始音量由Setting的Volume決定。"
+music_volume.template = "/music volume 50"
+music_volume.how_to_use = "/music volume <0-150>"
+
+music_queue.explain = "顯示當前播放列表並提供用於控制音樂播放的按鈕。"
+music_queue.template = "/music queue"
+music_queue.how_to_use = "/music queue"
+
+music_pause.explain = "暫停當前播放的音樂。"
+music_pause.template = "/music pause"
+music_pause.how_to_use = "/music pause"
+
+music_resume.explain = "恢復暫停的音樂。"
+music_resume.template = "/music resume"
+music_resume.how_to_use = "/music resume"
+
+music_stop.explain = "終止音樂播放並清空播放列表。"
+music_stop.template = "/music stop"
+music_stop.how_to_use = "/music stop"
+
+music_skip.explain = "跳過當前播放的音樂。"
+music_skip.template = "/music skip"
+music_skip.how_to_use = "/music skip"
+
+music_remove.explain = "從播放列表中移除指定的音樂。"
+music_remove.template = "/music remove 1"
+music_remove.how_to_use = "/music remove <音樂編號>"
+
+music_random.explain = "從下一首開始打亂播放的順序。"
+music_random.template = "/music random"
+music_random.how_to_use = "/music random"
+
+music_play_index.explain = "立即播放指定的音樂並刪除當前播放的音樂。"
+music_play_index.template = "/music play_index 1"
+music_play_index.how_to_use = "/music play_index <音樂編號>"
+
+[Message]
+category.explain = "管理文字或與文字較相關的指令。"
+
+mc_status.explain = "🚹查看Minecraft伺服器狀態。"
+mc_status.template = "/mc_status example.com"
+mc_status.how_to_use = "/mc_status <伺服器地址> [伺服器端口(預設25565)]"
+
+delete_msg.explain = "🔧刪除頻道中的訊息。"
+delete_msg.template = "/delete_msg 5"
+delete_msg.how_to_use = "/delete_msg <要刪除的訊息數量>"
+
+notebook.explain = "🚹讓機器人私訊你來呈現一個記事本。"
+notebook.template = "/notebook"
+notebook.how_to_use = "/notebook"
+
+buy_or_not.explain = "🚹隨機回覆Buy_OR_Not內的選項。"
+buy_or_not.template = "/buy_or_not"
+buy_or_not.how_to_use = "/buy_or_not"
+
+word_changer.explain = "🚹對指定文字進行替換。"
+word_changer.template = "/word_changer hello_world world bot"
+word_changer.how_to_use = "/word_changer <要修改的文本> <選定的文字> <替換的文字>"
+
+[Image]
+category.explain = "與圖片較相關的指令。"
+
+called_figure.explain = "🚹 🔍 🪧從機器人內搜尋並貼上對應的圖片，搜尋功能一次最多顯示25個，如果未顯示可以把關鍵字打長點。"
+called_figure.template = "/called_figure 不需要妳擔心"
+called_figure.how_to_use = "/called_figure <名字>"
+
+anime_search.explain = "🚹 根據動漫截圖搜尋該截圖的相關資料，包括動漫名、集數、出現的時間，支援圖片檔跟連結，如果同時給予兩者則是圖片檔優先"
+anime_search.template = "/anime_search image.png"
+anime_search.how_to_use = "/anime_search [圖片檔案] [圖片連結]"
+
+[Gemini]
+category.explain = "關於gemini的指令。"
+
+tag_nuru.explain = "🚹 🪧@nuru並加上要傳送的訊息nuru就會回答你，nuru可以回答文字並看的見傳出的圖像。"
+tag_nuru.template = "@nuru hello"
+tag_nuru.how_to_use = "@nuru <訊息>"
+
+gemini_reset.explain = "🚹清空gemini與你的歷史對話紀錄"
+gemini_reset.template = "/gemini_reset"
+gemini_reset.how_to_use = "/gemini_reset"
+
+gemini_private.explain = "🪪設定gemini在私訊時會不會被觸發"
+gemini_private.template = "/gemini_private off"
+gemini_private.how_to_use = "/gemini_private <on/off>"
+
+[Channel]
+category.explain = "調整頻道或是身分組的指令。"
+
+dynamic_voice_add_voice.explain = "🔧新增一個動態語音頻道，在使用者進入母頻道後將會創建一個子頻道並把使用者移入，而子頻道會在所有使用者離開後自動刪除。"
+dynamic_voice_add_voice.template = "/dynamic_voice add_voice dynamic"
+dynamic_voice_add_voice.how_to_use = "/dynamic_voice add_voice <母頻道名稱>"
+
+dynamic_voice_remove_voice.explain = "🔧 🔍移除一個動態語音頻道。"
+dynamic_voice_remove_voice.template = "/dynamic_voice remove_voice dynamic"
+dynamic_voice_remove_voice.how_to_use = "/dynamic_voice remove_voice <母頻道名稱>"
+
+dynamic_voice_set_voice_template.explain = "🔧 🔍設定動態語音子頻道名稱模版，名稱內出現{}則會將{}替換為第一個進入該頻道的使用者名稱，如果不進行設定初始名稱為 {}的動態語音。"
+dynamic_voice_set_voice_template.template = "/dynamic_voice set_voice_template dynamic {}的動態語音"
+dynamic_voice_set_voice_template.how_to_use = "/dynamic_voice set_voice_template <母頻道名稱> <子頻道名稱模板>"
+
+move_voice.explain = "🔧 🔍將指定頻道內的所有使用者移動到其他頻道。"
+move_voice.template = "/move_voice voice1 voice2"
+move_voice.how_to_use = "/move_voice <來源頻道名稱> <目標頻道名稱>"
+
+create_role.explain = "🔧建立一個身分組並創建對應的文字和語音頻道，頻道名稱與身分組名稱相同。"
+create_role.template = "/create_role role1"
+create_role.how_to_use = "/create_role <身分組名稱>"
