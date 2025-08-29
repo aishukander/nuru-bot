@@ -233,7 +233,7 @@ class Music(commands.Cog):
             
             await progress_message.edit(content=f"已加入 {playlist_info} 到播放列表！")
 
-    @music.command(description="調整播放音量 (0-150%)")
+    @music.command(description="調整播放音量 (0-150)")
     @discord.option(
         "volume",
         type=discord.SlashCommandOptionType.integer,
