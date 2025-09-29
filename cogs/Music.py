@@ -26,7 +26,6 @@ class Music(commands.Cog):
         # https://github.com/yt-dlp/yt-dlp?tab=readme-ov-file#video-format-options
         self.ydl_opts = {
             'outtmpl': './tmp/%(title)s.%(ext)s',
-            'format': 'bestaudio[acodec=opus]/bestaudio/best',
             'format': 'bestaudio/best',
             'merge_output_format': 'opus',
             'quiet': True,
