@@ -8,3 +8,6 @@ yt_dlp
 ytmusicapi
 PyNaCl
 tomli-w
+selenium
+webdriver-manager
+beautifulsoup4

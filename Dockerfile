@@ -47,7 +47,7 @@ COPY --from=builder /bot/ /bot/
 
 # 安裝opus庫
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends libopus0 && \
+    apt-get install -y --no-install-recommends libopus0 firefox && \
     rm -rf /var/lib/apt/lists/* && \
     # 安裝Python依賴
     pip install --no-cache-dir --upgrade pip && \
