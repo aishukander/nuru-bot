@@ -4,15 +4,19 @@ import tomllib
 import tomli_w
 from pathlib import Path
 import datetime
-import time
 from selenium import webdriver
 from selenium.webdriver.firefox.service import Service as FirefoxService
 from selenium.webdriver.firefox.options import Options
 from webdriver_manager.firefox import GeckoDriverManager
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import NoSuchElementException, TimeoutException
+from selenium.webdriver.common.by import By
 import asyncio
 import re
 from bs4 import BeautifulSoup
+import time
 
 toml_dir = Path(__file__).resolve().parents[1] / "toml"
 
@@ -112,12 +116,15 @@ class Moto_registration(commands.Cog):
         """根據提供的參數執行爬蟲並返回結果"""
         found_slots = []
 
+        # 在前往目標網站前，先清除所有 cookies
+        driver.delete_all_cookies()
         # 前往目標網站
         driver.get(url)
 
         try:
-            # 等待頁面加載
-            time.sleep(3)
+            # 等待頁面加載，直到「車種」下拉選單出現
+            wait = WebDriverWait(driver, 10) # 設定最長等待 10 秒
+            wait.until(EC.presence_of_element_located((By.ID, "licenseTypeCode")))
 
             # --- 與網頁元素互動 ---
             driver.execute_script(f"document.getElementById('licenseTypeCode').value = '{license_code}';")
@@ -134,20 +141,39 @@ class Moto_registration(commands.Cog):
 
             driver.execute_script(f"document.getElementById('dmvNoLv1').value = '{region_code}';")
             driver.execute_script("document.getElementById('dmvNoLv1').dispatchEvent(new Event('change'));")
-            time.sleep(1)
+            
+            # 等待監理站下拉選單更新並可見
+            wait.until(EC.presence_of_element_located((By.XPATH, f"//select[@id='dmvNo']/option[@value='{station_code}']")))
             driver.execute_script(f"document.getElementById('dmvNo').value = '{station_code}';")
             driver.execute_script("document.getElementById('dmvNo').dispatchEvent(new Event('change'));")
 
             search_button = driver.find_element(By.XPATH, "//a[contains(@onclick, 'query();')]")
-            search_button.click()
-            time.sleep(5)
+            driver.execute_script("arguments[0].click();", search_button)
+            
+            # 等待查詢結果，直到「選擇場次繼續報名」按鈕或結果表格出現
+            # 使用 any_of 讓它等待兩個條件其中一個成立即可
+            wait.until(EC.any_of(
+                EC.presence_of_element_located((By.XPATH, "//a[text()='選擇場次繼續報名']")),
+                EC.presence_of_element_located((By.ID, "trnTable"))
+            ))
 
             try:
+                # 嘗試點擊「選擇場次繼續報名」按鈕
                 continue_button = driver.find_element(By.XPATH, "//a[text()='選擇場次繼續報名']")
-                continue_button.click()
-                time.sleep(3)
-            except Exception:
-                pass # 沒有按鈕也沒關係
+                driver.execute_script("arguments[0].click();", continue_button)
+
+                # 點擊後，等待表格內容載入完成
+                wait.until(EC.presence_of_element_located((By.XPATH, "//table[@id='trnTable']/tbody//a[contains(@onclick, 'preAdd')]")))
+            
+            except (NoSuchElementException, TimeoutException):
+                # 預期情況：
+                # 1. NoSuchElementException: 頁面上沒有「選擇場次繼續報名」按鈕，表示結果直接顯示在第一頁。
+                # 2. TimeoutException: 點擊按鈕後，在時限內沒有出現可報名的場次連結。
+                # 這兩種情況都視為正常流程（沒有更多結果），所以直接忽略。
+                pass
+            except Exception as e:
+                # 非預期錯誤：捕獲其他所有可能的錯誤並印出，以便除錯。
+                print(f"An unexpected error occurred while processing the results page: {e}")
 
             # --- 解析結果 ---
             soup = BeautifulSoup(driver.page_source, "html.parser")
@@ -184,45 +210,48 @@ class Moto_registration(commands.Cog):
         all_results = {}
         license_code = "3"
 
-        # 設定 WebDriver
-        options = Options()
-        options.add_argument("-headless")
-        driver = None # 初始化 driver
-        try:
-            driver = webdriver.Firefox(service=FirefoxService(GeckoDriverManager().install()), options=options)
+        # 遍歷所有搜尋任務
+        for search_item in config.get("searches", []):
+            user_id = search_item.get("id")
+            date_str = search_item.get("date")
+            station_name = search_item.get("station")
 
-            # 遍歷所有搜尋任務
-            for search_item in config.get("searches", []):
-                user_id = search_item.get("id")
-                date_str = search_item.get("date")
-                station_name = search_item.get("station")
+            if not all([user_id, date_str, station_name]):
+                continue
 
-                if not all([user_id, date_str, station_name]):
-                    continue
+            station_code = config.get("stations", {}).get(station_name)
+            if not station_code:
+                continue
+        
+            region_code = str((int(station_code) // 10) * 10)
 
-                station_code = config.get("stations", {}).get(station_name)
-                if not station_code:
-                    continue
-            
-                region_code = str((int(station_code) // 10) * 10)
+            # 初始化使用者的結果列表
+            if user_id not in all_results:
+                all_results[user_id] = []
 
-                # 初始化使用者的結果列表
-                if user_id not in all_results:
-                    all_results[user_id] = []
+            # 為每次查詢建立獨立的 WebDriver
+            driver = None
+            try:
+                options = Options()
+                options.add_argument("-headless") 
+                driver = webdriver.Firefox(service=FirefoxService(GeckoDriverManager().install()), options=options)
 
                 # 執行爬蟲
                 found_slots = Moto_registration.run_crawler(driver, config["url"], license_code, date_str, region_code, station_code, station_name)
-            
+        
                 # 儲存結果
                 all_results[user_id].append({
                     "station": station_name,
                     "date": date_str,
                     "slots": found_slots
                 })
-            return all_results
-        finally:
-            if driver:
-                driver.quit()
+            except Exception as e:
+                print(f"An error occurred during the processing of {station_name}: {e}")
+            finally:
+                if driver:
+                    driver.quit()
+        
+        return all_results
 
     @commands.slash_command(description="機車考照預約查詢")
     @discord.option(
