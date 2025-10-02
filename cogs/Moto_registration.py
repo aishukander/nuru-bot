@@ -108,20 +108,13 @@ class Moto_registration(commands.Cog):
                             slots_value = "\n".join(result['slots'])
                             field_value += f"**{result['station']}**\n```{slots_value}```\n"
                         
-                        # 計算結束日期 (月份+1)
-                        start_date_obj = datetime.datetime.strptime(date, "%Y-%m-%d")
-                        end_year = start_date_obj.year
-                        end_month = start_date_obj.month + 1
-                        if end_month > 12:
-                            end_month = 1
-                            end_year += 1
-                        
-                        # 確保日期在該月中有效
-                        # 使用 calendar.monthrange 取得該月的總天數
-                        _, days_in_month = calendar.monthrange(end_year, end_month)
-                        end_day = min(start_date_obj.day, days_in_month)
-                        
-                        end_date_obj = datetime.date(end_year, end_month, end_day)
+                        # 計算結束日期
+                        start_date_obj = datetime.datetime.strptime(date, "%Y-%m-%d").date()
+                        # 從 result 中獲取對應的 scope
+                        # 我們假設同一個 user_id 和 date 的所有 result 都有相同的 scope
+                        original_search = next((r for r in date_results if 'scope' in r), None)
+                        scope = original_search.get('scope', 1) if original_search else 1
+                        end_date_obj = start_date_obj + datetime.timedelta(days=scope - 1)
                         end_date_str = end_date_obj.strftime("%Y-%m-%d")
 
                         embed.add_field(
@@ -152,16 +145,16 @@ class Moto_registration(commands.Cog):
         ][:25]
     
     @staticmethod
-    def run_crawler(driver, url, license_code, date_str, region_code, station_code, station_name):
+    def run_crawler(driver, url, license_code, date_str, region_code, station_code, station_name, scope):
         """根據提供的參數執行爬蟲並返回結果"""
         found_slots = []
 
-        # 在前往目標網站前，先清除所有 cookies
-        driver.delete_all_cookies()
-        # 前往目標網站
-        driver.get(url)
-
         try:
+            # 在前往目標網站前，先清除所有 cookies 並導向空白頁，確保頁面狀態被重置
+            driver.delete_all_cookies()
+            driver.get("about:blank")
+            driver.get(url)
+
             # 等待頁面加載，直到「車種」下拉選單出現
             wait = WebDriverWait(driver, 10) # 設定最長等待 10 秒
             wait.until(EC.presence_of_element_located((By.ID, "licenseTypeCode")))
@@ -178,6 +171,8 @@ class Moto_registration(commands.Cog):
             date_input = driver.find_element(By.ID, "expectExamDateStr")
             date_input.clear()
             date_input.send_keys(roc_date_str)
+            # 確保日期已填入
+            wait.until(EC.text_to_be_present_in_element_value((By.ID, "expectExamDateStr"), roc_date_str))
 
             driver.execute_script(f"document.getElementById('dmvNoLv1').value = '{region_code}';")
             driver.execute_script("document.getElementById('dmvNoLv1').dispatchEvent(new Event('change'));")
@@ -220,19 +215,37 @@ class Moto_registration(commands.Cog):
             table = soup.find("table", id="trnTable")
             if table:
                 rows = table.find("tbody").find_all("tr")
+                start_date = datetime.datetime.strptime(date_str, "%Y-%m-%d").date()
+                end_date = start_date + datetime.timedelta(days=scope - 1)
+
                 for row in rows:
                     cols = row.find_all("td")
                     if len(cols) == 4 and cols[3].find("a", onclick=lambda x: x and "preAdd" in x):
-                        test_date = cols[0].text.strip()
-                        description = ' '.join(cols[1].text.strip().split())
-                        availability = cols[2].text.strip()
-                    
-                        slot_info = (
-                            f"考試日期: {test_date}\n"
-                            f"場次說明: {description}\n"
-                            f"可報名人數: {availability}"
-                        )
-                        found_slots.append(slot_info)
+                        test_date_str_full = cols[0].text.strip() # "114年10月13日 (Mon)"
+                        test_date_str = test_date_str_full.split(" ")[0] # "114年10月13日"
+                        
+                        try:
+                            # 解析民國年
+                            match = re.match(r"(\d+)年(\d+)月(\d+)日", test_date_str)
+                            if match:
+                                roc_year, month, day = map(int, match.groups())
+                                gregorian_year = roc_year + 1911
+                                test_date = datetime.date(gregorian_year, month, day)
+
+                                # 檢查日期是否在範圍內
+                                if start_date <= test_date <= end_date:
+                                    description = ' '.join(cols[1].text.strip().split())
+                                    availability = cols[2].text.strip()
+                                
+                                    slot_info = (
+                                        f"考試日期: {test_date_str_full}\n"
+                                        f"場次說明: {description}\n"
+                                        f"可報名人數: {availability}"
+                                    )
+                                    found_slots.append(slot_info)
+                        except (ValueError, TypeError) as e:
+                            print(f"Error parsing date '{test_date_str}': {e}")
+                            continue
         except Exception as e:
             print(f"an error occurred while querying {station_name} ({date_str}): {e}")
 
@@ -250,46 +263,52 @@ class Moto_registration(commands.Cog):
         all_results = {}
         license_code = "3"
 
-        # 遍歷所有搜尋任務
-        for search_item in config.get("searches", []):
-            user_id = search_item.get("id")
-            date_str = search_item.get("date")
-            station_name = search_item.get("station")
+        # 初始化 WebDriver 一次，並在所有搜尋中重複使用
+        driver = None
+        try:
+            options = Options()
+            options.add_argument("-headless") 
+            driver = webdriver.Firefox(service=FirefoxService(GeckoDriverManager().install()), options=options)
 
-            if not all([user_id, date_str, station_name]):
-                continue
+            # 遍歷所有搜尋任務
+            for search_item in config.get("searches", []):
+                user_id = search_item.get("id")
+                date_str = search_item.get("date")
+                station_name = search_item.get("station")
+                scope = search_item.get("scope", 1) # 預設為 1 天
 
-            station_code = config.get("stations", {}).get(station_name)
-            if not station_code:
-                continue
-        
-            region_code = str((int(station_code) // 10) * 10)
+                if not all([user_id, date_str, station_name]):
+                    continue
 
-            # 初始化使用者的結果列表
-            if user_id not in all_results:
-                all_results[user_id] = []
+                station_code = config.get("stations", {}).get(station_name)
+                if not station_code:
+                    continue
+            
+                region_code = str((int(station_code) // 10) * 10)
 
-            # 為每次查詢建立獨立的 WebDriver
-            driver = None
-            try:
-                options = Options()
-                options.add_argument("-headless") 
-                driver = webdriver.Firefox(service=FirefoxService(GeckoDriverManager().install()), options=options)
+                # 初始化使用者的結果列表
+                if user_id not in all_results:
+                    all_results[user_id] = []
 
-                # 執行爬蟲
-                found_slots = Moto_registration.run_crawler(driver, config["url"], license_code, date_str, region_code, station_code, station_name)
-        
-                # 儲存結果
-                all_results[user_id].append({
-                    "station": station_name,
-                    "date": date_str,
-                    "slots": found_slots
-                })
-            except Exception as e:
-                print(f"An error occurred during the processing of {station_name}: {e}")
-            finally:
-                if driver:
-                    driver.quit()
+                try:
+                    # 執行爬蟲
+                    found_slots = Moto_registration.run_crawler(driver, config["url"], license_code, date_str, region_code, station_code, station_name, scope)
+                    # 儲存結果
+                    all_results[user_id].append({
+                        "station": station_name,
+                        "date": date_str,
+                        "scope": scope,
+                        "slots": found_slots
+                    })
+                except Exception as e:
+                    # 即使單一查詢失敗，也只記錄錯誤，不中斷整個流程
+                    print(f"An error occurred during the processing of {station_name} for user {user_id}: {e}")
+
+        except Exception as e:
+            print(f"An error occurred during WebDriver initialization: {e}")
+        finally:
+            if driver:
+                driver.quit()
         
         return all_results
 
@@ -305,7 +324,13 @@ class Moto_registration(commands.Cog):
         type=discord.SlashCommandOptionType.string, 
         description="日期(格式:YYYY-MM-DD)",
     )
-    async def moto_registration(self, ctx, station: str, date: str):
+    @discord.option(
+        "scope", 
+        type=discord.SlashCommandOptionType.integer, 
+        description="從開始日期往後查詢幾天(預設為 1, 最多 30 天)",
+        default=1
+    )
+    async def moto_registration(self, ctx, station: str, date: str, scope: int):
         # Validate date format
         if not re.match(r"^\d{4}-\d{2}-\d{2}$", date):
             await ctx.respond("日期格式錯誤，請使用 YYYY-MM-DD 格式。", ephemeral=True)
@@ -320,10 +345,15 @@ class Moto_registration(commands.Cog):
             await ctx.respond(f"找不到監理站: {station}。請確認名稱是否正確。", ephemeral=True)
             return
 
+        if not (1 <= scope <= 30):
+            await ctx.respond("查詢範圍(scope)必須介於 1 到 30 之間。", ephemeral=True)
+            return
+
         new_search = {
             "id": str(ctx.author.id),
             "date": date,
-            "station": station
+            "station": station,
+            "scope": scope
         }
 
         if "searches" not in self.moto_data:
@@ -334,7 +364,7 @@ class Moto_registration(commands.Cog):
             with open(toml_dir / "Moto_registration.toml", "w", encoding="utf-8") as tfile:
                 tfile.write(tomli_w.dumps(self.moto_data))
                 tfile.write("\n")
-            await ctx.respond(f"已為您儲存查詢設定：\n- 監理站：{station}\n- 日期：{date}", ephemeral=True)
+            await ctx.respond(f"已為您儲存查詢設定：\n- 監理站：{station}\n- 日期：{date}\n- 查詢範圍：{scope} 天", ephemeral=True)
         except Exception as e:
             print(f"an error occurred while writing to the TOML file: {e}")
             await ctx.respond("儲存設定時發生錯誤，請聯絡管理員。", ephemeral=True)
