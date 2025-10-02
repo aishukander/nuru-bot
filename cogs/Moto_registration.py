@@ -16,7 +16,8 @@ from selenium.webdriver.common.by import By
 import asyncio
 import re
 from bs4 import BeautifulSoup
-import time
+import random
+import calendar
 
 toml_dir = Path(__file__).resolve().parents[1] / "toml"
 
@@ -83,14 +84,53 @@ class Moto_registration(commands.Cog):
 
                     user = await self.bot.fetch_user(int(user_id_str))
                     
-                    # 格式化訊息
-                    message_parts = [f"Hi {user.mention}, 這是您的機車考照預約查詢結果："]
+                    # 建立嵌入訊息
+                    color = random.randint(0, 16777215)
+                    embed = discord.Embed(
+                        title="🏍️ 機車考照預約查詢結果",
+                        description=f"Hi {user.mention}, 以下是您設定的考照預約查詢結果：",
+                        color=color
+                    )
+
+                    # 按日期對結果進行分組
+                    results_by_date = {}
                     for result in results:
-                        if result['slots']:
-                            message_parts.append(f"\n📍 **監理站: {result['station']}** (查詢日期: {result['date']})")
-                            message_parts.extend(result['slots'])
+                        if result.get('slots'):
+                            date = result['date']
+                            if date not in results_by_date:
+                                results_by_date[date] = []
+                            results_by_date[date].append(result)
+
+                    # 為每個日期建立一個欄位
+                    for date, date_results in sorted(results_by_date.items()):
+                        field_value = ""
+                        for result in date_results:
+                            slots_value = "\n".join(result['slots'])
+                            field_value += f"**{result['station']}**\n```{slots_value}```\n"
+                        
+                        # 計算結束日期 (月份+1)
+                        start_date_obj = datetime.datetime.strptime(date, "%Y-%m-%d")
+                        end_year = start_date_obj.year
+                        end_month = start_date_obj.month + 1
+                        if end_month > 12:
+                            end_month = 1
+                            end_year += 1
+                        
+                        # 確保日期在該月中有效
+                        # 使用 calendar.monthrange 取得該月的總天數
+                        _, days_in_month = calendar.monthrange(end_year, end_month)
+                        end_day = min(start_date_obj.day, days_in_month)
+                        
+                        end_date_obj = datetime.date(end_year, end_month, end_day)
+                        end_date_str = end_date_obj.strftime("%Y-%m-%d")
+
+                        embed.add_field(
+                            name=f"📅 查詢日期範圍: {date} ~ {end_date_str}",
+                            value=field_value,
+                            inline=False
+                        )
                     
-                    await user.send("\n".join(message_parts))
+                    await user.send(embed=embed)
                 except Exception as e:
                     print(f"an error occurred when sending the result to {user_id_str}: {e}")
 
@@ -188,9 +228,9 @@ class Moto_registration(commands.Cog):
                         availability = cols[2].text.strip()
                     
                         slot_info = (
-                            f"  - 考試日期: {test_date}\n"
-                            f"    場次說明: {description}\n"
-                            f"    可報名人數: {availability}"
+                            f"考試日期: {test_date}\n"
+                            f"場次說明: {description}\n"
+                            f"可報名人數: {availability}"
                         )
                         found_slots.append(slot_info)
         except Exception as e:
