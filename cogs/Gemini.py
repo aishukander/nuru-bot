@@ -99,15 +99,22 @@ class Gemini(commands.Cog):
                     self.update_message_history(message.author.id, response)
                     await self.split_and_send_messages(message, response, 1700)
 
+    def validate_response(self, response):
+        if not hasattr(response, "candidates") or not response.candidates:
+            return "❌ No valid response candidates were returned."
+
+        candidate = response.candidates[0]
+        if getattr(candidate, "finish_reason", None) != 0:
+            return f"❌ Response generation was incomplete. Finish reason: {candidate.finish_reason}"
+        return getattr(candidate, "text", "❌ No text content in the response.")
+
     async def generate_response_with_text(self, message):
         prompt_parts = "\n".join(self.setting["Gemini_Prompt"] + [message])
         try:
             response = self.text_model.generate_content(prompt_parts)
         except Exception as e:
             return f"❌ {str(e)}"
-        if hasattr(response, "_error") and response._error:
-            return f"❌ {response._error}"
-        return getattr(response, "text", str(response))
+        return self.validate_response(response)
 
     async def generate_response_with_image_and_text(self, image_data, text, mime_type):
         try:
@@ -117,9 +124,7 @@ class Gemini(commands.Cog):
             response = self.image_model.generate_content(prompt_parts)
         except Exception as e:
             return f"❌ {str(e)}"
-        if hasattr(response, "_error") and response._error:
-            return f"❌ {response._error}"
-        return getattr(response, "text", str(response))
+        return self.validate_response(response)
 
     def update_message_history(self, user_id, text):
         if user_id in self.message_history:
