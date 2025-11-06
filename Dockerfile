@@ -1,8 +1,8 @@
-# 定義Python版本
-ARG Python_Version=3.13.1-slim
+ARG Python_version=3.13.1-slim
+ARG Bot_version=11.3.1
 
-######## 第一階段：編譯FFmpeg ########
-FROM python:${Python_Version} AS builder
+# Build Stage
+FROM python:${Python_version} AS builder
 
 ENV \
     PYTHONUNBUFFERED=1 \
@@ -13,7 +13,7 @@ WORKDIR /bot
 
 COPY . .
 
-# 靜態編譯FFmpeg以及安裝所需套件
+# compile ffmpeg statically and install required packages
 RUN apt-get update && \
     apt-get install -y --no-install-recommends wget xz-utils && \
     wget https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz && \
@@ -28,28 +28,30 @@ RUN mkdir -p /tmp/toml && \
     mv /bot/toml/default_Token.toml /tmp/toml/Token.toml && \
     rm -rf /bot/toml/*
 
-######## 第二階段：運行環境 ########
-FROM python:${Python_Version}
+# Runtime Stage
+FROM python:${Python_version}
+ARG Bot_version
 LABEL org.opencontainers.image.authors="aishukander <hank960924@gmail.com>"
 
 ENV \
     PYTHONUNBUFFERED=1 \
     DEBIAN_FRONTEND=noninteractive \
-    PIP_ROOT_USER_ACTION=ignore
+    PIP_ROOT_USER_ACTION=ignore \
+    BOT_VERSION=${Bot_version}
 
 WORKDIR /bot
 
-# 複製所需檔案
+# copy ffmpeg and bot files from builder stage
 COPY --from=builder /usr/local/bin/ffmpeg /usr/local/bin/ffmpeg
 COPY --from=builder /usr/local/bin/ffprobe /usr/local/bin/ffprobe
 COPY --from=builder /tmp/toml/ /tmp/toml/
 COPY --from=builder /bot/ /bot/
 
-# 安裝opus庫
+# install runtime dependencies
 RUN apt-get update && \
     apt-get install -y --no-install-recommends libopus0 firefox-esr && \
     rm -rf /var/lib/apt/lists/* && \
-    # 安裝Python依賴
+    # install Python requirements
     pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt && \
     rm -rf /root/.cache/pip/* && \

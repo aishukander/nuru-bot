@@ -5,6 +5,7 @@ import random
 import tomllib
 from pathlib import Path
 from functools import wraps
+import os
 """======================================================================================="""
 
 intents = discord.Intents.all()
@@ -91,18 +92,20 @@ load_cogs()
 @bot.event
 async def on_ready():
     # Bot ready event
-    bot_name = f"Bot Logged in as {bot.user}"
+    bot_version = os.getenv('BOT_VERSION') or "development"
+    login_message = f"Bot Logged in as {bot.user}"
+    version_message = f'>> Startup is {bot_version} <<'
     border = "=" * 40
     print(border)
-    print(f"= {bot_name.center(len(border) - 4)} =")
-    print(f"= {'>>  Bot start  <<'.center(len(border) - 4)} =")
+    print(f"= {login_message.center(len(border) - 4)} =")
+    print(f"= {version_message.center(len(border) - 4)} =")
     print(border)
 
     # Set the bot's presence
     await bot.change_presence(
         activity = discord.Activity(
             type = discord.ActivityType.watching, 
-            name = f"@nuru的訊息 | V : {Setting['Version']}"
+            name = f"@nuru的訊息 | V : {bot_version}"
         )
     )
 
