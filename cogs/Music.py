@@ -19,6 +19,7 @@ class Music(commands.Cog):
         self.default_volume = float(self.Setting["Volume"].rstrip('%')) / 100
         self.inactive_timeout = int(self.Setting["Inactive_Timeout"]) # channel inactivity timeout in seconds
         self.guild_data = {}  # guild_id -> {"play_list": [], "current_track": None, "volume": <float>, "inactive_task": None}
+        self.debounce_tasks = {} # (user_id, channel_id) -> asyncio.Task
         
         # https://github.com/yt-dlp/yt-dlp?tab=readme-ov-file#video-format-options
         self.ydl_opts = {
@@ -98,28 +99,57 @@ class Music(commands.Cog):
             )
 
     # Music search autocomplete
-    def get_music_names(self, ctx: discord.AutocompleteContext):
+    async def get_music_names(self, ctx: discord.AutocompleteContext):
+        interaction_key = (ctx.interaction.user.id, ctx.interaction.channel_id)
+
+        # Cancel any existing debounce task for this user/channel
+        if interaction_key in self.debounce_tasks:
+            self.debounce_tasks[interaction_key].cancel()
+
+        # Create a new task to perform the search after a delay
+        new_task = asyncio.create_task(self._debounced_search(ctx))
+        self.debounce_tasks[interaction_key] = new_task
+
+        try:
+            # Wait for the debounced task to complete
+            results = await new_task
+            return results
+        except asyncio.CancelledError:
+            # This is expected if the user is still typing
+            return []
+        finally:
+            # Clean up the task from the dictionary
+            if interaction_key in self.debounce_tasks and self.debounce_tasks[interaction_key] is new_task:
+                del self.debounce_tasks[interaction_key]
+
+    async def _debounced_search(self, ctx: discord.AutocompleteContext):
+        await asyncio.sleep(0.2)  # Debounce delay
+
         query = ctx.value
         if not query or query.strip() == "":
-         return []
+            return []
         if query.startswith("http://") or query.startswith("https://"):
             return []
 
-        results = YTMusic().search(query, filter="songs")
-        results = results[:int(self.Setting["Search_Length"])]
-        seen = set()
-        options = []
-        for entry in results:
-            title = entry.get("title")
-            artists = ", ".join(a["name"] for a in entry.get("artists", [])) if entry.get("artists") else ""
-            display = (f"{title} - {artists}" if artists else title) [:100]
-            # Avoid duplicate displays
-            if display and display not in seen:
-                seen.add(display)
-                value = entry.get("videoId") or title
-                options.append(discord.OptionChoice(name=display, value=value))
-        return options
-                
+        try:
+            results = await asyncio.to_thread(YTMusic().search, query, filter="songs")
+            results = results[:int(self.Setting["Search_Length"])]
+            seen = set()
+            options = []
+            for entry in results:
+                title = entry.get("title")
+                artists = ", ".join(a["name"] for a in entry.get("artists", [])) if entry.get("artists") else ""
+                display = (f"{title} - {artists}" if artists else title)[:100]
+                # Avoid duplicate displays
+                if display and display not in seen:
+                    seen.add(display)
+                    value = entry.get("videoId") or title
+                    options.append(discord.OptionChoice(name=display, value=value))
+            return options
+        except Exception as e:
+            print(f"Error during music search: {e}")
+            return []
+
     async def ensure_voice_client(self, channel, voice_client):
         if voice_client is None:
             return await channel.connect()
