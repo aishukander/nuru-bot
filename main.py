@@ -80,8 +80,8 @@ def load_cogs():
         filled = int(bar_length * loaded_count / total)
         bar = "█" * filled + "-" * (bar_length - filled)
         # display the loading progress in the terminal
-        print(f"\rLoading cogs: |{bar}| {loaded_count}/{total} {filename} ... {status}",
-              end="\033[K", flush=True)
+        print(f"Loading cogs: |{bar}| {loaded_count}/{total} {filename} ... {status}   ",
+              end="\r", flush=True)
 
     print()  # Print a new line after the progress bar
     for fname, msg in errors:

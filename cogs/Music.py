@@ -46,7 +46,7 @@ class Music(commands.Cog):
                 await voice_client.disconnect()
                 data["inactive_task"] = None
 
-    def play_next(self, vc):
+    async def play_next(self, vc):
         server = self.get_guild_data(vc.guild)
         # Reset inactivity timer
         if server["inactive_task"]:
@@ -56,7 +56,6 @@ class Music(commands.Cog):
         )
 
         if vc.is_playing():
-            self.bot.loop.call_later(0.1, self.play_next, vc)
             return
 
         if server["play_list"]:
@@ -66,7 +65,6 @@ class Music(commands.Cog):
             try:
                 with yt_dlp.YoutubeDL(self.ydl_opts) as ydl:
                     info_dict = ydl.extract_info(next_song['url'], download=False)
-                    print(info_dict)
                     audio_url = None
                     for f in info_dict.get('formats', []):
                         if f.get('acodec') != 'none' and f.get('vcodec') == 'none':
@@ -82,13 +80,14 @@ class Music(commands.Cog):
                     if error:
                         print(f"播放時發生錯誤: {error}")
                     server["current_track"] = None
-                    self.bot.loop.call_later(0.5, self.play_next, vc)
+                    asyncio.run_coroutine_threadsafe(self.play_next(vc), self.bot.loop)
 
                 vc.play(transformer, after=after_playing)
 
             except Exception as e:
                 print(f"準備播放時發生錯誤: {e}")
-                self.bot.loop.call_later(0.5, self.play_next, vc)
+                await asyncio.sleep(0.5)
+                await self.play_next(vc)
         else:
             server["current_track"] = None
             # Reset inactivity timer if no songs left
@@ -167,7 +166,7 @@ class Music(commands.Cog):
 
             vc = await self.ensure_voice_client(channel, ctx.voice_client)
             if not vc.is_playing():
-                self.play_next(vc)
+                asyncio.create_task(self.play_next(vc))
             
             await ctx.followup.send(f"已加入 {playlist_info} 到播放列表！", ephemeral=True)
 
@@ -300,7 +299,7 @@ class Music(commands.Cog):
                 await asyncio.sleep(0.1)
     
         data["play_list"].insert(0, data["play_list"].pop(index - 1))
-        self.play_next(vc)
+        asyncio.create_task(self.play_next(vc))
         await ctx.respond(f"已播放 {data['current_track']['title']}！", ephemeral=True)
 
 class QueueControlView(discord.ui.View):
@@ -445,8 +444,21 @@ class QueueControlView(discord.ui.View):
             embed = self.build_queue_embed_with_status("Bot 未在語音頻道中！")
             await interaction.response.edit_message(embed=embed, view=self)
             return
+
         vc = self.ctx.voice_client
+        data = self.cog.get_guild_data(self.ctx.guild)
+        old_track = data.get("current_track")
+
+        async def wait_for_track_change(old_track_to_check):
+            while self.cog.get_guild_data(self.ctx.guild).get("current_track") == old_track_to_check:
+                await asyncio.sleep(0.1)
+
         vc.stop()
+        try:
+            await asyncio.wait_for(wait_for_track_change(old_track), timeout=5.0)
+        except asyncio.TimeoutError:
+            pass
+
         embed = self.build_queue_embed_with_status("已跳過目前播放的音樂！")
         await interaction.response.edit_message(embed=embed, view=self)
 
