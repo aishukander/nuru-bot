@@ -1,4 +1,9 @@
-cogs/__pycache__/*.pyc
-modules/__pycache__/*.pyc
+.github
 .venv
-Token.toml
+**/__pycache__
+toml/Token.toml
+.dockerignore
+.gitignore
+docker-compose.yml
+Dockerfile
+README.md
