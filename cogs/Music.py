@@ -38,22 +38,23 @@ class Music(commands.Cog):
             }
         return self.guild_data[guild.id]
 
-    async def check_inactivity(self, guild_id: int):
-        await asyncio.sleep(self.inactive_timeout)
-        data = self.guild_data.get(guild_id)
-        if data and data["inactive_task"]:
-            voice_client = self.bot.get_guild(guild_id).voice_client
-            if voice_client and not voice_client.is_playing():
-                await voice_client.disconnect()
-                data["inactive_task"] = None
-
     async def play_next(self, vc):
+
+        async def _check_inactivity(self, guild_id: int):
+            await asyncio.sleep(self.inactive_timeout)
+            data = self.guild_data.get(guild_id)
+            if data and data["inactive_task"]:
+                voice_client = self.bot.get_guild(guild_id).voice_client
+                if voice_client and not voice_client.is_playing():
+                    await voice_client.disconnect()
+                    data["inactive_task"] = None
+
         server = self.get_guild_data(vc.guild)
         # Reset inactivity timer
         if server["inactive_task"]:
             server["inactive_task"].cancel()
         server["inactive_task"] = asyncio.create_task(
-            self.check_inactivity(vc.guild.id)
+            _check_inactivity(self, vc.guild.id)
         )
 
         if vc.is_playing():
@@ -95,7 +96,7 @@ class Music(commands.Cog):
             if server["inactive_task"]:
                 server["inactive_task"].cancel()
             server["inactive_task"] = asyncio.create_task(
-                self.check_inactivity(vc.guild.id)
+                _check_inactivity(self, vc.guild.id)
             )
 
     # Music search autocomplete
