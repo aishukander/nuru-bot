@@ -6,7 +6,6 @@ Volume = "50%" # default volume for music playback
 Inactive_Timeout = "300" # voice channel inactivity timeout in seconds
 Music_Concurrent_Downloads = "3" # Number of parallel downloads of music
 Search_Length = "10" # music search length
-Progress_Bars = ["░", "█"]
 
 Gemini_Prompt = [
     "以後對話請依照以下規則:",

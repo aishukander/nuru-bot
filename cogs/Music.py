@@ -18,26 +18,13 @@ class Music(commands.Cog):
 
         self.default_volume = float(self.Setting["Volume"].rstrip('%')) / 100
         self.inactive_timeout = int(self.Setting["Inactive_Timeout"]) # channel inactivity timeout in seconds
-        self.progress_bars = self.Setting["Progress_Bars"] # Progress bar appearance
-        self.bar_length = 20 # Progress bar length
         self.guild_data = {}  # guild_id -> {"play_list": [], "current_track": None, "volume": <float>, "inactive_task": None}
-        self.file_usage = {}
         
         # https://github.com/yt-dlp/yt-dlp?tab=readme-ov-file#video-format-options
         self.ydl_opts = {
-            'outtmpl': './tmp/%(title)s.%(ext)s',
             'format': 'bestaudio/best',
-            'merge_output_format': 'opus',
             'quiet': True,
             'no_warnings': True,
-            'audio_quality': 0,
-            'concurrent_fragment_downloads': int(self.Setting["Music_Concurrent_Downloads"]),
-            'postprocessors': [{
-                'key': 'FFmpegExtractAudio',
-                'preferredcodec': 'opus',
-                'preferredquality': '320',
-            }],
-            'ffmpeg_args': ['-af', 'loudnorm=I=-16:TP=-1.5:LRA=11'],
         }
 
     def get_guild_data(self, guild: discord.Guild):
@@ -73,30 +60,34 @@ class Music(commands.Cog):
             return
 
         if server["play_list"]:
-            next_file = server["play_list"].pop(0)
-            server["current_track"] = next_file
-            source = discord.FFmpegPCMAudio(str(next_file))
-            transformer = discord.PCMVolumeTransformer(source, volume=server["volume"])
-
-            def after_playing(error):
-                usage = self.file_usage.get(str(next_file), 0)
-                if usage > 1:
-                    self.file_usage[str(next_file)] = usage - 1
-                else:
-                    try:
-                        if next_file.exists():
-                            next_file.unlink()
-                    except Exception as e:
-                        print(f"檔案刪除失敗: {e}")
-                    if str(next_file) in self.file_usage:
-                        del self.file_usage[str(next_file)]
-                server["current_track"] = None
-                self.bot.loop.call_later(0.5, self.play_next, vc)
-    
+            next_song = server["play_list"].pop(0)
+            server["current_track"] = next_song
+            
             try:
+                with yt_dlp.YoutubeDL(self.ydl_opts) as ydl:
+                    info_dict = ydl.extract_info(next_song['url'], download=False)
+                    print(info_dict)
+                    audio_url = None
+                    for f in info_dict.get('formats', []):
+                        if f.get('acodec') != 'none' and f.get('vcodec') == 'none':
+                            audio_url = f['url']
+                            break
+                    if not audio_url:
+                        audio_url = info_dict['url']
+
+                source = discord.FFmpegPCMAudio(audio_url, before_options="-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5", options="-vn")
+                transformer = discord.PCMVolumeTransformer(source, volume=server["volume"])
+
+                def after_playing(error):
+                    if error:
+                        print(f"播放時發生錯誤: {error}")
+                    server["current_track"] = None
+                    self.bot.loop.call_later(0.5, self.play_next, vc)
+
                 vc.play(transformer, after=after_playing)
-            except discord.ClientException as e:
-                print(f"播放錯誤: {e}")
+
+            except Exception as e:
+                print(f"準備播放時發生錯誤: {e}")
                 self.bot.loop.call_later(0.5, self.play_next, vc)
         else:
             server["current_track"] = None
@@ -154,7 +145,6 @@ class Music(commands.Cog):
             return
         channel = ctx.author.voice.channel
         await ctx.defer(ephemeral=True)
-        Path('./tmp').mkdir(parents=True, exist_ok=True)
 
         if not (search.startswith("http://") or search.startswith("https://")):
             search = "ytsearch:" + search
@@ -162,75 +152,24 @@ class Music(commands.Cog):
         with yt_dlp.YoutubeDL(self.ydl_opts) as ydl:
             extracted = await asyncio.to_thread(ydl.extract_info, search, download=False)
 
-            async def get_or_download(url, progress_message, current, total):
-                # Set the current task name for better debugging
-                current_task = asyncio.current_task()
-                if current_task:
-                    current_task.set_name(f'yt_dlp_download_{url}')
-
-                # Calculate the proportion of progress bars
-                progress_ratio = (current - 1) / total
-                # Calculate the proportion of progress bars
-                filled_length = int(self.bar_length * progress_ratio)
-                remaining_length = self.bar_length - filled_length
-    
-                # Create the progress bar
-                progress = (self.progress_bars[1] * filled_length + 
-                           self.progress_bars[0] * remaining_length)
-                await progress_message.edit(content=f"下載進度: {progress} ({current-1}/{total})")
-
-                info = await asyncio.to_thread(ydl.extract_info, url, download=False)
-                file_path = Path(ydl.prepare_filename(info)).with_suffix('.opus')
-                if not file_path.exists():
-                    info = await asyncio.to_thread(ydl.extract_info, url, download=True)
-                    file_path = Path(ydl.prepare_filename(info)).with_suffix('.opus')
-
-                # Download the progress update
-                progress_ratio = current / total
-                filled_length = int(self.bar_length * progress_ratio)
-                remaining_length = self.bar_length - filled_length
-                progress = (self.progress_bars[1] * filled_length + 
-                           self.progress_bars[0] * remaining_length)
-                await progress_message.edit(content=f"下載進度: {progress} ({current}/{total})")
-
-                return file_path
-
             data = self.get_guild_data(ctx.guild)
-            progress_message = await ctx.followup.send("準備下載中...", ephemeral=True)
-
+            
             if 'entries' in extracted:
                 entries = extracted['entries']
-                total_songs = len(entries)
-
-                if total_songs == 1:
-                    file_path = await get_or_download(entries[0]['webpage_url'], progress_message, 1, 1)
-                    data["play_list"].append(file_path)
-                    self.file_usage[str(file_path)] = self.file_usage.get(str(file_path), 0) + 1
-                    playlist_info = f"歌曲 {file_path.stem}"
-                else:
-                    for i, entry in enumerate(entries, 1):
-                        file_path = await get_or_download(entry['webpage_url'], progress_message, i, total_songs)
-                        data["play_list"].append(file_path)
-                        self.file_usage[str(file_path)] = self.file_usage.get(str(file_path), 0) + 1
-                    
-                        # If this is the first song, ensure the voice client is ready
-                        if i == 1:
-                            vc = await self.ensure_voice_client(channel, ctx.voice_client)
-                            if not vc.is_playing():
-                                self.play_next(vc)
-                
-                    playlist_info = f"{total_songs} 首歌曲"
+                for entry in entries:
+                    song = {'title': entry.get('title', 'Unknown Title'), 'url': entry.get('webpage_url')}
+                    data["play_list"].append(song)
+                playlist_info = f"{len(entries)} 首歌曲"
             else:
-                file_path = await get_or_download(search, progress_message, 1, 1)
-                data["play_list"].append(file_path)
-                self.file_usage[str(file_path)] = self.file_usage.get(str(file_path), 0) + 1
-                playlist_info = f"歌曲 {file_path.stem}"
+                song = {'title': extracted.get('title', 'Unknown Title'), 'url': extracted.get('webpage_url')}
+                data["play_list"].append(song)
+                playlist_info = f"歌曲 {song['title']}"
 
             vc = await self.ensure_voice_client(channel, ctx.voice_client)
             if not vc.is_playing():
                 self.play_next(vc)
             
-            await progress_message.edit(content=f"已加入 {playlist_info} 到播放列表！")
+            await ctx.followup.send(f"已加入 {playlist_info} 到播放列表！", ephemeral=True)
 
     @music.command(description="調整播放音量 (0-150)")
     @discord.option(
@@ -290,36 +229,15 @@ class Music(commands.Cog):
             await ctx.respond("Bot 未在語音頻道中！", ephemeral=True)
             return
         
-        # Find all ongoing download tasks
         data = self.get_guild_data(ctx.guild)
         if data["inactive_task"]:
             data["inactive_task"].cancel()
             data["inactive_task"] = None
         data["play_list"].clear()
     
-        # Stop the current playback and disconnect
         vc = ctx.voice_client
         vc.stop()
         await vc.disconnect()
-    
-        # Clean up temporary files
-        tmp_path = Path('./tmp')
-        if tmp_path.exists():
-            for file in tmp_path.iterdir():
-                if file.is_file():
-                    try:
-                        file.unlink()
-                    except Exception as e:
-                        print(f"刪除檔案 {file} 失敗: {e}")
-    
-        # Cancel all ongoing download tasks
-        try:
-            tasks = [task for task in asyncio.all_tasks() 
-                    if task.get_name().startswith('yt_dlp_download')]
-            for task in tasks:
-                task.cancel()
-        except Exception as e:
-            print(f"取消下載任務失敗: {e}")
         
         await ctx.respond("音樂已停止！", ephemeral=True)
     
@@ -346,19 +264,8 @@ class Music(commands.Cog):
         if index < 1 or index > len(data["play_list"]):
             await ctx.respond("歌曲編號不正確！", ephemeral=True)
             return
-        removed_file = data["play_list"].pop(index-1)
-        usage = self.file_usage.get(str(removed_file), 0)
-        if usage > 1:
-            self.file_usage[str(removed_file)] = usage - 1
-        else:
-            try:
-                if removed_file.exists():
-                    removed_file.unlink()
-            except Exception as e:
-                print(f"無法刪除 {removed_file.name}: {e}")
-            if str(removed_file) in self.file_usage:
-                del self.file_usage[str(removed_file)]
-        await ctx.respond(f"已移除 {removed_file.name}！", ephemeral=True)
+        removed_song = data["play_list"].pop(index-1)
+        await ctx.respond(f"已移除 {removed_song['title']}！", ephemeral=True)
 
     @music.command(description="隨機播放")
     async def random(self, ctx):
@@ -394,7 +301,7 @@ class Music(commands.Cog):
     
         data["play_list"].insert(0, data["play_list"].pop(index - 1))
         self.play_next(vc)
-        await ctx.respond(f"已播放 {data['current_track'].name}！", ephemeral=True)
+        await ctx.respond(f"已播放 {data['current_track']['title']}！", ephemeral=True)
 
 class QueueControlView(discord.ui.View):
     def __init__(self, cog, ctx):
@@ -444,7 +351,7 @@ class QueueControlView(discord.ui.View):
         color = random.randint(0, 16777215)
         embed = discord.Embed(title="播放列表", color=color)
         if data["current_track"] is not None:
-            embed.add_field(name="正在播放", value=data["current_track"].stem, inline=False)
+            embed.add_field(name="正在播放", value=data["current_track"]['title'], inline=False)
         if data["play_list"]:
             playlist = data["play_list"]
             total_pages = (len(playlist) - 1) // self.items_per_page + 1
@@ -454,8 +361,8 @@ class QueueControlView(discord.ui.View):
             end_index = start_index + self.items_per_page
             page_items = playlist[start_index:end_index]
             playlist_str = ""
-            for i, file in enumerate(page_items, start=start_index+1):
-                playlist_str += f"{i}. {file.stem}\n"
+            for i, song in enumerate(page_items, start=start_index+1):
+                playlist_str += f"{i}. {song['title']}\n"
             embed.add_field(name="即將播放的歌曲", value=playlist_str, inline=False)
             embed.set_footer(text=f"頁數: {self.current_page + 1}/{total_pages}")
         if not embed.fields:
@@ -550,40 +457,17 @@ class QueueControlView(discord.ui.View):
             await interaction.response.edit_message(embed=embed, view=self)
             return
 
-        # Find all ongoing download tasks
         data = self.cog.get_guild_data(self.ctx.guild)
 
-        # Cancel the timer
         if data["inactive_task"]:
             data["inactive_task"].cancel()
             data["inactive_task"] = None
 
-        # Clear the playback list
         data["play_list"].clear()
 
-        # Stop the current playback and disconnect
         vc = self.ctx.voice_client
         vc.stop()
         await vc.disconnect()
-
-        # Clean up temporary files
-        tmp_path = Path('./tmp')
-        if tmp_path.exists():
-            for file in tmp_path.iterdir():
-                if file.is_file():
-                    try:
-                        file.unlink()
-                    except Exception as e:
-                        print(f"刪除檔案 {file} 失敗: {e}")
-
-        # Cancel all ongoing download tasks
-        try:
-            tasks = [task for task in asyncio.all_tasks() 
-                    if task.get_name().startswith('yt_dlp_download')]
-            for task in tasks:
-                task.cancel()
-        except Exception as e:
-            print(f"取消下載任務失敗: {e}")
 
         self.disable_all_items()
         embed = self.build_queue_embed_with_status("音樂已停止！")
