@@ -110,7 +110,7 @@ class Music(commands.Cog):
     async def get_music_names(self, ctx: discord.AutocompleteContext):
 
         async def _debounced_search(self, ctx: discord.AutocompleteContext):
-            await asyncio.sleep(0.2)  # Debounce delay
+            await asyncio.sleep(0.4)  # Debounce delay
 
             query = ctx.value
             if not query or query.strip() == "":
