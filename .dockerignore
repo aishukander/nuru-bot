@@ -1,5 +1,6 @@
 .github
 .venv
+.git
 **/__pycache__
 toml/Token.toml
 .dockerignore
