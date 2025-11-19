@@ -34,8 +34,11 @@ class Music(commands.Cog):
                 "play_list": [],
                 "current_track": None,
                 "volume": self.default_volume,
-                "inactive_task": None
+                "inactive_task": None,
+                "track_start_event": asyncio.Event()
             }
+        elif "track_start_event" not in self.guild_data[guild.id]:
+            self.guild_data[guild.id]["track_start_event"] = asyncio.Event()
         return self.guild_data[guild.id]
 
     async def play_next(self, vc):
@@ -57,12 +60,14 @@ class Music(commands.Cog):
             _check_inactivity(self, vc.guild.id)
         )
 
-        if vc.is_playing():
+        if vc.is_playing() or vc.is_paused():
             return
 
         if server["play_list"]:
             next_song = server["play_list"].pop(0)
             server["current_track"] = next_song
+            if "track_start_event" in server:
+                server["track_start_event"].set()
             
             try:
                 with yt_dlp.YoutubeDL(self.ydl_opts) as ydl:
@@ -92,6 +97,8 @@ class Music(commands.Cog):
                 await self.play_next(vc)
         else:
             server["current_track"] = None
+            if "track_start_event" in server:
+                server["track_start_event"].set()
             # Reset inactivity timer if no songs left
             if server["inactive_task"]:
                 server["inactive_task"].cancel()
@@ -201,7 +208,7 @@ class Music(commands.Cog):
                 playlist_info = f"歌曲 {song['title']}"
 
             vc = await self.ensure_voice_client(channel, ctx.voice_client)
-            if not vc.is_playing():
+            if not vc.is_playing() and not vc.is_paused():
                 asyncio.create_task(self.play_next(vc))
             
             await ctx.followup.send(f"已加入 {playlist_info} 到播放列表！", ephemeral=True)
@@ -329,13 +336,20 @@ class Music(commands.Cog):
             await ctx.respond("歌曲編號不正確！", ephemeral=True)
             return
 
+        data["play_list"].insert(0, data["play_list"].pop(index - 1))
+
+        if "track_start_event" in data:
+            data["track_start_event"].clear()
+
         if vc.is_playing():
             vc.stop()
-            while vc.is_playing():
-                await asyncio.sleep(0.1)
-    
-        data["play_list"].insert(0, data["play_list"].pop(index - 1))
-        asyncio.create_task(self.play_next(vc))
+
+        try:
+            if "track_start_event" in data:
+                await asyncio.wait_for(data["track_start_event"].wait(), timeout=5.0)
+        except asyncio.TimeoutError:
+            pass
+
         await ctx.respond(f"已播放 {data['current_track']['title']}！", ephemeral=True)
 
 class QueueControlView(discord.ui.View):
@@ -366,10 +380,10 @@ class QueueControlView(discord.ui.View):
         # Add buttons to the view
         self.update_page_buttons()
 
-    def on_timeout(self):
+    async def on_timeout(self):
         self.disable_all_items()
         # If there is an original message, update the view to show the disabled buttons
-        asyncio.create_task(self.update_view_on_timeout())
+        await self.update_view_on_timeout()
 
     async def update_view_on_timeout(self):
         try:
@@ -483,15 +497,14 @@ class QueueControlView(discord.ui.View):
 
         vc = self.ctx.voice_client
         data = self.cog.get_guild_data(self.ctx.guild)
-        old_track = data.get("current_track")
-
-        async def wait_for_track_change(old_track_to_check):
-            while self.cog.get_guild_data(self.ctx.guild).get("current_track") == old_track_to_check:
-                await asyncio.sleep(0.1)
+        
+        if "track_start_event" in data:
+            data["track_start_event"].clear()
 
         vc.stop()
         try:
-            await asyncio.wait_for(wait_for_track_change(old_track), timeout=5.0)
+            if "track_start_event" in data:
+                await asyncio.wait_for(data["track_start_event"].wait(), timeout=5.0)
         except asyncio.TimeoutError:
             pass
 
