@@ -100,6 +100,35 @@ class Music(commands.Cog):
 
     # Music search autocomplete
     async def get_music_names(self, ctx: discord.AutocompleteContext):
+
+        async def _debounced_search(self, ctx: discord.AutocompleteContext):
+            await asyncio.sleep(0.2)  # Debounce delay
+
+            query = ctx.value
+            if not query or query.strip() == "":
+                return []
+            if query.startswith("http://") or query.startswith("https://"):
+                return []
+
+            try:
+                results = await asyncio.to_thread(YTMusic().search, query, filter="songs")
+                results = results[:int(self.Setting["Search_Length"])]
+                seen = set()
+                options = []
+                for entry in results:
+                    title = entry.get("title")
+                    artists = ", ".join(a["name"] for a in entry.get("artists", [])) if entry.get("artists") else ""
+                    display = (f"{title} - {artists}" if artists else title)[:100]
+                    # Avoid duplicate displays
+                    if display and display not in seen:
+                        seen.add(display)
+                        value = entry.get("videoId") or title
+                        options.append(discord.OptionChoice(name=display, value=value))
+                return options
+            except Exception as e:
+                print(f"Error during music search: {e}")
+                return []
+
         interaction_key = (ctx.interaction.user.id, ctx.interaction.channel_id)
 
         # Cancel any existing debounce task for this user/channel
@@ -107,7 +136,7 @@ class Music(commands.Cog):
             self.debounce_tasks[interaction_key].cancel()
 
         # Create a new task to perform the search after a delay
-        new_task = asyncio.create_task(self._debounced_search(ctx))
+        new_task = asyncio.create_task(_debounced_search(self, ctx))
         self.debounce_tasks[interaction_key] = new_task
 
         try:
@@ -121,34 +150,6 @@ class Music(commands.Cog):
             # Clean up the task from the dictionary
             if interaction_key in self.debounce_tasks and self.debounce_tasks[interaction_key] is new_task:
                 del self.debounce_tasks[interaction_key]
-
-    async def _debounced_search(self, ctx: discord.AutocompleteContext):
-        await asyncio.sleep(0.2)  # Debounce delay
-
-        query = ctx.value
-        if not query or query.strip() == "":
-            return []
-        if query.startswith("http://") or query.startswith("https://"):
-            return []
-
-        try:
-            results = await asyncio.to_thread(YTMusic().search, query, filter="songs")
-            results = results[:int(self.Setting["Search_Length"])]
-            seen = set()
-            options = []
-            for entry in results:
-                title = entry.get("title")
-                artists = ", ".join(a["name"] for a in entry.get("artists", [])) if entry.get("artists") else ""
-                display = (f"{title} - {artists}" if artists else title)[:100]
-                # Avoid duplicate displays
-                if display and display not in seen:
-                    seen.add(display)
-                    value = entry.get("videoId") or title
-                    options.append(discord.OptionChoice(name=display, value=value))
-            return options
-        except Exception as e:
-            print(f"Error during music search: {e}")
-            return []
 
     async def ensure_voice_client(self, channel, voice_client):
         if voice_client is None:
@@ -188,7 +189,11 @@ class Music(commands.Cog):
                 for entry in entries:
                     song = {'title': entry.get('title', 'Unknown Title'), 'url': entry.get('webpage_url')}
                     data["play_list"].append(song)
-                playlist_info = f"{len(entries)} 首歌曲"
+
+                if len(entries) == 1:
+                    playlist_info = f"歌曲 {entries[0].get('title', 'Unknown Title')}"
+                else:
+                    playlist_info = f"{len(entries)} 首歌曲"
             else:
                 song = {'title': extracted.get('title', 'Unknown Title'), 'url': extracted.get('webpage_url')}
                 data["play_list"].append(song)
