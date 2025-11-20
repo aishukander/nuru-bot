@@ -4,7 +4,6 @@ Gemini_Text_Name = "gemini-2.5-flash-preview-05-20"
 Gemini_Image_Name = "gemini-2.5-flash-preview-05-20"
 Volume = "50%" # default volume for music playback
 Inactive_Timeout = "300" # voice channel inactivity timeout in seconds
-Music_Concurrent_Downloads = "3" # Number of parallel downloads of music
 Search_Length = "10" # music search length
 
 Gemini_Prompt = [
