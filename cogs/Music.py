@@ -19,6 +19,8 @@ class Music(commands.Cog):
         self.default_volume = float(self.Setting["Volume"].rstrip('%')) / 100
         self.inactive_timeout = int(self.Setting["Inactive_Timeout"]) # channel inactivity timeout in seconds
         self.guild_data = {}  # guild_id -> {"play_list": [], "current_track": None, "volume": <float>, "inactive_task": None}
+        # Per-guild connection locks to avoid parallel connect/move race conditions
+        self._vc_locks = {}  # guild_id -> asyncio.Lock
         self.debounce_tasks = {} # (user_id, channel_id) -> asyncio.Task
         
         # https://github.com/yt-dlp/yt-dlp?tab=readme-ov-file#video-format-options
@@ -70,15 +72,26 @@ class Music(commands.Cog):
                 server["track_start_event"].set()
             
             try:
-                with yt_dlp.YoutubeDL(self.ydl_opts) as ydl:
-                    info_dict = ydl.extract_info(next_song['url'], download=False)
-                    audio_url = None
-                    for f in info_dict.get('formats', []):
-                        if f.get('acodec') != 'none' and f.get('vcodec') == 'none':
-                            audio_url = f['url']
-                            break
-                    if not audio_url:
-                        audio_url = info_dict['url']
+                # Use a thread to avoid blocking the event loop during extraction
+                def _extract():
+                    with yt_dlp.YoutubeDL(self.ydl_opts) as ydl:
+                        return ydl.extract_info(next_song['url'], download=False)
+
+                info_dict = await asyncio.to_thread(_extract)
+                audio_url = None
+                for f in info_dict.get('formats', []):
+                    if f.get('acodec') != 'none' and f.get('vcodec') == 'none':
+                        audio_url = f['url']
+                        break
+                if not audio_url:
+                    audio_url = info_dict['url']
+
+                guild = vc.guild
+                channel = vc.channel
+                vc = guild.voice_client
+
+                if vc is None or not vc.is_connected():
+                    vc = await self.ensure_voice_client(channel, vc)
 
                 source = discord.FFmpegPCMAudio(audio_url, before_options="-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5", options="-vn")
                 transformer = discord.PCMVolumeTransformer(source, volume=server["volume"])
@@ -87,9 +100,25 @@ class Music(commands.Cog):
                     if error:
                         print(f"播放時發生錯誤: {error}")
                     server["current_track"] = None
-                    asyncio.run_coroutine_threadsafe(self.play_next(vc), self.bot.loop)
+                    # Re-fetch the current voice client for this guild for the next play
+                    next_vc = None
+                    try:
+                        next_vc = vc.guild.voice_client
+                    except Exception:
+                        pass
+                    asyncio.run_coroutine_threadsafe(self.play_next(next_vc), self.bot.loop)
 
-                vc.play(transformer, after=after_playing)
+                try:
+                    vc.play(transformer, after=after_playing)
+                except Exception as e:
+                    if hasattr(e, 'args') and 'Not connected to voice' in str(e):
+                        try:
+                            vc = await self.ensure_voice_client(channel, vc)
+                            vc.play(transformer, after=after_playing)
+                        except Exception as ex:
+                            raise
+                    else:
+                        raise
 
             except Exception as e:
                 print(f"準備播放時發生錯誤: {e}")
@@ -160,13 +189,41 @@ class Music(commands.Cog):
                 del self.debounce_tasks[interaction_key]
 
     async def ensure_voice_client(self, channel, voice_client):
-        if voice_client is None:
-            return await channel.connect()
-        if voice_client.channel != channel:
-            await voice_client.move_to(channel)
-        if not voice_client.is_connected(): 
-            return await channel.connect()
-        return voice_client
+        # Ensure a per-guild lock exists
+        guild_id = channel.guild.id
+        # Ensure a single lock object is created per guild; use setdefault to avoid races
+        self._vc_locks.setdefault(guild_id, asyncio.Lock())
+
+        async with self._vc_locks[guild_id]:
+            # Always query the authoritative voice client object from the guild
+            guild = channel.guild
+            vc = guild.voice_client
+
+            # If there is no voice client, connect and return the new one from the guild
+            if vc is None:
+                try:
+                    await channel.connect()
+                except Exception as e:raise
+                vc = guild.voice_client
+                return vc
+
+            # If the existing voice client is in a different channel, move it
+            if vc.channel != channel:
+                try:
+                    await vc.move_to(channel)
+                except Exception as e:
+                    raise
+                # re-fetch in case internals changed
+                vc = guild.voice_client
+
+            # If it's not connected, try to reconnect
+            if not vc.is_connected():
+                try:
+                    await channel.connect()
+                except Exception as e:
+                    raise
+                vc = guild.voice_client
+            return vc
 
     music = discord.SlashCommandGroup("music", "music command group")
 
