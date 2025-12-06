@@ -4,10 +4,19 @@ import tomllib
 import discord
 from discord.ext import commands
 from pathlib import Path
-import google.generativeai as gemini
+from google import genai as gemini
 from functools import wraps
 
 toml_dir = Path(__file__).resolve().parents[1] / "toml"
+
+def Owner_Examine(func):
+    @wraps(func)
+    async def wrapper(self, ctx, *args, **kwargs):
+        if ctx.author.id == int(self.token['Owner_ID']):
+            return await func(self, ctx, *args, **kwargs)
+        else:
+            await ctx.respond("你沒有權限執行這個指令", ephemeral=True)
+    return wrapper
 
 class Gemini(commands.Cog):
     def __init__(self, bot):
@@ -20,48 +29,41 @@ class Gemini(commands.Cog):
         with open(toml_dir / "Token.toml", "rb") as tfile:
             self.token = tomllib.load(tfile)
 
-        self.google_ai_key = self.token["Google_AI_Key"]
+        self.client = gemini.Client(api_key=self.token["Google_AI_Key"])
         self.max_history = int(self.setting["Max_History"])
-
-        gemini.configure(api_key=self.google_ai_key)
-        self.text_generation_config = {
-            "temperature": 0.9,
-            "top_p": 1,
-            "top_k": 1,
-            "max_output_tokens": 512,
-        }
-        self.image_generation_config = {
-            "temperature": 0.4,
-            "top_p": 1,
-            "top_k": 32,
-            "max_output_tokens": 512,
-        }
         self.safety_settings = [
-            {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_NONE"},
-            {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_NONE"},
-            {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_NONE"},
-            {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_NONE"}
+            gemini.types.SafetySetting(
+                category=gemini.types.HarmCategory.HARM_CATEGORY_HARASSMENT,
+                threshold=gemini.types.HarmBlockThreshold.BLOCK_NONE,
+            ),
+            gemini.types.SafetySetting(
+                category=gemini.types.HarmCategory.HARM_CATEGORY_HATE_SPEECH,
+                threshold=gemini.types.HarmBlockThreshold.BLOCK_NONE,
+            ),
+            gemini.types.SafetySetting(
+                category=gemini.types.HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
+                threshold=gemini.types.HarmBlockThreshold.BLOCK_NONE,
+            ),
+            gemini.types.SafetySetting(
+                category=gemini.types.HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
+                threshold=gemini.types.HarmBlockThreshold.BLOCK_NONE,
+            ),
         ]
-        self.text_model = gemini.GenerativeModel(
-            model_name=self.setting["Gemini_Text_Name"],
-            generation_config=self.text_generation_config,
-            safety_settings=self.safety_settings
+        self.text_generation_config = gemini.types.GenerateContentConfig(
+            temperature=0.9,
+            top_p=1,
+            top_k=1,
+            max_output_tokens=self.setting["Gemini_Max_Tokens"],
+            safety_settings=self.safety_settings,
         )
-        self.image_model = gemini.GenerativeModel(
-            model_name=self.setting["Gemini_Image_Name"],
-            generation_config=self.image_generation_config,
-            safety_settings=self.safety_settings
+        self.image_generation_config = gemini.types.GenerateContentConfig(
+            temperature=0.4,
+            top_p=1,
+            top_k=32,
+            max_output_tokens=self.setting["Gemini_Max_Tokens"],
+            safety_settings=self.safety_settings,
         )
         self.prompt_parts = "\n".join(self.setting["Gemini_Prompt"])
-
-    def Owner_Examine(func):
-        @wraps(func)
-        async def wrapper(self, ctx, *args, **kwargs):
-            if ctx.author.id == int(self.token['Owner_ID']):
-                return await func(self, ctx, *args, **kwargs)
-            else:
-                await ctx.respond("你沒有權限執行這個指令", ephemeral=True)
-        return wrapper
 
     @commands.Cog.listener()
     async def on_message(self, message):
@@ -100,28 +102,50 @@ class Gemini(commands.Cog):
                     await self.split_and_send_messages(message, response, 1700)
 
     def validate_response(self, response):
-        if not hasattr(response, "candidates") or not response.candidates:
+        if not response.candidates:
             return "❌ No valid response candidates were returned."
 
         candidate = response.candidates[0]
-        if getattr(candidate, "finish_reason", None) != 0:
-            return f"❌ Response generation was incomplete. Finish reason: {candidate.finish_reason}"
-        return getattr(candidate, "text", "❌ No text content in the response.")
+
+        text_content = ""
+        try:
+            if response.text:
+                text_content = response.text
+        except Exception:
+            pass
+
+        if not text_content and candidate.content and candidate.content.parts:
+            text_content = "".join(part.text for part in candidate.content.parts if part.text)
+
+        return f"❌ Response generation was incomplete. Finish reason: {candidate.finish_reason}"
 
     async def generate_response_with_text(self, message):
         prompt_parts = "\n".join(self.setting["Gemini_Prompt"] + [message])
         try:
-            response = self.text_model.generate_content(prompt_parts)
+            response = self.client.models.generate_content(
+                model=self.setting["Gemini_Text_Name"],
+                contents=prompt_parts,
+                config=self.text_generation_config
+            )
         except Exception as e:
             return f"❌ {str(e)}"
         return self.validate_response(response)
 
     async def generate_response_with_image_and_text(self, image_data, text, mime_type):
         try:
-            image_part = gemini.types.Part.from_bytes(data=image_data, mime_type=mime_type)
+            image_part = gemini.types.Part(
+                inline_data=gemini.types.Blob(
+                    data=image_data,
+                    mime_type=mime_type
+                )
+            )
             prompt_text = text if text else '這是什麼樣的圖片？'
             prompt_parts = [prompt_text, image_part]
-            response = self.image_model.generate_content(prompt_parts)
+            response = self.client.models.generate_content(
+                model=self.setting["Gemini_Image_Name"],
+                contents=prompt_parts,
+                config=self.image_generation_config
+            )
         except Exception as e:
             return f"❌ {str(e)}"
         return self.validate_response(response)
@@ -141,7 +165,7 @@ class Gemini(commands.Cog):
             return "No message history"
 
     async def split_and_send_messages(self, message, text, max_length):
-        # 優先用換行切割
+        # use rfind to split at the last newline before max_length
         messages = []
         while len(text) > max_length:
             split_pos = text.rfind('\n', 0, max_length)
@@ -159,15 +183,15 @@ class Gemini(commands.Cog):
         return pattern.sub("", input_string)
 
     def get_mime_type(self, filename):
-        ext = filename.lower().split('.')[-1]
-        if ext == "png":
-            return "image/png"
-        elif ext == "gif":
-            return "image/gif"
-        elif ext == "webp":
-            return "image/webp"
-        else:
-            return "image/jpeg"
+        match filename.lower().split('.')[-1]:
+            case "png":
+                return "image/png"
+            case "gif":
+                return "image/gif"
+            case "webp":
+                return "image/webp"
+            case _:
+                return "image/jpeg"
 
     @commands.slash_command(
         description="重置你的歷史訊息記錄",

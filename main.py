@@ -104,7 +104,7 @@ async def on_ready():
     # Set the bot's presence
     await bot.change_presence(
         activity = discord.Activity(
-            type = discord.ActivityType.watching, 
+            type = discord.ActivityType.watching,
             name = f"@nuru的訊息 | V : {bot_version}"
         )
     )
@@ -115,9 +115,9 @@ cogs = discord.SlashCommandGroup("cogs", "cogs management instructions")
 
 @cogs.command(description="加載指定的cog")
 @discord.option(
-    "extension", 
-    type=discord.SlashCommandOptionType.string, 
-    description="cogs名稱", 
+    "extension",
+    type=discord.SlashCommandOptionType.string,
+    description="cogs名稱",
     autocomplete = Cogs_NotLoaded
 )
 @Owner_Examine
@@ -130,9 +130,9 @@ async def load(ctx, extension: str):
 
 @cogs.command(description="卸載指定的cog")
 @discord.option(
-    "extension", 
-    type=discord.SlashCommandOptionType.string, 
-    description="cogs名稱", 
+    "extension",
+    type=discord.SlashCommandOptionType.string,
+    description="cogs名稱",
     autocomplete = Cogs_Loaded
 )
 @Owner_Examine
@@ -145,9 +145,9 @@ async def unload(ctx, extension: str):
 
 @cogs.command(description="重載指定的cog")
 @discord.option(
-    "extension", 
-    type=discord.SlashCommandOptionType.string, 
-    description="cogs名稱", 
+    "extension",
+    type=discord.SlashCommandOptionType.string,
+    description="cogs名稱",
     autocomplete = Cogs_Loaded
 )
 @Owner_Examine
@@ -169,7 +169,7 @@ async def show(ctx):
     if not loaded_cogs:
         await ctx.respond("目前沒有已載入的 cog", ephemeral=True)
         return
-    
+
     message = "已載入的 cog 如下：\n"
     for cog in loaded_cogs:
         message += f"• {cog}\n"
