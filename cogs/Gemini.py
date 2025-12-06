@@ -6,6 +6,8 @@ from discord.ext import commands
 from pathlib import Path
 from google import genai as gemini
 from functools import wraps
+import asyncio
+import functools
 
 toml_dir = Path(__file__).resolve().parents[1] / "toml"
 
@@ -75,6 +77,8 @@ class Gemini(commands.Cog):
             or (self.dmc_on and isinstance(message.channel, discord.DMChannel))
         ):
             cleaned_text = self.clean_discord_message(message.content)
+            # Ensure an immediate typing signal is sent and keep it until we're done
+            await message.channel.trigger_typing()
             async with message.channel.typing():
                 if message.attachments:
                     for attachment in message.attachments:
@@ -125,11 +129,14 @@ class Gemini(commands.Cog):
     async def generate_response_with_text(self, message):
         prompt_parts = "\n".join(self.setting["Gemini_Prompt"] + [message])
         try:
-            response = self.client.models.generate_content(
+            # The Google Gemini client is synchronous; run it in a thread so we don't block the event loop
+            call = functools.partial(
+                self.client.models.generate_content,
                 model=self.setting["Gemini_Text_Name"],
                 contents=prompt_parts,
                 config=self.text_generation_config
             )
+            response = await asyncio.to_thread(call)
         except Exception as e:
             return f"❌ {str(e)}"
         return self.validate_response(response)
@@ -144,11 +151,14 @@ class Gemini(commands.Cog):
             )
             prompt_text = text if text else '這是什麼樣的圖片？'
             prompt_parts = [prompt_text, image_part]
-            response = self.client.models.generate_content(
+            # Run the synchronous gemini client in a thread so the typing indicator is maintained
+            call = functools.partial(
+                self.client.models.generate_content,
                 model=self.setting["Gemini_Image_Name"],
                 contents=prompt_parts,
                 config=self.image_generation_config
             )
+            response = await asyncio.to_thread(call)
         except Exception as e:
             return f"❌ {str(e)}"
         return self.validate_response(response)
