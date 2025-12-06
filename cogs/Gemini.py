@@ -50,17 +50,17 @@ class Gemini(commands.Cog):
             ),
         ]
         self.text_generation_config = gemini.types.GenerateContentConfig(
-            temperature=0.9,
-            top_p=1,
-            top_k=1,
-            max_output_tokens=self.setting["Gemini_Max_Tokens"],
+            temperature=self.setting["Gemini_text_config"]["temperature"],
+            top_p=self.setting["Gemini_text_config"]["top_p"],
+            top_k=self.setting["Gemini_text_config"]["top_k"],
+            max_output_tokens=int(self.setting["Gemini_Max_Tokens"]),
             safety_settings=self.safety_settings,
         )
         self.image_generation_config = gemini.types.GenerateContentConfig(
-            temperature=0.4,
-            top_p=1,
-            top_k=32,
-            max_output_tokens=self.setting["Gemini_Max_Tokens"],
+            temperature=self.setting["Gemini_image_config"]["temperature"],
+            top_p=self.setting["Gemini_image_config"]["top_p"],
+            top_k=self.setting["Gemini_image_config"]["top_k"],
+            max_output_tokens=int(self.setting["Gemini_Max_Tokens"]),
             safety_settings=self.safety_settings,
         )
         self.prompt_parts = "\n".join(self.setting["Gemini_Prompt"])
@@ -115,7 +115,10 @@ class Gemini(commands.Cog):
             pass
 
         if not text_content and candidate.content and candidate.content.parts:
-            text_content = "".join(part.text for part in candidate.content.parts if part.text)
+            text_content = "".join(part.text for part in candidate.content.parts if hasattr(part, "text") and part.text)
+
+        if text_content:
+            return text_content
 
         return f"❌ Response generation was incomplete. Finish reason: {candidate.finish_reason}"
 

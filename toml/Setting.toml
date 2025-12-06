@@ -2,7 +2,9 @@ Invitation = "https://discord.com/oauth2/authorize?client_id=999157840063242330"
 Max_History = "100" # Gemini max history length
 Gemini_Text_Name = "gemini-2.5-flash"
 Gemini_Image_Name = "gemini-2.5-flash"
-Gemini_Max_Tokens = "1700"
+Gemini_Max_Tokens = "2048"
+Gemini_text_config = { temperature = 0.9, top_p = 1, top_k = 1 }
+Gemini_image_config = { temperature = 0.4, top_p = 1, top_k = 32 }
 Volume = "50%" # default volume for music playback
 Inactive_Timeout = "300" # voice channel inactivity timeout in seconds
 Search_Length = "10" # music search length
