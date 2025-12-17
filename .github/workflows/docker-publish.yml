@@ -42,6 +42,16 @@ jobs:
             type=ref,event=tag
             type=ref,event=pr
 
+      - name: Prepare build args
+        id: build_args
+        run: |
+          if [ "${{ github.event_name }}" == "release" ]; then
+            VERSION=${GITHUB_REF_NAME#Releases}
+            echo "Bot_version=${VERSION}" >> $GITHUB_OUTPUT
+          else
+            echo "Bot_version=git" >> $GITHUB_OUTPUT
+          fi
+
       - name: Build Docker image
         id: build
         uses: docker/build-push-action@v5
@@ -51,6 +61,7 @@ jobs:
           load: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          build-args: Bot_version=${{ steps.build_args.outputs.Bot_version }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 

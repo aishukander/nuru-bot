@@ -1,5 +1,5 @@
 ARG Python_version=3.13.1-slim
-ARG Bot_version=11.3.1
+ARG Bot_version=development
 
 # Build Stage
 FROM python:${Python_version} AS builder
