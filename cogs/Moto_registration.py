@@ -54,7 +54,7 @@ class Moto_registration(commands.Cog):
             except (ValueError, KeyError):
                 # 如果日期格式不對或鍵不存在，則跳過
                 continue
-        
+
         # 如果有更新，則寫回 toml 檔案
         if updated:
             try:
@@ -83,7 +83,7 @@ class Moto_registration(commands.Cog):
                         continue
 
                     user = await self.bot.fetch_user(int(user_id_str))
-                    
+
                     # 建立嵌入訊息
                     color = random.randint(0, 16777215)
                     embed = discord.Embed(
@@ -107,7 +107,7 @@ class Moto_registration(commands.Cog):
                         for result in date_results:
                             slots_value = "\n".join(result['slots'])
                             field_value += f"**{result['station']}**\n```{slots_value}```\n"
-                        
+
                         # 計算結束日期
                         start_date_obj = datetime.datetime.strptime(date, "%Y-%m-%d").date()
                         # 從 result 中獲取對應的 scope
@@ -122,7 +122,7 @@ class Moto_registration(commands.Cog):
                             value=field_value,
                             inline=False
                         )
-                    
+
                     await user.send(embed=embed)
                 except Exception as e:
                     print(f"an error occurred when sending the result to {user_id_str}: {e}")
@@ -134,7 +134,7 @@ class Moto_registration(commands.Cog):
     def moto_station_autocomplete(self, ctx: discord.AutocompleteContext):
         query = ctx.value
         station_names = self.moto_data["stations"].keys()
-        
+
         filtered_stations = [
             station for station in station_names if query.lower() in station.lower()
         ]
@@ -143,7 +143,7 @@ class Moto_registration(commands.Cog):
             discord.OptionChoice(name=station, value=station)
             for station in filtered_stations
         ][:25]
-    
+
     @staticmethod
     def run_crawler(driver, url, license_code, date_str, region_code, station_code, station_name, scope):
         """根據提供的參數執行爬蟲並返回結果"""
@@ -167,7 +167,7 @@ class Moto_registration(commands.Cog):
             dt_obj = datetime.datetime.strptime(date_str, "%Y-%m-%d")
             roc_year = dt_obj.year - 1911
             roc_date_str = f"{roc_year}{dt_obj.month:02d}{dt_obj.day:02d}"
-        
+
             date_input = driver.find_element(By.ID, "expectExamDateStr")
             date_input.clear()
             date_input.send_keys(roc_date_str)
@@ -176,7 +176,7 @@ class Moto_registration(commands.Cog):
 
             driver.execute_script(f"document.getElementById('dmvNoLv1').value = '{region_code}';")
             driver.execute_script("document.getElementById('dmvNoLv1').dispatchEvent(new Event('change'));")
-            
+
             # 等待監理站下拉選單更新並可見
             wait.until(EC.presence_of_element_located((By.XPATH, f"//select[@id='dmvNo']/option[@value='{station_code}']")))
             driver.execute_script(f"document.getElementById('dmvNo').value = '{station_code}';")
@@ -184,7 +184,7 @@ class Moto_registration(commands.Cog):
 
             search_button = driver.find_element(By.XPATH, "//a[contains(@onclick, 'query();')]")
             driver.execute_script("arguments[0].click();", search_button)
-            
+
             # 等待查詢結果，直到「選擇場次繼續報名」按鈕或結果表格出現
             # 使用 any_of 讓它等待兩個條件其中一個成立即可
             wait.until(EC.any_of(
@@ -199,7 +199,7 @@ class Moto_registration(commands.Cog):
 
                 # 點擊後，等待表格內容載入完成
                 wait.until(EC.presence_of_element_located((By.XPATH, "//table[@id='trnTable']/tbody//a[contains(@onclick, 'preAdd')]")))
-            
+
             except (NoSuchElementException, TimeoutException):
                 # 預期情況：
                 # 1. NoSuchElementException: 頁面上沒有「選擇場次繼續報名」按鈕，表示結果直接顯示在第一頁。
@@ -223,7 +223,7 @@ class Moto_registration(commands.Cog):
                     if len(cols) == 4 and cols[3].find("a", onclick=lambda x: x and "preAdd" in x):
                         test_date_str_full = cols[0].text.strip() # "114年10月13日 (Mon)"
                         test_date_str = test_date_str_full.split(" ")[0] # "114年10月13日"
-                        
+
                         try:
                             # 解析民國年
                             match = re.match(r"(\d+)年(\d+)月(\d+)日", test_date_str)
@@ -236,7 +236,7 @@ class Moto_registration(commands.Cog):
                                 if start_date <= test_date <= end_date:
                                     description = ' '.join(cols[1].text.strip().split())
                                     availability = cols[2].text.strip()
-                                
+
                                     slot_info = (
                                         f"考試日期: {test_date_str_full}\n"
                                         f"場次說明: {description}\n"
@@ -250,7 +250,7 @@ class Moto_registration(commands.Cog):
             print(f"an error occurred while querying {station_name} ({date_str}): {e}")
 
         return found_slots
-    
+
     @staticmethod
     def process_searches():
         """
@@ -267,7 +267,7 @@ class Moto_registration(commands.Cog):
         driver = None
         try:
             options = Options()
-            options.add_argument("-headless") 
+            options.add_argument("-headless")
             driver = webdriver.Firefox(service=FirefoxService(GeckoDriverManager().install()), options=options)
 
             # 遍歷所有搜尋任務
@@ -283,7 +283,7 @@ class Moto_registration(commands.Cog):
                 station_code = config.get("stations", {}).get(station_name)
                 if not station_code:
                     continue
-            
+
                 region_code = str((int(station_code) // 10) * 10)
 
                 # 初始化使用者的結果列表
@@ -309,28 +309,36 @@ class Moto_registration(commands.Cog):
         finally:
             if driver:
                 driver.quit()
-        
+
         return all_results
 
-    @commands.slash_command(description="機車考照預約查詢")
+    moto = discord.SlashCommandGroup("moto", "moto command group")
+
+    @moto.command(
+        description="機車考照預約通知",
+        integration_types={
+            discord.IntegrationType.guild_install,
+            discord.IntegrationType.user_install
+        }
+    )
     @discord.option(
-        "station", 
-        type=discord.SlashCommandOptionType.string, 
-        description="哪個監理站", 
+        "station",
+        type=discord.SlashCommandOptionType.string,
+        description="哪個監理站",
         autocomplete=moto_station_autocomplete
     )
     @discord.option(
-        "date", 
-        type=discord.SlashCommandOptionType.string, 
+        "date",
+        type=discord.SlashCommandOptionType.string,
         description="日期(格式:YYYY-MM-DD)",
     )
     @discord.option(
-        "scope", 
-        type=discord.SlashCommandOptionType.integer, 
+        "scope",
+        type=discord.SlashCommandOptionType.integer,
         description="從開始日期往後查詢幾天(預設為 1, 最多 30 天)",
         default=1
     )
-    async def moto_registration(self, ctx, station: str, date: str, scope: int):
+    async def registration(self, ctx, station: str, date: str, scope: int):
         # Validate date format
         if not re.match(r"^\d{4}-\d{2}-\d{2}$", date):
             await ctx.respond("日期格式錯誤，請使用 YYYY-MM-DD 格式。", ephemeral=True)
@@ -340,7 +348,7 @@ class Moto_registration(commands.Cog):
         except ValueError:
             await ctx.respond("日期無效，請檢查日期是否正確 (例如月份或日期是否超出範圍)。", ephemeral=True)
             return
-        
+
         if station not in self.moto_data["stations"]:
             await ctx.respond(f"找不到監理站: {station}。請確認名稱是否正確。", ephemeral=True)
             return
@@ -369,8 +377,14 @@ class Moto_registration(commands.Cog):
             print(f"an error occurred while writing to the TOML file: {e}")
             await ctx.respond("儲存設定時發生錯誤，請聯絡管理員。", ephemeral=True)
 
-    @commands.slash_command(description="取消機車考照通知")
-    async def cancel_moto_registration(self, ctx):
+    @moto.command(
+        description="取消機車考照通知",
+        integration_types={
+            discord.IntegrationType.guild_install,
+            discord.IntegrationType.user_install
+        }
+    )
+    async def cancel_registration(self, ctx):
             user_id_str = str(ctx.author.id)
             original_count = len(self.moto_data.get("searches", []))
             self.moto_data["searches"] = [
@@ -390,6 +404,39 @@ class Moto_registration(commands.Cog):
                     await ctx.respond("取消設定時發生錯誤，請聯絡管理員。", ephemeral=True)
             else:
                 await ctx.respond("您目前沒有任何機車考照查詢設定。", ephemeral=True)
+
+    @moto.command(
+        description="顯示目前有的考照通知",
+        integration_types={
+            discord.IntegrationType.guild_install,
+            discord.IntegrationType.user_install
+        }
+    )
+    async def show_registration(self, ctx):
+        with open(toml_dir / "Moto_registration.toml", "rb") as tfile:
+            moto_data = tomllib.load(tfile)
+
+        user_id_str = str(ctx.author.id)
+        user_searches = [
+            search for search in moto_data.get("searches", [])
+            if search.get("id") == user_id_str
+        ]
+
+        if not user_searches:
+            await ctx.respond("您目前沒有任何機車考照查詢設定。", ephemeral=True)
+            return
+
+        dividers = "=" * 54
+        message = "目前已經設定的考照通知：\n"
+        for idx, search in enumerate(user_searches, start=1):
+            message += (
+                f"{dividers}\n"
+                f"{idx}. 監理站：{search['station']}, "
+                f"日期：{search['date']}, "
+                f"查詢範圍：{search.get('scope', 1)} 天\n"
+            )
+        message += dividers
+        await ctx.respond(message, ephemeral=True)
 
 def setup(bot):
     bot.add_cog(Moto_registration(bot))

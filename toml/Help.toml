@@ -163,9 +163,13 @@ create_role.how_to_use = "/create_role <身分組名稱>"
 category.explain = "關於摩托車登記的指令。"
 
 moto_registration.explain = "機車考照預約通知。"
-moto_registration.template = "/moto_registration 士林監理站 2025-12-20 5"
-moto_registration.how_to_use = "/moto_registration <所選監理站> <希望考照的日期> <接受往後多少天（預設1天）>"
+moto_registration.template = "/moto registration 士林監理站 2025-12-20 5"
+moto_registration.how_to_use = "/moto registration <所選監理站> <希望考照的日期> <接受往後多少天（預設1天）>"
 
-cancel_moto_registration.explain = "取消所有機車考照預約。"
-cancel_moto_registration.template = "/cancel_moto_registration "
-cancel_moto_registration.how_to_use = "/cancel_moto_registration "
+moto_cancel_registration.explain = "取消所有機車考照預約。"
+moto_cancel_registration.template = "/moto cancel_registration"
+moto_cancel_registration.how_to_use = "/moto cancel_registration"
+
+moto_show_registration.explain = "顯示目前有的考照通知。"
+moto_show_registration.template = "/moto show_registration "
+moto_show_registration.how_to_use = "/moto show_registration "
