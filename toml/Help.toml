@@ -128,11 +128,11 @@ tag_nuru.explain = "🚹 🪧@nuru並加上要傳送的訊息nuru就會回答你
 tag_nuru.template = "@nuru hello"
 tag_nuru.how_to_use = "@nuru <訊息>"
 
-gemini_reset.explain = "🚹清空gemini與你的歷史對話紀錄"
+gemini_reset.explain = "🚹清空gemini與你的歷史對話紀錄。"
 gemini_reset.template = "/gemini_reset"
 gemini_reset.how_to_use = "/gemini_reset"
 
-gemini_private.explain = "🪪設定gemini在私訊時會不會被觸發"
+gemini_private.explain = "🪪設定gemini在私訊時會不會被觸發。"
 gemini_private.template = "/gemini_private off"
 gemini_private.how_to_use = "/gemini_private <on/off>"
 
@@ -158,3 +158,14 @@ move_voice.how_to_use = "/move_voice <來源頻道名稱> <目標頻道名稱>"
 create_role.explain = "🔧建立一個身分組並創建對應的文字和語音頻道，頻道名稱與身分組名稱相同。"
 create_role.template = "/create_role role1"
 create_role.how_to_use = "/create_role <身分組名稱>"
+
+[Moto_registration]
+category.explain = "關於摩托車登記的指令。"
+
+moto_registration.explain = "機車考照預約通知。"
+moto_registration.template = "/moto_registration 士林監理站 2025-12-20 5"
+moto_registration.how_to_use = "/moto_registration <所選監理站> <希望考照的日期> <接受往後多少天（預設1天）>"
+
+cancel_moto_registration.explain = "取消所有機車考照預約。"
+cancel_moto_registration.template = "/cancel_moto_registration "
+cancel_moto_registration.how_to_use = "/cancel_moto_registration "
