@@ -6,6 +6,7 @@ import tomllib
 from pathlib import Path
 from functools import wraps
 import os
+import asyncio
 """======================================================================================="""
 
 intents = discord.Intents.all()
@@ -18,7 +19,12 @@ with open(toml_dir / "Setting.toml", "rb") as tfile:
 with open(toml_dir / "Token.toml", "rb") as tfile:
     Token = tomllib.load(tfile)
 
-bot = discord.Bot()
+try:
+    asyncio.get_event_loop()
+except RuntimeError:
+    asyncio.set_event_loop(asyncio.new_event_loop())
+
+bot = discord.Bot(intents=intents)
 
 # Check user permissions function
 def Owner_Examine(func):
