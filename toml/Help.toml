@@ -158,3 +158,8 @@ move_voice.how_to_use = "/move_voice <來源頻道名稱> <目標頻道名稱>"
 create_role.explain = "🔧建立一個身分組並創建對應的文字和語音頻道，頻道名稱與身分組名稱相同。"
 create_role.template = "/create_role role1"
 create_role.how_to_use = "/create_role <身分組名稱>"
+
+[Oil_Notice]
+oil_price.explain = "🚹顯示油價資訊和油價變動訂閱按鈕"
+oil_price.template = "/oil_price"
+oil_price.how_to_use = "/oil_price"

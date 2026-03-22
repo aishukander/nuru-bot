@@ -1,4 +1,4 @@
-ARG Python_version=3.13.1-slim
+ARG Python_version=3.14.3-slim
 ARG Bot_version=development
 
 # Build Stage
@@ -49,11 +49,12 @@ COPY --from=builder /bot/ /bot/
 
 # install runtime dependencies
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends libopus0 firefox-esr && \
+    apt-get install -y --no-install-recommends libopus0 && \
     rm -rf /var/lib/apt/lists/* && \
     # install Python requirements
     pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt && \
+    python -m playwright install --with-deps chromium && \
     rm -rf /root/.cache/pip/* && \
     chmod +x /bot/entrypoint.sh
 
