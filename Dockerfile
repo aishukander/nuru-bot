@@ -13,15 +13,17 @@ WORKDIR /bot
 
 COPY . .
 
-# compile ffmpeg statically and install required packages
+# Install dependencies, compile ffmpeg, and build Go entrypoint
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends wget xz-utils && \
+    apt-get install -y --no-install-recommends wget xz-utils golang-go && \
     wget https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz && \
     tar xf ffmpeg-release-amd64-static.tar.xz && \
     mv ffmpeg-*-amd64-static/ffmpeg /usr/local/bin/ && \
     mv ffmpeg-*-amd64-static/ffprobe /usr/local/bin/ && \
-    rm -f ffmpeg-release-amd64-static.tar.xz && \
-    rm -rf ffmpeg-*-amd64-static
+    cd entrypoint && go build -o entrypoint-bin main.go && \
+    mv entrypoint-bin /bot/entrypoint-bin && cd .. && \
+    rm -rf entrypoint ffmpeg-release-amd64-static.tar.xz ffmpeg-*-amd64-static && \
+    mv /bot/entrypoint-bin /bot/entrypoint
 
 RUN mkdir -p /tmp/toml && \
     find /bot/toml -type f ! -name 'Token.toml' -exec cp {} /tmp/toml/ \; && \
@@ -47,15 +49,4 @@ COPY --from=builder /usr/local/bin/ffprobe /usr/local/bin/ffprobe
 COPY --from=builder /tmp/toml/ /tmp/toml/
 COPY --from=builder /bot/ /bot/
 
-# install runtime dependencies
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends libopus0 && \
-    rm -rf /var/lib/apt/lists/* && \
-    # install Python requirements
-    pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt && \
-    python -m playwright install --with-deps chromium && \
-    rm -rf /root/.cache/pip/* && \
-    chmod +x /bot/entrypoint.sh
-
-ENTRYPOINT ["/bot/entrypoint.sh"]
+ENTRYPOINT ["/bot/entrypoint"]
