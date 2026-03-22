@@ -19,6 +19,7 @@ services:
     volumes:
       - /opt/nuru-bot/toml:/bot/toml
       - /opt/nuru-bot/CallPicture:/bot/CallPicture
+      - /opt/nuru-bot/playwright-browsers:/bot/playwright-browsers
 ```
 
 Docker cli <br>
@@ -28,5 +29,6 @@ docker run -d \
 --restart=unless-stopped \
 -v /opt/nuru-bot/json:/bot/json \
 -v /opt/nuru-bot/CallPicture:/bot/CallPicture \
+-v /opt/nuru-bot/playwright-browsers:/bot/playwright-browsers \
 ghcr.io/aishukander/nuru-bot:latest
 ```
