@@ -1,14 +1,11 @@
 package main
 
 import (
-	"bufio"
-	"bytes"
 	"fmt"
 	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
-	"strings"
 )
 
 func main() {
@@ -17,11 +14,10 @@ func main() {
 	}
 
 	if needsInstall() {
-		fmt.Println("Requirement check failed. Installing/Repairing dependencies...")
+		fmt.Println("Playwright browsers missing. Installing...")
 		if err := installDependencies(); err != nil {
 			log.Fatalf("Critical error during dependency installation: %v", err)
 		}
-		fmt.Println("Dependencies synchronized.")
 	}
 
 	fmt.Println("Starting bot...")
@@ -71,71 +67,28 @@ func initializeConfig() error {
 }
 
 func needsInstall() bool {
-	// Check libopus0
-	cmd := exec.Command("ldconfig", "-p")
-	output, _ := cmd.Output()
-	if !bytes.Contains(output, []byte("libopus.so.0")) {
-		fmt.Println("libopus0 missing.")
+	// Check Playwright using environment variable or default path
+	path := os.Getenv("PLAYWRIGHT_BROWSERS_PATH")
+	if path == "" {
+		path = "/bot/playwright-browsers"
+	}
+	if _, err := os.Stat(filepath.Join(path, "chromium")); os.IsNotExist(err) {
 		return true
 	}
-
-	// Check Playwright
-	if _, err := os.Stat("/root/.cache/ms-playwright/chromium"); os.IsNotExist(err) {
-		fmt.Println("Playwright browsers missing.")
-		return true
-	}
-
-	// Check Pip dependencies
-	if _, err := os.Stat("/bot/requirements.txt"); err == nil {
-		installed, err := exec.Command("pip", "list", "--format=freeze").Output()
-		if err != nil {
-			fmt.Printf("Warning: could not list pip packages: %v\n", err)
-			return true
-		}
-
-		installedPkgs := make(map[string]bool)
-		scanner := bufio.NewScanner(bytes.NewReader(installed))
-		for scanner.Scan() {
-			pkg := strings.Split(scanner.Text(), "==")[0]
-			installedPkgs[strings.ToLower(pkg)] = true
-		}
-
-		file, err := os.Open("/bot/requirements.txt")
-		defer file.Close()
-		if err != nil {
-			return true
-		}
-
-		scanner = bufio.NewScanner(file)
-		for scanner.Scan() {
-			line := strings.TrimSpace(scanner.Text())
-			if line == "" || strings.HasPrefix(line, "#") {
-				continue
-			}
-			// Simplified package name parsing (removes versions and comments)
-			parts := strings.FieldsFunc(line, func(r rune) bool {
-				return r == '=' || r == '>' || r == '<' || r == '#'
-			})
-			if len(parts) > 0 {
-				reqPkg := strings.ToLower(strings.TrimSpace(parts[0]))
-				if !installedPkgs[reqPkg] {
-					fmt.Printf("Missing dependency: %s\n", reqPkg)
-					return true
-				}
-			}
-		}
-	}
-
 	return false
 }
 
 func installDependencies() error {
+	path := os.Getenv("PLAYWRIGHT_BROWSERS_PATH")
+	if path != "" {
+		fmt.Printf("Ensuring directory exists: %s\n", path)
+		if err := os.MkdirAll(path, 0755); err != nil {
+			return fmt.Errorf("failed to create playwright browsers directory: %w", err)
+		}
+	}
+
 	steps := [][]string{
-		{"apt-get", "update"},
-		{"apt-get", "install", "-y", "--no-install-recommends", "libopus0"},
-		{"pip", "install", "--no-cache-dir", "--upgrade", "pip"},
-		{"pip", "install", "--no-cache-dir", "-r", "/bot/requirements.txt"},
-		{"python", "-m", "playwright", "install", "--with-deps", "chromium"},
+		{"python", "-m", "playwright", "install", "chromium"},
 	}
 
 	for _, args := range steps {
@@ -150,10 +103,8 @@ func installDependencies() error {
 
 	// Cleanup
 	fmt.Println("Cleaning up...")
-	exec.Command("apt-get", "purge", "-y", "--auto-remove").Run()
 	exec.Command("apt-get", "clean").Run()
 	os.RemoveAll("/var/lib/apt/lists/")
-	os.RemoveAll("/root/.cache/pip/")
 
 	return nil
 }

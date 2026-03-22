@@ -39,7 +39,8 @@ ENV \
     PYTHONUNBUFFERED=1 \
     DEBIAN_FRONTEND=noninteractive \
     PIP_ROOT_USER_ACTION=ignore \
-    BOT_VERSION=${Bot_version}
+    BOT_VERSION=${Bot_version} \
+    PLAYWRIGHT_BROWSERS_PATH=/bot/playwright-browsers
 
 WORKDIR /bot
 
@@ -48,5 +49,13 @@ COPY --from=builder /usr/local/bin/ffmpeg /usr/local/bin/ffmpeg
 COPY --from=builder /usr/local/bin/ffprobe /usr/local/bin/ffprobe
 COPY --from=builder /tmp/toml/ /tmp/toml/
 COPY --from=builder /bot/ /bot/
+
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends libopus0 && \
+    pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt && \
+    python -m playwright install-deps chromium && \
+    rm -rf /var/lib/apt/lists/* && \
+    rm -rf /root/.cache/pip/
 
 ENTRYPOINT ["/bot/entrypoint"]

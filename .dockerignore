@@ -8,3 +8,4 @@ toml/Token.toml
 docker-compose.yml
 Dockerfile
 README.md
+playwright-browsers/*

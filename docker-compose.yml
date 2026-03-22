@@ -7,3 +7,4 @@ services:
     volumes:
       - ./toml:/bot/toml
       - ./CallPicture:/bot/CallPicture
+      - ./playwright-browsers:/bot/playwright-browsers
