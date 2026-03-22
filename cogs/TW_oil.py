@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands, tasks
 from playwright.async_api import async_playwright
 import random
-from datetime import time, datetime
+from datetime import time, datetime, timedelta
 import zoneinfo
 import tomllib
 import tomli_w
@@ -35,7 +35,9 @@ class TW_oil(commands.Cog):
                 date = await date_p.inner_text()
 
                 if "已公告" in date:
-                    date = datetime.now(zoneinfo.ZoneInfo("Asia/Taipei")).strftime("%Y/%m/%d")
+                    today = datetime.now(zoneinfo.ZoneInfo("Asia/Taipei"))
+                    days_until_next_monday = 7 - today.weekday()
+                    date = (today + timedelta(days=days_until_next_monday)).strftime("%Y/%m/%d")
                 else:
                     date = date.split(",")[0].replace("下週一", "").strip()
 
