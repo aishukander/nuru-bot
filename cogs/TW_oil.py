@@ -36,8 +36,16 @@ class TW_oil(commands.Cog):
 
                 if "已公告" in date:
                     today = datetime.now(zoneinfo.ZoneInfo("Asia/Taipei"))
-                    days_until_next_monday = 7 - today.weekday()
-                    date = (today + timedelta(days=days_until_next_monday)).strftime("%Y/%m/%d")
+                    match date:
+                        case data if "今日" in data:
+                            date = today.strftime("%Y/%m/%d")
+                        case data if "明日" in data:
+                            date = (today + timedelta(days=1)).strftime("%Y/%m/%d")
+                        case data if "下週一" in data:
+                            days_until_next_monday = 7 - today.weekday()
+                            date = (today + timedelta(days=days_until_next_monday)).strftime("%Y/%m/%d")
+                        case _:
+                            date = date.strip()
                 else:
                     date = date.split(",")[0].replace("下週一", "").strip()
 
@@ -64,7 +72,7 @@ class TW_oil(commands.Cog):
             title="⛽ 油價變動通知",
             description=f"預計下週: **{price_future}**",
             color=discord.Color.red() if "漲" in price_future else discord.Color.green(),
-            timestamp=datetime.now()
+            timestamp=datetime.now(zoneinfo.ZoneInfo("Asia/Taipei"))
         )
         embed.add_field(name="生效日期", value=date, inline=False)
         embed.add_field(name="今日中油價格", value="\n".join(price_now), inline=False)
