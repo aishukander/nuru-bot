@@ -34,20 +34,21 @@ class TW_oil(commands.Cog):
                 date_p = price_Increase.locator(".main p").first
                 date = await date_p.inner_text()
 
-                if "已公告" in date:
-                    today = datetime.now(zoneinfo.ZoneInfo("Asia/Taipei"))
-                    match date:
-                        case data if "今日" in data:
-                            date = today.strftime("%Y/%m/%d")
-                        case data if "明日" in data:
-                            date = (today + timedelta(days=1)).strftime("%Y/%m/%d")
-                        case data if "下週一" in data:
-                            days_until_next_monday = 7 - today.weekday()
-                            date = (today + timedelta(days=days_until_next_monday)).strftime("%Y/%m/%d")
-                        case _:
+                today = datetime.now(zoneinfo.ZoneInfo("Asia/Taipei"))
+                match date:
+                    case data if "已公告" in data and "今日" in data:
+                        date = today.strftime("%Y/%m/%d")
+                    case data if "已公告" in data and "明日" in data:
+                        date = (today + timedelta(days=1)).strftime("%Y/%m/%d")
+                    case data if "已公告" in data and "下週一" in data:
+                        days_until_next_monday = 7 - today.weekday()
+                        date = (today + timedelta(days=days_until_next_monday)).strftime("%Y/%m/%d")
+                    case _:
+                        date_match = re.search(r"(?P<year>\d{4})\s*年\s*(?P<month>\d{2})\s*月\s*(?P<day>\d{2})\s*日", date)
+                        if date_match:
+                            date = f"{date_match.group('year')}/{date_match.group('month')}/{date_match.group('day')}"
+                        else:
                             date = date.strip()
-                else:
-                    date = date.split(",")[0].replace("下週一", "").strip()
 
                 price_future = await price_Increase.locator(".main h2").first.inner_text()
             
@@ -98,11 +99,13 @@ class TW_oil(commands.Cog):
         if not self.oil_setting.get("User_IDs"):
             return
 
+        no_change = "不 調 整" in self.oil_data["price_future"]
         match = re.search(r"(?P<price>\d+\.\d+)", self.oil_data["price_future"])
-        if match:
-            predicted_value = match.group("price")
 
-            if predicted_value != "0.0":
+        if match or no_change:
+            predicted_value = match.group("price") if match else "0.0"
+
+            if predicted_value != "0.0" or no_change:
                 try:
                     user_ids = self.oil_setting.get("User_IDs", [])
 
