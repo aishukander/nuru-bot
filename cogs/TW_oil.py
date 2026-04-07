@@ -48,12 +48,6 @@ class TW_oil(commands.Cog):
                             date = f"{date_match.group('year')}/{date_match.group('month')}/{date_match.group('day')}"
                         else:
                             date = date.strip()
-                else:
-                    date_match = re.search(r"(?P<year>\d{4})\s*年\s*(?P<month>\d{2})\s*月\s*(?P<day>\d{2})\s*日", date)
-                    if date_match:
-                        date = f"{date_match.group('year')}/{date_match.group('month')}/{date_match.group('day')}"
-                    else:
-                        date = date.split(",")[0].replace("下週一", "").strip()
 
                 price_future = await price_Increase.locator(".main h2").first.inner_text()
             
