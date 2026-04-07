@@ -1,2 +1,6 @@
 data_up = ""
+<<<<<<< HEAD
+=======
+last_price_future = ""
+>>>>>>> 51df58b (fix oil check logic)
 User_IDs = []

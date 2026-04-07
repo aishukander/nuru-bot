@@ -9,7 +9,7 @@ import tomli_w
 import re
 
 class TW_oil(commands.Cog):
-    target_time = time(hour=12, minute=0, tzinfo=zoneinfo.ZoneInfo("Asia/Taipei"))
+    target_time = time(hour=13, minute=30, tzinfo=zoneinfo.ZoneInfo("Asia/Taipei"))
     def __init__(self, bot):
         self.bot = bot
         self.oil_price_check.start()
@@ -31,8 +31,7 @@ class TW_oil(commands.Cog):
                 await price_Increase.wait_for(state="visible", timeout=5000)
                 await price_today.wait_for(state="visible", timeout=5000)
 
-                date_p = price_Increase.locator(".main p").first
-                date = await date_p.inner_text()
+                date = await price_Increase.locator(".main p").first.inner_text()
 
                 today = datetime.now(zoneinfo.ZoneInfo("Asia/Taipei"))
                 match date:
@@ -49,6 +48,12 @@ class TW_oil(commands.Cog):
                             date = f"{date_match.group('year')}/{date_match.group('month')}/{date_match.group('day')}"
                         else:
                             date = date.strip()
+                else:
+                    date_match = re.search(r"(?P<year>\d{4})\s*年\s*(?P<month>\d{2})\s*月\s*(?P<day>\d{2})\s*日", date)
+                    if date_match:
+                        date = f"{date_match.group('year')}/{date_match.group('month')}/{date_match.group('day')}"
+                    else:
+                        date = date.split(",")[0].replace("下週一", "").strip()
 
                 price_future = await price_Increase.locator(".main h2").first.inner_text()
             
@@ -87,10 +92,13 @@ class TW_oil(commands.Cog):
         with open("toml/Oil_Notice.toml", "rb") as f:
             self.oil_setting = tomllib.load(f)
 
-        if self.oil_data["date"] == self.oil_setting.get("data_up"):
+        now_info = (self.oil_data.get("date"), self.oil_data.get("price_future"))
+        last_info = (self.oil_setting.get("data_up"), self.oil_setting.get("last_price_future"))
+        if now_info == last_info:
             return
         else:
-            self.oil_setting["data_up"] = self.oil_data["date"]
+            self.oil_setting["last_price_future"] = self.oil_data.get("price_future")
+            self.oil_setting["data_up"] = self.oil_data.get("date")
             with open("toml/Oil_Notice.toml", "wb") as f:
                 tomli_w.dump(self.oil_setting, f)
 
@@ -99,37 +107,31 @@ class TW_oil(commands.Cog):
         if not self.oil_setting.get("User_IDs"):
             return
 
-        no_change = "不 調 整" in self.oil_data["price_future"]
-        match = re.search(r"(?P<price>\d+\.\d+)", self.oil_data["price_future"])
+        if self.oil_data["price_future"]:
+            try:
+                user_ids = self.oil_setting.get("User_IDs", [])
 
-        if match or no_change:
-            predicted_value = match.group("price") if match else "0.0"
+                embed = self.embed_create(
+                    price_future=self.oil_data["price_future"],
+                    date=self.oil_data["date"],
+                    price_now=self.oil_data["price_now"]
+                )
 
-            if predicted_value != "0.0" or no_change:
-                try:
-                    user_ids = self.oil_setting.get("User_IDs", [])
+                for user_id in user_ids:
+                    user = self.bot.get_user(int(user_id))
+                    if user is None:
+                        try:
+                            user = await self.bot.fetch_user(int(user_id))
+                        except:
+                            continue
 
-                    embed = self.embed_create(
-                        price_future=self.oil_data["price_future"],
-                        date=self.oil_data["date"],
-                        price_now=self.oil_data["price_now"]
-                    )
-
-                    for user_id in user_ids:
-                        user = self.bot.get_user(int(user_id))
-                        if user is None:
-                            try:
-                                user = await self.bot.fetch_user(int(user_id))
-                            except:
-                                continue
-                        
-                        if user:
-                            try:
-                                await user.send(embed=embed)
-                            except Exception as dm_e:
-                                print(f"Could not send DM to {user_id}: {dm_e}")
-                except Exception as e:
-                    print(f"Failed to load Oil_Notice.toml or send notifications: {e}")
+                    if user:
+                        try:
+                            await user.send(embed=embed)
+                        except Exception as dm_e:
+                            print(f"Could not send DM to {user_id}: {dm_e}")
+            except Exception as e:
+                print(f"Failed to load Oil_Notice.toml or send notifications: {e}")
 
     @oil_price_check.before_loop
     async def wait_for_ready(self):
