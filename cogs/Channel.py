@@ -5,6 +5,7 @@ import tomllib
 import tomli_w
 from pathlib import Path
 from functools import wraps
+import re
 
 toml_dir = Path(__file__).resolve().parents[1] / "toml"
 
@@ -167,18 +168,45 @@ class Channel(commands.Cog):
         await ctx.respond(f"已更新 [{parent_channel_name}] 的子頻道名稱範本為 「{new_voice_name}」", ephemeral=True)
 
     @commands.slash_command(description="將語音頻道內所有人移動到另一頻道")
-    @discord.option("source", discord.SlashCommandOptionType.channel, description="來源頻道", channel_types=[discord.ChannelType.voice])
-    @discord.option("target", discord.SlashCommandOptionType.channel, description="目標頻道", channel_types=[discord.ChannelType.voice])
+    @discord.option(
+        "source",
+        discord.SlashCommandOptionType.channel,
+        description="來源頻道", 
+        channel_types=[discord.ChannelType.voice],
+        required=True
+    )
+    @discord.option(
+        "target", 
+        discord.SlashCommandOptionType.channel, 
+        description="目標頻道", 
+        channel_types=[discord.ChannelType.voice],
+        required=True
+    )
+    @discord.option(
+        "excl_users",
+        type=discord.SlashCommandOptionType.string,
+        description="排除的使用者",
+        required=False
+    )
     @guild_admin_examine
-    async def move_voice(self, ctx: discord.ApplicationContext, source: discord.VoiceChannel, target: discord.VoiceChannel):
+    async def move_voice(self, ctx: discord.ApplicationContext, source: discord.VoiceChannel, target: discord.VoiceChannel, excl_users: str = None):
         if not source.members:
             await ctx.respond(f"[{source.name}] 目前沒有人在裡面", ephemeral=True)
             return
 
+        excl_list = []
+        if excl_users:
+            excl_list = [int(uid) for uid in re.findall(r"\d+", excl_users)]
+
         try:
-            await asyncio.gather(*[m.move_to(target) for m in source.members])
-            await ctx.respond(f"已將 [{source.name}] 的所有人移動到 [{target.name}]", ephemeral=True)
-        except (discord.Forbidden, discord.HTTPException) as e:
+            members_to_move = [members for members in source.members if members.id not in excl_list]
+            if not members_to_move:
+                await ctx.respond(f"[{source.name}] 中剩餘的人都在排除名單中", ephemeral=True)
+                return
+
+            await asyncio.gather(*[m.move_to(target) for m in members_to_move])
+            await ctx.respond(f"已將 [{source.name}] 的人移動到 [{target.name}] (已排除 {len(excl_list)} 位使用者)", ephemeral=True)
+        except Exception as e:
             await ctx.respond(f"移動失敗: {e}", ephemeral=True)
 
     @commands.slash_command(description="建立身分組並創建對應文字/語音頻道")
