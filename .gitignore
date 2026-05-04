@@ -4,3 +4,4 @@ modules/__pycache__/*.pyc
 tmp/*
 .venv
 playwright-browsers/*
+.vscode/*
