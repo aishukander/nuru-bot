@@ -13,18 +13,27 @@ WORKDIR /bot
 
 COPY . .
 
-# Install dependencies, compile ffmpeg, and build Go entrypoint
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends wget xz-utils golang-go && \
-    wget https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz && \
+# Install build dependencies
+RUN apt update && \
+    apt install -y --no-install-recommends wget xz-utils golang-go && \
+    rm -rf /var/lib/apt/lists/*
+
+# Install ffmpeg
+RUN wget https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz && \
     tar xf ffmpeg-release-amd64-static.tar.xz && \
     mv ffmpeg-*-amd64-static/ffmpeg /usr/local/bin/ && \
     mv ffmpeg-*-amd64-static/ffprobe /usr/local/bin/ && \
-    cd entrypoint && go build -o entrypoint-bin main.go && \
-    mv entrypoint-bin /bot/entrypoint-bin && cd .. && \
-    rm -rf entrypoint ffmpeg-release-amd64-static.tar.xz ffmpeg-*-amd64-static && \
+    rm -rf ffmpeg-release-amd64-static.tar.xz ffmpeg-*-amd64-static
+
+# build Go entrypoint
+RUN cd entrypoint && \
+    CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o entrypoint-bin . && \
+    mv entrypoint-bin /bot/entrypoint-bin && \
+    cd .. && \
+    rm -rf entrypoint && \
     mv /bot/entrypoint-bin /bot/entrypoint
 
+# processing toml
 RUN mkdir -p /tmp/toml && \
     find /bot/toml -type f ! -name 'Token.toml' -exec cp {} /tmp/toml/ \; && \
     mv /bot/toml/default_Token.toml /tmp/toml/Token.toml && \
@@ -50,8 +59,8 @@ COPY --from=builder /usr/local/bin/ffprobe /usr/local/bin/ffprobe
 COPY --from=builder /tmp/toml/ /tmp/toml/
 COPY --from=builder /bot/ /bot/
 
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends libopus0 && \
+RUN apt update && \
+    apt install -y --no-install-recommends libopus0 && \
     pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt && \
     python -m playwright install-deps chromium && \
